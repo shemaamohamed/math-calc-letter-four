@@ -4,9 +4,9 @@ const fs = require('fs');
  * Arabic Character Normalization according to User Rules
  */
 function normalizeChar(ch) {
-    if (['ا', 'أ', 'إ', 'آ', 'ٱ', 'ء', 'ئ', 'ؤ', 'ى'].includes(ch)) return 'أ';
+    if (['ا', 'أ', 'إ', 'آ', 'ٱ', 'ء', 'ئ', 'ؤ', 'ى', 'ٴ'].includes(ch)) return 'أ';
     if (['ت', 'ة'].includes(ch)) return 'ت';
-    if (['ه', 'ۥ'].includes(ch)) return 'ه';
+    if (['ه', 'ە', 'ھ', 'ۥ'].includes(ch)) return 'ه';
     return ch;
 }
 
@@ -60,6 +60,10 @@ class Fraction {
         return new Fraction(this.num * other.den + other.num * this.den, this.den * other.den);
     }
 
+    sub(other) {
+        return new Fraction(this.num * other.den - other.num * this.den, this.den * other.den);
+    }
+
     mul(other) {
         return new Fraction(this.num * other.num, this.den * other.den);
     }
@@ -72,7 +76,7 @@ class Fraction {
         return `${this.num}/${this.den}`;
     }
 
-    sqrtDecimalString(precision = 50) {
+    sqrtDecimalString(precision = 60) {
         const p = BigInt(precision);
         const scale = 10n ** (p * 2n);
         const scaledNum = (this.num * scale) / this.den;
@@ -90,11 +94,9 @@ class Fraction {
 }
 
 /**
- * Reduce first 10 digits after dot to a single digit sum
+ * Reduce a sequence of digits to its single digit root
  */
-function reduceToSingleDigit(fracPart) {
-    const first10Digits = fracPart.substring(0, 10);
-    const digits = first10Digits.split('').map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+function reduceDigitsArray(digits) {
     let sum = digits.reduce((acc, val) => acc + val, 0);
     const steps = [sum];
 
@@ -104,119 +106,190 @@ function reduceToSingleDigit(fracPart) {
     }
 
     return {
-        first10Digits,
         steps,
         singleDigit: steps[steps.length - 1] || 0
     };
 }
 
 /**
- * Main Calculator Execution Function (3 Steps)
+ * Extraction Mode 1: First 10 Total Digits (including integer part)
  */
-function processWord(text) {
+function extractFirst10Total(intPart, fracPart) {
+    const combined = (intPart + fracPart).replace(/[^0-9]/g, '');
+    const first10 = combined.substring(0, 10);
+    const digits = first10.split('').map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+    const { steps, singleDigit } = reduceDigitsArray(digits);
+    const intLen = intPart.length;
+    const displayValue = intLen >= 10 ? first10 : `${first10.substring(0, intLen)}.${first10.substring(intLen)}`;
+    return { first10, displayValue, digits, steps, singleDigit };
+}
+
+/**
+ * Extraction Mode 2: First 10 Digits AFTER Decimal Point (.)
+ */
+function extractFirst10AfterDot(intPart, fracPart) {
+    const first10Frac = fracPart.substring(0, 10);
+    const digits = first10Frac.split('').map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+    const { steps, singleDigit } = reduceDigitsArray(digits);
+    const displayValue = `${intPart}.${first10Frac}`;
+    return { first10: first10Frac, displayValue, digits, steps, singleDigit };
+}
+
+/**
+ * Main Calculator Execution Function (5 Steps & 4 Answer Gates)
+ */
+function processWord(text, selectedIndices = null) {
     const cleanText = text.replace(/[\u064B-\u0652\u0640]/g, '');
     const rawChars = cleanText.split('').filter(c => c.trim() !== '');
     const chars = rawChars.map(normalizeChar);
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: Natural Count (عد طبيعي)
-    const step1Pos = chars.map((_, i) => i + 1);
+    // Step 1: Position * 4 and sum S1
+    const step1Values = chars.map((_, i) => (i + 1) * 4);
+    const S1_num = step1Values.reduce((a, b) => a + b, 0);
+    const S1 = new Fraction(S1_num, 1);
+    const p_last = BigInt(step1Values[n - 1]);
 
-    // Step 2: Natural Sum per unique normalized letter from step 1 (جمع القيم طبيعي من خطوة 1)
-    const step2Map = {};
+    // Step 2: (p_i / p_last) * p_i and sum S2
+    const step2Fractions = step1Values.map(p_i => {
+        const p = BigInt(p_i);
+        return new Fraction(p * p, p_last);
+    });
+    let S2 = new Fraction(0n, 1n);
+    step2Fractions.forEach(f => S2 = S2.add(f));
+
+    // Step 3: (v2 / S2) * S1
+    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(S1));
+    const v3_last = step3Fractions[n - 1];
+
+    // Step 4: Group identical characters and sum step 3
+    const charGroupsMap = {};
     chars.forEach((c, idx) => {
-        step2Map[c] = (step2Map[c] || 0) + step1Pos[idx];
+        const v3 = step3Fractions[idx];
+        if (charGroupsMap[c]) {
+            charGroupsMap[c].sum = charGroupsMap[c].sum.add(v3);
+            charGroupsMap[c].positions.push(idx + 1);
+        } else {
+            charGroupsMap[c] = {
+                sum: v3,
+                positions: [idx + 1]
+            };
+        }
     });
 
-    // Step 3: Extract Percentages & Terms (استخلاص النسب المئوية وضربها في قيمة خطوة 2 ثم الجمع)
-    const totalLengthFrac = new Fraction(n, 1);
-    let totalFraction = new Fraction(0n, 1n);
-
-    const step3Details = chars.map((c, idx) => {
-        const pctFraction = new Fraction(BigInt(step1Pos[idx]), BigInt(n));
-        const letterStep2Val = BigInt(step2Map[c]);
-        const termFraction = pctFraction.mul(new Fraction(letterStep2Val, 1n));
-        totalFraction = totalFraction.add(termFraction);
+    // Step 5: Percentage per position relative to last char, multiplied by step 4 char sum
+    const defaultSelected = selectedIndices || chars.map((_, i) => i);
+    const step5Details = chars.map((c, idx) => {
+        const pos = idx + 1;
+        const step3Val = step3Fractions[idx];
+        const ratio = step3Val.div(v3_last);
+        const percentageDisplay = `${ratio.mul(new Fraction(100n, 1n)).toString()}%`;
+        const charSum = charGroupsMap[c].sum;
+        const finalValue = charSum.mul(ratio);
+        const isSelected = defaultSelected.includes(idx);
 
         return {
-            pos: idx + 1,
+            pos,
             char: c,
-            letterSumStep2: letterStep2Val.toString(),
-            percentageFraction: pctFraction.toString(),
-            percentageDisplay: `${pctFraction.mul(new Fraction(100n, 1n)).toString()}%`,
-            termFraction: termFraction.toString()
+            step1: step1Values[idx],
+            step2: step2Fractions[idx].toString(),
+            step3: step3Val.toString(),
+            step4Group: charSum.toString(),
+            percentage: percentageDisplay,
+            finalValue: finalValue.toString(),
+            finalValueFrac: finalValue,
+            isSelected
         };
     });
 
-    // Answer 1 Calculation: Square Root of Final Fraction
-    const sqrtInfo1 = totalFraction.sqrtDecimalString(50);
-    const digitSum1 = reduceToSingleDigit(sqrtInfo1.fracPart);
+    // Sum of selected items S and count N
+    const selectedItems = step5Details.filter(item => item.isSelected);
+    const N = selectedItems.length > 0 ? selectedItems.length : 1;
+    let S = new Fraction(0n, 1n);
+    selectedItems.forEach(item => S = S.add(item.finalValueFrac));
+    const SDivN = S.div(new Fraction(BigInt(N), 1n));
 
-    // Answer 2 Calculation: Divide Final Fraction by total letter count n, then Square Root
-    const dividedFraction = totalFraction.div(totalLengthFrac);
-    const sqrtInfo2 = dividedFraction.sqrtDecimalString(50);
-    const digitSum2 = reduceToSingleDigit(sqrtInfo2.fracPart);
+    // Answer 1: sqrt(S) - First 10 Total Digits
+    const sqrtS = S.sqrtDecimalString(60);
+    const ans1Info = extractFirst10Total(sqrtS.intPart, sqrtS.fracPart);
+
+    // Answer 2: sqrt(S / N) - First 10 Total Digits
+    const sqrtSDivN = SDivN.sqrtDecimalString(60);
+    const ans2Info = extractFirst10Total(sqrtSDivN.intPart, sqrtSDivN.fracPart);
+
+    // Answer 3: sqrt(S) - First 10 Digits AFTER dot
+    const ans3Info = extractFirst10AfterDot(sqrtS.intPart, sqrtS.fracPart);
+
+    // Answer 4: sqrt(S / N) - First 10 Digits AFTER dot
+    const ans4Info = extractFirst10AfterDot(sqrtSDivN.intPart, sqrtSDivN.fracPart);
 
     return {
         wordInput: text,
         normalizedChars: chars,
         totalChars: n,
-        step1: step1Pos,
-        step2: step2Map,
-        step3: step3Details,
-        finalFraction: totalFraction.toString(),
+        S1: S1.toString(),
+        S2: S2.toString(),
+        v3_last: v3_last.toString(),
+        charGroups: charGroupsMap,
+        step5Details,
+        selectedCount: selectedItems.length,
+        sumS: S.toString(),
+        SDivN: SDivN.toString(),
         
         answer1: {
-            exactFraction: `√(${totalFraction.toString()})`,
-            baseFraction: totalFraction.toString(),
-            decimalFull: sqrtInfo1.fullString,
-            first10Digits: digitSum1.first10Digits,
-            fullDisplay10: `${sqrtInfo1.intPart}.${digitSum1.first10Digits}`,
-            digitSumSteps: digitSum1.steps,
-            singleDigit: digitSum1.singleDigit
+            exactFraction: `√(${S.toString()})`,
+            fullDisplay10: ans1Info.displayValue,
+            first10Digits: ans1Info.first10,
+            digitSumSteps: ans1Info.steps,
+            singleDigit: ans1Info.singleDigit
         },
-
         answer2: {
-            exactFraction: `√(${dividedFraction.toString()})`,
-            baseFraction: `${totalFraction.toString()} ÷ ${n} = ${dividedFraction.toString()}`,
-            decimalFull: sqrtInfo2.fullString,
-            first10Digits: digitSum2.first10Digits,
-            fullDisplay10: `${sqrtInfo2.intPart}.${digitSum2.first10Digits}`,
-            digitSumSteps: digitSum2.steps,
-            singleDigit: digitSum2.singleDigit
+            exactFraction: `√(${SDivN.toString()})`,
+            baseFormula: `${S.toString()} ÷ ${selectedItems.length} = ${SDivN.toString()}`,
+            fullDisplay10: ans2Info.displayValue,
+            first10Digits: ans2Info.first10,
+            digitSumSteps: ans2Info.steps,
+            singleDigit: ans2Info.singleDigit
+        },
+        answer3: {
+            exactFraction: `√(${S.toString()})`,
+            fullDisplay10: ans3Info.displayValue,
+            first10Digits: ans3Info.first10,
+            digitSumSteps: ans3Info.steps,
+            singleDigit: ans3Info.singleDigit
+        },
+        answer4: {
+            exactFraction: `√(${SDivN.toString()})`,
+            baseFormula: `${S.toString()} ÷ ${selectedItems.length} = ${SDivN.toString()}`,
+            fullDisplay10: ans4Info.displayValue,
+            first10Digits: ans4Info.first10,
+            digitSumSteps: ans4Info.steps,
+            singleDigit: ans4Info.singleDigit
         }
     };
 }
 
 // Command-line execution
-const inputWord = process.argv[2] || 'مدد';
+const inputWord = process.argv[2] || 'جليل';
 const result = processWord(inputWord);
 
 console.log("==================================================");
-console.log("   ARABIC ARBITRARY-PRECISION MATHEMATICAL CALCULATOR (3 STEPS)");
+console.log("   ARABIC ARBITRARY-PRECISION 5-STEP ENGINE");
 console.log("==================================================");
 console.log(`INPUT WORD: ${result.wordInput}`);
-console.log(`NORMALIZED CHARACTERS: [${result.normalizedChars.join(', ')}]`);
+console.log(`NORMALIZED CHARS: [${result.normalizedChars.join(', ')}]`);
+console.log(`S1: ${result.S1}, S2: ${result.S2}`);
 console.log("--------------------------------------------------");
-console.log(`STEP 1 (Natural Count): ${result.step1.join(', ')}`);
-console.log(`STEP 2 (Natural Sum per letter):`, result.step2);
-console.log(`FINAL EXACT FRACTION: ${result.finalFraction}`);
+result.step5Details.forEach(item => {
+    console.log(`Pos ${item.pos} (${item.char}): Step1=${item.step1}, Step2=${item.step2}, Step3=${item.step3}, Step4Group=${item.step4Group}, Ratio=${item.percentage} => Final=${item.finalValue}`);
+});
 console.log("--------------------------------------------------");
-console.log("ANSWER 1 (Square Root of Final Fraction):");
-console.log(`  - Exact Fraction : ${result.answer1.exactFraction}`);
-console.log(`  - 10-Digit Value : ${result.answer1.fullDisplay10}`);
-console.log(`  - First 10 Frac  : ${result.answer1.first10Digits}`);
-console.log(`  - Digit Sum Steps: ${result.answer1.digitSumSteps.join(' -> ')}`);
-console.log(`  - Single Digit   : ${result.answer1.singleDigit}`);
-console.log("--------------------------------------------------");
-console.log("ANSWER 2 (Square Root of Final Fraction ÷ Letter Count):");
-console.log(`  - Base Division  : ${result.answer2.baseFraction}`);
-console.log(`  - Exact Fraction : ${result.answer2.exactFraction}`);
-console.log(`  - 10-Digit Value : ${result.answer2.fullDisplay10}`);
-console.log(`  - First 10 Frac  : ${result.answer2.first10Digits}`);
-console.log(`  - Digit Sum Steps: ${result.answer2.digitSumSteps.join(' -> ')}`);
-console.log(`  - Single Digit   : ${result.answer2.singleDigit}`);
+console.log(`SELECTED SUM S: ${result.sumS}`);
+console.log(`ANSWER 1: ${result.answer1.exactFraction} => ${result.answer1.fullDisplay10} | Sum=${result.answer1.digitSumSteps.join('->')} => ${result.answer1.singleDigit}`);
+console.log(`ANSWER 2: ${result.answer2.exactFraction} => ${result.answer2.fullDisplay10} | Sum=${result.answer2.digitSumSteps.join('->')} => ${result.answer2.singleDigit}`);
+console.log(`ANSWER 3: ${result.answer3.exactFraction} => ${result.answer3.fullDisplay10} | Sum=${result.answer3.digitSumSteps.join('->')} => ${result.answer3.singleDigit}`);
+console.log(`ANSWER 4: ${result.answer4.exactFraction} => ${result.answer4.fullDisplay10} | Sum=${result.answer4.digitSumSteps.join('->')} => ${result.answer4.singleDigit}`);
 console.log("==================================================");
 
 if (typeof module !== 'undefined') {

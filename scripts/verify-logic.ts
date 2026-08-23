@@ -1,92 +1,92 @@
 import { calculateArabicPower } from '../src/lib/calculate';
 
 console.log("==================================================");
-console.log("   RUNNING VERIFICATION TESTS FOR 3-STEP LOGIC    ");
+console.log("   RUNNING VERIFICATION TESTS FOR 5-STEP LOGIC    ");
 console.log("==================================================");
 
 try {
-    // Test 1: Verification for "جليل" matching the exact reference screenshot
-    const resultJaleel = calculateArabicPower("جليل");
-    console.log(`\n--- TEST 1: Reference Screenshot Word ("${resultJaleel.original}", chars: "ج", "ل", "ي", "ل") ---`);
-    console.log(`Normalized: [${resultJaleel.normalizedChars.join(', ')}]`);
-    console.log(`Cell 1 (ج): Step 2 = ${resultJaleel.section1[0].step2Val}, Result = ${resultJaleel.section1[0].resultDisplay}`);
-    console.log(`Cell 2 (ل): Step 2 = ${resultJaleel.section1[1].step2Val}, Result = ${resultJaleel.section1[1].resultDisplay}`);
-    console.log(`Cell 3 (ي): Step 2 = ${resultJaleel.section1[2].step2Val}, Result = ${resultJaleel.section1[2].resultDisplay}`);
-    console.log(`Cell 4 (ل): Step 2 = ${resultJaleel.section1[3].step2Val}, Result = ${resultJaleel.section1[3].resultDisplay}`);
-    console.log(`Transferred Sum S: ${resultJaleel.transferredSumDisplay}`);
-    console.log(`Answer 1 (√S)    : ${resultJaleel.answer1.fullDisplay10} | Formula: ${resultJaleel.answer1.exactFormula} | Digit Sum: ${resultJaleel.answer1.digitSumSteps.join('->')} => ${resultJaleel.answer1.singleDigit}`);
-    console.log(`Answer 2 (√(S/N)): ${resultJaleel.answer2.fullDisplay10} | Formula: ${resultJaleel.answer2.exactFormula} | Digit Sum: ${resultJaleel.answer2.digitSumSteps.join('->')} => ${resultJaleel.answer2.singleDigit}`);
+    // TEST 1: Word "جليل" with cells 0, 1, 2 selected (Cell 3 unselected) - EXACT HANDWRITTEN SHEET 1 & 2
+    const resultJaleelPartial = calculateArabicPower("جليل", [0, 1, 2]);
+    console.log(`\n--- TEST 1: Word "جليل" with cells [1, 2, 3] selected matching handwritten sheet ---`);
+    console.log(`Normalized chars: [${resultJaleelPartial.normalizedChars.join(', ')}]`);
+    console.log(`Step 1 Sum S1 = ${resultJaleelPartial.step1Sum} (Expected: 40)`);
+    console.log(`Step 2 Sum S2 = ${resultJaleelPartial.step2SumDisplay} (Expected: 30/1)`);
+    
+    // Check all 4 cells values in Step 5
+    const cell1 = resultJaleelPartial.section1[0];
+    const cell2 = resultJaleelPartial.section1[1];
+    const cell3 = resultJaleelPartial.section1[2];
+    const cell4 = resultJaleelPartial.section1[3];
 
-    const isJaleelCell1Valid = resultJaleel.section1[0].resultDisplay === "1/4";
-    const isJaleelCell2Valid = resultJaleel.section1[1].resultDisplay === "3/1";
-    const isJaleelCell3Valid = resultJaleel.section1[2].resultDisplay === "9/4";
-    const isJaleelCell4Valid = resultJaleel.section1[3].resultDisplay === "6/1";
-    const isJaleelSumValid = resultJaleel.transferredSumDisplay === "23/2";
-    const isJaleelAns2Valid = resultJaleel.answer2.first10Digits === "6955824957" && resultJaleel.answer2.singleDigit === 6;
+    console.log(`Cell 1 (ج): Step 1=${cell1.step1Val}, Step 2=${cell1.step2Display}, Step 3=${cell1.step3Display}, Step 4=${cell1.step4GroupDisplay}, Ratio=${cell1.percentageDisplay}, Final=${cell1.resultDisplay}`);
+    console.log(`Cell 2 (ل): Step 1=${cell2.step1Val}, Step 2=${cell2.step2Display}, Step 3=${cell2.step3Display}, Step 4=${cell2.step4GroupDisplay}, Ratio=${cell2.percentageDisplay}, Final=${cell2.resultDisplay}`);
+    console.log(`Cell 3 (ي): Step 1=${cell3.step1Val}, Step 2=${cell3.step2Display}, Step 3=${cell3.step3Display}, Step 4=${cell3.step4GroupDisplay}, Ratio=${cell3.percentageDisplay}, Final=${cell3.resultDisplay}`);
+    console.log(`Cell 4 (ل): Step 1=${cell4.step1Val}, Step 2=${cell4.step2Display}, Step 3=${cell4.step3Display}, Step 4=${cell4.step4GroupDisplay}, Ratio=${cell4.percentageDisplay}, Final=${cell4.resultDisplay}`);
 
-    if (isJaleelCell1Valid && isJaleelCell2Valid && isJaleelCell3Valid && isJaleelCell4Valid && isJaleelSumValid && isJaleelAns2Valid) {
-        console.log("✅ TEST 1 PASSED: 100% matches screenshot for 'جليل' (Answer 2 digits: 6955824737 -> 60 -> 6)!");
-    } else {
-        console.error("❌ TEST 1 FAILED!", {
-            cell1: resultJaleel.section1[0].resultDisplay,
-            cell2: resultJaleel.section1[1].resultDisplay,
-            cell3: resultJaleel.section1[2].resultDisplay,
-            cell4: resultJaleel.section1[3].resultDisplay,
-            sum: resultJaleel.transferredSumDisplay,
-            ans2: resultJaleel.answer2.first10Digits,
-            digit: resultJaleel.answer2.singleDigit
-        });
-        process.exit(1);
+    if (cell1.resultDisplay !== '1/12' || cell2.resultDisplay !== '20/3' || cell3.resultDisplay !== '27/4' || cell4.resultDisplay !== '80/3') {
+        throw new Error(`Step 5 final cell values mismatch: ${cell1.resultDisplay}, ${cell2.resultDisplay}, ${cell3.resultDisplay}, ${cell4.resultDisplay}`);
+    }
+    console.log("✅ Step 5 Final values match handwritten Sheet 2 perfectly (1/12, 20/3, 27/4, 80/3)!");
+
+    // Check Sum S for cells [1, 2, 3] = 1/12 + 20/3 + 27/4 = 27/2
+    console.log(`Selected Sum S: ${resultJaleelPartial.transferredSumDisplay} (Expected: 27/2)`);
+    if (resultJaleelPartial.transferredSumDisplay !== '27/2') {
+        throw new Error(`Sum S mismatch: expected 27/2, got ${resultJaleelPartial.transferredSumDisplay}`);
     }
 
-    // Test 2: Verification for "مدد"
-    const resultMadad = calculateArabicPower("مدد");
-    console.log(`\n--- TEST 2: Word ("${resultMadad.original}") ---`);
-    console.log(`Normalized: [${resultMadad.normalizedChars.join(', ')}]`);
-    console.log(`Cell 1 (م): Result = ${resultMadad.section1[0].resultDisplay}`);
-    console.log(`Cell 2 (د): Result = ${resultMadad.section1[1].resultDisplay}`);
-    console.log(`Cell 3 (د): Result = ${resultMadad.section1[2].resultDisplay}`);
-    console.log(`Transferred Sum S: ${resultMadad.transferredSumDisplay}`);
-    console.log(`Answer 1 (√S)    : ${resultMadad.answer1.fullDisplay10} | Digit Sum: ${resultMadad.answer1.digitSumSteps.join('->')} => ${resultMadad.answer1.singleDigit}`);
+    // Check Answer 1: sqrt(27/2) -> 3.674234614 -> sum 40 -> 4
+    console.log(`Answer 1 (الجواب الأول):`);
+    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer1.fullDisplay10}`);
+    console.log(`  - Digits List      : ${resultJaleelPartial.answer1.digitsList.join(', ')}`);
+    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer1.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer1.singleDigit}`);
+    if (resultJaleelPartial.answer1.fullDisplay10 !== '3.674234614' || resultJaleelPartial.answer1.singleDigit !== 4 || resultJaleelPartial.answer1.digitSumSteps[0] !== 40) {
+        throw new Error(`Answer 1 mismatch: ${JSON.stringify(resultJaleelPartial.answer1)}`);
+    }
+    console.log("✅ Answer 1 matches handwritten Sheet 1 perfectly (3.674234614 -> 40 -> 4)!");
 
-    // Test 3: Normalization rules check for ى, ة, and هـ
+    // Check Answer 2: sqrt(9/2) -> 2.121320343 -> sum 21 -> 3
+    console.log(`Answer 2 (الجواب الثاني):`);
+    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer2.fullDisplay10}`);
+    console.log(`  - Digits List      : ${resultJaleelPartial.answer2.digitsList.join(', ')}`);
+    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer2.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer2.singleDigit}`);
+    if (resultJaleelPartial.answer2.fullDisplay10 !== '2.121320343' || resultJaleelPartial.answer2.singleDigit !== 3 || resultJaleelPartial.answer2.digitSumSteps[0] !== 21) {
+        throw new Error(`Answer 2 mismatch: ${JSON.stringify(resultJaleelPartial.answer2)}`);
+    }
+    console.log("✅ Answer 2 matches handwritten Sheet 1 perfectly (2.121320343 -> 21 -> 3)!");
+
+    // Check Answer 3: sqrt(27/2) -> first 10 digits after dot: 6742346141 -> sum 38 -> 11 -> 2
+    console.log(`Answer 3 (الجواب الثالث):`);
+    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer3.fullDisplay10}`);
+    console.log(`  - Digits List      : ${resultJaleelPartial.answer3.digitsList.join(', ')}`);
+    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer3.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer3.singleDigit}`);
+    if (resultJaleelPartial.answer3.extractedDigits !== '6742346141' || resultJaleelPartial.answer3.singleDigit !== 2 || resultJaleelPartial.answer3.digitSumSteps[0] !== 38) {
+        throw new Error(`Answer 3 mismatch: ${JSON.stringify(resultJaleelPartial.answer3)}`);
+    }
+    console.log("✅ Answer 3 matches handwritten Sheet 1 perfectly (3.6742346141 -> 38 -> 11 -> 2)!");
+
+    // Check Answer 4: sqrt(9/2) -> first 10 digits after dot: 1213203435 -> sum 24 -> 6
+    console.log(`Answer 4 (الجواب الرابع):`);
+    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer4.fullDisplay10}`);
+    console.log(`  - Digits List      : ${resultJaleelPartial.answer4.digitsList.join(', ')}`);
+    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer4.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer4.singleDigit}`);
+    if (resultJaleelPartial.answer4.extractedDigits !== '1213203435' || resultJaleelPartial.answer4.singleDigit !== 6 || resultJaleelPartial.answer4.digitSumSteps[0] !== 24) {
+        throw new Error(`Answer 4 mismatch: ${JSON.stringify(resultJaleelPartial.answer4)}`);
+    }
+    console.log("✅ Answer 4 matches handwritten Sheet 1 perfectly (2.1213203435 -> 24 -> 6)!");
+
+    // TEST 2: Normalization verification
     const resultNorm = calculateArabicPower("شجرة هدى بيت");
-    console.log(`\n--- TEST 3: Character Normalization ("شجرة هدى بيت") ---`);
+    console.log(`\n--- TEST 2: Character Normalization ("شجرة هدى بيت") ---`);
     console.log(`Normalized: [${resultNorm.normalizedChars.join(', ')}]`);
-
-    // "شجرة" -> ش, ج, ر, ت (ة is converted to ت)
-    // "هدى" -> ه, د, أ (ى is converted to أ)
-    // "بيت" -> ب, ي, ت (ت is ت)
-    const isTaMarbutaValid = resultNorm.normalizedChars[3] === 'ت';
-    const isAlefMaqsuraValid = resultNorm.normalizedChars[6] === 'أ';
-    const isTaOpenValid = resultNorm.normalizedChars[9] === 'ت';
-
-    // Verify 'ة' and 'ت' contribute to the same normalized letter group in step 2
-    // In "شجرة ... بيت", 'ة' at pos 4 and 'ت' at pos 10 should sum together for 'ت': 4 + 10 = 14
-    const taStep2Val = resultNorm.section1[3].step2Val;
-    const isTaGroupSumValid = taStep2Val === 14;
-
-    if (isTaMarbutaValid && isAlefMaqsuraValid && isTaOpenValid && isTaGroupSumValid) {
-        console.log("✅ TEST 3 PASSED: 'ة' is counted as 'ت' and grouped identically in Step 2!");
-    } else {
-        console.error("❌ TEST 3 FAILED! Norm chars:", resultNorm.normalizedChars, "Ta sum:", taStep2Val);
-        process.exit(1);
+    if (resultNorm.normalizedChars[3] !== 'ت' || resultNorm.normalizedChars[6] !== 'أ' || resultNorm.normalizedChars[9] !== 'ت') {
+        throw new Error("Character normalization failed!");
     }
-
-    // Test 4: 70 Consecutive Characters (Simulating 60-70 letters text)
-    const text70 = "بسم الله الرحمن الرحيم الحمد لله رب العالمين الرحمن الرحيم مالك يوم الدين";
-    const result70 = calculateArabicPower(text70);
-    console.log(`\n--- TEST 4: Long text (${result70.totalChars} characters) ---`);
-    console.log(`Successfully calculated ${result70.totalChars} characters.`);
-    console.log(`Sum S: ${result70.transferredSumDisplay}`);
-    console.log(`Answer 1: ${result70.answer1.fullDisplay10} (Digit: ${result70.answer1.singleDigit})`);
-    console.log(`Answer 2: ${result70.answer2.fullDisplay10} (Digit: ${result70.answer2.singleDigit})`);
+    console.log("✅ Normalization verified: ة->ت, ى->أ, etc.!");
 
     console.log("\n==================================================");
-    console.log("🎉 ALL TESTS COMPLETED AND VERIFIED 100%!");
+    console.log("🎉 ALL TESTS PASSED WITH 100% MATHEMATICAL ACCURACY!");
     console.log("==================================================");
-
 } catch (error) {
-    console.error(`Error during calculation:`, error);
+    console.error("❌ TEST FAILED:", error);
     process.exit(1);
 }

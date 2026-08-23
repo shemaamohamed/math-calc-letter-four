@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الحاسبة الرياضية الدقيقة - Arbitrary-Precision Calculator</title>
+    <title>الحاسبة الرياضية الدقيقة - Arbitrary-Precision Calculator (5 Steps & 4 Gates)</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #38bdf8;
-            --accent-hover: #0284c7;
+            --bg-color: #090d16;
+            --card-bg: #131b2e;
+            --accent-color: #a855f7;
+            --accent-hover: #9333ea;
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
             --gold: #f59e0b;
-            --border-color: #334155;
+            --cyan: #06b6d4;
+            --emerald: #10b981;
+            --border-color: #243049;
         }
 
         * {
@@ -26,7 +28,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            padding: 2rem;
+            padding: 2rem 1rem;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -35,7 +37,7 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1000px;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
@@ -48,7 +50,7 @@
         }
 
         header h1 {
-            color: var(--accent-color);
+            color: #c084fc;
             font-size: 1.8rem;
             margin-bottom: 0.5rem;
         }
@@ -61,7 +63,7 @@
         .input-card {
             background: var(--card-bg);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
             display: flex;
             gap: 1rem;
@@ -72,7 +74,7 @@
             padding: 0.8rem 1rem;
             border-radius: 8px;
             border: 1px solid var(--border-color);
-            background: #0f172a;
+            background: #090d16;
             color: #fff;
             font-size: 1.2rem;
             outline: none;
@@ -82,47 +84,54 @@
             border-color: var(--accent-color);
         }
 
-        button {
+        button.btn-primary {
             padding: 0.8rem 2rem;
-            background: var(--accent-color);
-            color: #0f172a;
+            background: linear-gradient(135deg, #a855f7, #3b82f6);
+            color: #fff;
             border: none;
             border-radius: 8px;
             font-weight: bold;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: all 0.2s ease;
         }
 
-        button:hover {
-            background: var(--accent-hover);
+        button.btn-primary:hover {
+            transform: scale(1.02);
+            filter: brightness(1.1);
         }
 
         .results-section {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
         }
 
         .card {
             background: var(--card-bg);
             padding: 1.5rem;
-            border-radius: 12px;
+            border-radius: 14px;
             border: 1px solid var(--border-color);
         }
 
         .card h2 {
-            font-size: 1.3rem;
-            color: var(--gold);
+            font-size: 1.25rem;
+            color: #c084fc;
             margin-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 0.5rem;
         }
 
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1rem;
+            margin-top: 0.5rem;
+            min-width: 600px;
         }
 
         th, td {
@@ -132,18 +141,19 @@
         }
 
         th {
-            background: #0f172a;
-            color: var(--accent-color);
+            background: #090d16;
+            color: #c084fc;
+            font-size: 0.85rem;
         }
 
         .highlight-box {
-            background: #0f172a;
+            background: #090d16;
             padding: 1rem;
             border-radius: 8px;
             border-right: 4px solid var(--accent-color);
             margin-top: 0.5rem;
             font-family: monospace;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             line-height: 1.6;
         }
 
@@ -155,18 +165,86 @@
             border-radius: 4px;
             font-weight: bold;
         }
+
+        .gates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1rem;
+        }
+
+        .gate-card {
+            background: #111827;
+            padding: 1.2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .gate-card.gold { border-color: rgba(245, 158, 11, 0.4); }
+        .gate-card.cyan { border-color: rgba(6, 182, 212, 0.4); }
+        .gate-card.purple { border-color: rgba(168, 85, 247, 0.4); }
+        .gate-card.emerald { border-color: rgba(16, 185, 129, 0.4); }
+
+        .gate-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gate-card.gold .gate-title { color: var(--gold); }
+        .gate-card.cyan .gate-title { color: var(--cyan); }
+        .gate-card.purple .gate-title { color: #c084fc; }
+        .gate-card.emerald .gate-title { color: var(--emerald); }
+
+        .gate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gate-root {
+            font-size: 1.4rem;
+            font-weight: 900;
+            padding: 0.2rem 0.8rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .toggle-btn {
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+
+        .toggle-btn.active {
+            background: #10b981;
+            color: #fff;
+            border-color: #10b981;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>الحاسبة الرياضية الدقيقة (Arbitrary-Precision arithmetic)</h1>
-            <p>حساب الجمل والنسب المئوية والكسور الدقيقة في بيئة JavaScript دقيقة 100%</p>
+            <h1>الحاسبة الرياضية الدقيقة (Arbitrary-Precision 5 Steps)</h1>
+            <p>خوارزمية الحساب الكسري الدقيق وبوابات الإجابات الأربعة</p>
         </header>
 
         <div class="input-card">
-            <input type="text" id="wordInput" value="مدد" placeholder="أدخل النص/الكلمة هنا...">
-            <button onclick="calculate()">احسب الآن</button>
+            <input type="text" id="wordInput" value="جليل" placeholder="أدخل النص/الكلمة هنا...">
+            <button class="btn-primary" onclick="calculate()">بدء الحساب</button>
         </div>
 
         <div class="results-section" id="outputArea">
@@ -176,79 +254,125 @@
 
     <script src="arabic_calculator.js"></script>
     <script>
-        function calculate() {
+        let selectedIndices = [0, 1, 2]; // default to first 3 cells like handwritten example
+
+        function toggleCell(idx) {
+            if (selectedIndices.includes(idx)) {
+                selectedIndices = selectedIndices.filter(i => i !== idx);
+            } else {
+                selectedIndices.push(idx);
+            }
+            calculate(true);
+        }
+
+        function calculate(keepSelection = false) {
             const val = document.getElementById('wordInput').value;
             if (!val.trim()) return;
 
-            const res = processWord(val);
+            if (!keepSelection) {
+                // select all by default if new word
+                const clean = val.replace(/[\u064B-\u0652\u0640]/g, '').trim();
+                selectedIndices = clean.split('').map((_, i) => i);
+            }
+
+            const res = processWord(val, selectedIndices);
             const output = document.getElementById('outputArea');
 
             let stepsHTML = '';
-            res.step3.forEach(item => {
+            res.step5Details.forEach((item, idx) => {
+                const isChecked = item.isSelected;
                 stepsHTML += `
-                    <tr>
-                        <td>${item.pos}</td>
-                        <td>${item.char}</td>
-                        <td>${item.letterSumStep2}</td>
-                        <td>${item.percentageDisplay} (${item.percentageFraction})</td>
-                        <td>${item.termFraction}</td>
+                    <tr style="${isChecked ? 'background: rgba(16, 185, 129, 0.1);' : 'opacity: 0.6;'}">
+                        <td>${item.pos} (قيمة: ${item.step1})</td>
+                        <td><strong>${item.char}</strong></td>
+                        <td dir="ltr">${item.step2}</td>
+                        <td dir="ltr">${item.step3}</td>
+                        <td dir="ltr">${item.step4Group}</td>
+                        <td dir="ltr">${item.percentage}</td>
+                        <td dir="ltr" style="color: #10b981; font-weight: bold;">${item.finalValue}</td>
+                        <td>
+                            <button class="toggle-btn ${isChecked ? 'active' : ''}" onclick="toggleCell(${idx})">
+                                ${isChecked ? '✓ منتقلة' : 'انتقال'}
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
 
             output.innerHTML = `
                 <div class="card">
-                    <h2>📋 تفاصيل الخطوات الخوارزمية (3 خطوات)</h2>
-                    <p><strong>النص المدخل:</strong> ${res.wordInput}</p>
-                    <p><strong>الأحرف بعد التوحيد:</strong> ${res.normalizedChars.join(' ، ')}</p>
+                    <h2>📋 جدول التحليل والخطوات الخمس (القسم الأول)</h2>
+                    <p><strong>النص المدخل:</strong> ${res.wordInput} | <strong>الأحرف بعد التوحيد:</strong> ${res.normalizedChars.join(' ، ')}</p>
+                    <p><strong>S1:</strong> ${res.S1} | <strong>S2:</strong> ${res.S2} | <strong>الخانات المحددة (N):</strong> ${res.selectedCount} | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>الخانة (الخطوة 1: عد طبيعي)</th>
-                                <th>الحرف</th>
-                                <th>الخطوة 2 (مجموع الحرف)</th>
-                                <th>النسبة المئوية (الخطوة 3)</th>
-                                <th>الناتج الجزئي (Term Fraction)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${stepsHTML}
-                        </tbody>
-                    </table>
-                    <br>
-                    <div class="highlight-box">
-                        <strong>الناتج الكسري النهائي (Exact Fraction):</strong> <span class="badge">${res.finalFraction}</span>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الخانة (خطوة 1: ×4)</th>
+                                    <th>الحرف</th>
+                                    <th>خطوة 2 (تقسيم وضرب)</th>
+                                    <th>خطوة 3 (كسر قياسي)</th>
+                                    <th>خطوة 4 (مجموع الحرف)</th>
+                                    <th>النسبة % (خطوة 5)</th>
+                                    <th>الناتج الجزئي النهائي</th>
+                                    <th>زر الانتقال</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${stepsHTML}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="card">
-                    <h2>🟨 الجواب الأول: سكوير (الجذر التربيعي) على الناتج النهائي</h2>
-                    <div class="highlight-box">
-                        <p><strong>صيغة الجذر للكسر:</strong> ${res.answer1.exactFraction}</p>
-                        <p><strong>القيمة بعد العلامة (.):</strong> ${res.answer1.fullDisplay10}</p>
-                        <p><strong>أول 10 أرقام بعد العلامة (.):</strong> ${res.answer1.first10Digits}</p>
-                        <p><strong>خطوات الاختزال الرقمي (Digit Sum):</strong> ${res.answer1.digitSumSteps.join(' ➔ ')}</p>
-                        <p><strong>الرقم المفرد النهائي:</strong> <span class="badge">${res.answer1.singleDigit}</span></p>
+                <h2>🟨 بوابات النتائج الأربعة (القسم الثاني)</h2>
+                <div class="gates-grid">
+                    <!-- Answer 1 -->
+                    <div class="gate-card gold">
+                        <div class="gate-title">🏆 الجواب الأول (√S - أول 10 أرقام كاملة)</div>
+                        <div class="gate-item"><span>صيغة الكسر:</span><span dir="ltr">${res.answer1.exactFraction}</span></div>
+                        <div class="gate-item"><span>10 أرقام المستخرجة:</span><span dir="ltr">${res.answer1.fullDisplay10}</span></div>
+                        <div class="gate-item"><span>خطوات الاختزال:</span><span dir="ltr">${res.answer1.digitSumSteps.join(' ➔ ')}</span></div>
+                        <div class="gate-item"><span>الرقم المفرد النهائي:</span><span class="gate-root" style="color: var(--gold);">${res.answer1.singleDigit}</span></div>
                     </div>
-                </div>
 
-                <div class="card">
-                    <h2>🟨 الجواب الثاني: تقسيم الناتج على عدد الحروف + سكوير</h2>
-                    <div class="highlight-box">
-                        <p><strong>التقسيم على عدد الحروف (${res.totalChars}):</strong> ${res.answer2.baseFraction}</p>
-                        <p><strong>صيغة الجذر:</strong> ${res.answer2.exactFraction}</p>
-                        <p><strong>القيمة بعد العلامة (.):</strong> ${res.answer2.fullDisplay10}</p>
-                        <p><strong>أول 10 أرقام بعد العلامة (.):</strong> ${res.answer2.first10Digits}</p>
-                        <p><strong>خطوات الاختزال الرقمي (Digit Sum):</strong> ${res.answer2.digitSumSteps.join(' ➔ ')}</p>
-                        <p><strong>الرقم المفرد النهائي:</strong> <span class="badge">${res.answer2.singleDigit}</span></p>
+                    <!-- Answer 2 -->
+                    <div class="gate-card cyan">
+                        <div class="gate-title">✨ الجواب الثاني (√(S/N) - أول 10 أرقام كاملة)</div>
+                        <div class="gate-item"><span>التقسيم على N:</span><span dir="ltr">${res.answer2.baseFormula}</span></div>
+                        <div class="gate-item"><span>صيغة الجذر:</span><span dir="ltr">${res.answer2.exactFraction}</span></div>
+                        <div class="gate-item"><span>10 أرقام المستخرجة:</span><span dir="ltr">${res.answer2.fullDisplay10}</span></div>
+                        <div class="gate-item"><span>خطوات الاختزال:</span><span dir="ltr">${res.answer2.digitSumSteps.join(' ➔ ')}</span></div>
+                        <div class="gate-item"><span>الرقم المفرد النهائي:</span><span class="gate-root" style="color: var(--cyan);">${res.answer2.singleDigit}</span></div>
+                    </div>
+
+                    <!-- Answer 3 -->
+                    <div class="gate-card purple">
+                        <div class="gate-title">⚡ الجواب الثالث (√S - أول 10 بعد الفاصلة .)</div>
+                        <div class="gate-item"><span>صيغة الكسر:</span><span dir="ltr">${res.answer3.exactFraction}</span></div>
+                        <div class="gate-item"><span>10 أرقام بعد (.):</span><span dir="ltr">${res.answer3.fullDisplay10}</span></div>
+                        <div class="gate-item"><span>خطوات الاختزال:</span><span dir="ltr">${res.answer3.digitSumSteps.join(' ➔ ')}</span></div>
+                        <div class="gate-item"><span>الرقم المفرد النهائي:</span><span class="gate-root" style="color: #c084fc;">${res.answer3.singleDigit}</span></div>
+                    </div>
+
+                    <!-- Answer 4 -->
+                    <div class="gate-card emerald">
+                        <div class="gate-title">🔢 الجواب الرابع (√(S/N) - أول 10 بعد الفاصلة .)</div>
+                        <div class="gate-item"><span>التقسيم على N:</span><span dir="ltr">${res.answer4.baseFormula}</span></div>
+                        <div class="gate-item"><span>صيغة الجذر:</span><span dir="ltr">${res.answer4.exactFraction}</span></div>
+                        <div class="gate-item"><span>10 أرقام بعد (.):</span><span dir="ltr">${res.answer4.fullDisplay10}</span></div>
+                        <div class="gate-item"><span>خطوات الاختزال:</span><span dir="ltr">${res.answer4.digitSumSteps.join(' ➔ ')}</span></div>
+                        <div class="gate-item"><span>الرقم المفرد النهائي:</span><span class="gate-root" style="color: var(--emerald);">${res.answer4.singleDigit}</span></div>
                     </div>
                 </div>
             `;
         }
 
-        // Run calculation on load
-        window.onload = calculate;
+        window.onload = () => {
+            // initial load with cells 0, 1, 2 checked for "جليل"
+            calculate(true);
+        };
     </script>
 </body>
 </html>

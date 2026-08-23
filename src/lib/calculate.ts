@@ -1,18 +1,19 @@
 /**
- * Arabic Arbitrary-Precision Math Calculation Library (3-Step Version)
- * مكتبة الحساب الرقمي الدقيق للغة العربية (نظام الخطوات الثلاث)
+ * Arabic Arbitrary-Precision Math Calculation Library (5-Step Engine)
+ * مكتبة الحساب الرقمي الدقيق للغة العربية (نظام الخطوات الخمس وبوابات النتائج الأربعة)
  */
 
 const ZERO = BigInt(0);
 const ONE = BigInt(1);
 const TWO = BigInt(2);
+const FOUR = BigInt(4);
 const TEN = BigInt(10);
 const HUNDRED = BigInt(100);
 
 export function normalizeChar(ch: string): string {
-  if (['ا', 'أ', 'إ', 'آ', 'ٱ', 'ء', 'ئ', 'ؤ', 'ى'].includes(ch)) return 'أ';
+  if (['ا', 'أ', 'إ', 'آ', 'ٱ', 'ء', 'ئ', 'ؤ', 'ى', 'ٴ'].includes(ch)) return 'أ';
   if (['ت', 'ة'].includes(ch)) return 'ت';
-  if (['ه', 'ۥ'].includes(ch)) return 'ه';
+  if (['ه', 'ە', 'ھ', 'ۥ'].includes(ch)) return 'ه';
   return ch;
 }
 
@@ -58,6 +59,10 @@ export class Fraction {
     return new Fraction(this.num * other.den + other.num * this.den, this.den * other.den);
   }
 
+  sub(other: Fraction): Fraction {
+    return new Fraction(this.num * other.den - other.num * this.den, this.den * other.den);
+  }
+
   mul(other: Fraction): Fraction {
     return new Fraction(this.num * other.num, this.den * other.den);
   }
@@ -80,7 +85,7 @@ export class Fraction {
     if (rem === ZERO) {
       return {
         intPart,
-        fracPart: '',
+        fracPart: '0'.repeat(maxDecimalDigits),
         isRepeating: false,
         recurringDigit: null,
         fullString: intPart,
@@ -112,6 +117,10 @@ export class Fraction {
         fracDigits += recurringCycle;
       }
       fracDigits = fracDigits.substring(0, maxDecimalDigits);
+    } else {
+      while (fracDigits.length < maxDecimalDigits) {
+        fracDigits += '0';
+      }
     }
 
     return {
@@ -123,7 +132,7 @@ export class Fraction {
     };
   }
 
-  sqrtDecimalString(precision = 50) {
+  sqrtDecimalString(precision = 60) {
     const p = BigInt(precision);
     const scale = TEN ** (p * TWO);
     const scaledNum = (this.num * scale) / this.den;
@@ -141,14 +150,17 @@ export class Fraction {
 }
 
 export interface DigitSumResult {
-  first10Digits: string;
+  extractedDigits: string;
+  displayValue: string;
+  digitsList: number[];
   steps: number[];
   singleDigit: number;
 }
 
-export function reduceToSingleDigit(fracPart: string): DigitSumResult {
-  const first10Digits = fracPart.substring(0, 10);
-  const digits = first10Digits.split('').map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+/**
+ * Reduce a sequence of digits to its single digit root
+ */
+export function reduceDigitsArray(digits: number[]): { steps: number[]; singleDigit: number } {
   let sum = digits.reduce((acc, val) => acc + val, 0);
   const steps = [sum];
 
@@ -158,9 +170,57 @@ export function reduceToSingleDigit(fracPart: string): DigitSumResult {
   }
 
   return {
-    first10Digits,
     steps,
-    singleDigit: steps[steps.length - 1] || 0,
+    singleDigit: steps[steps.length - 1] ?? 0,
+  };
+}
+
+/**
+ * Extraction Mode 1: First 10 Total Digits (including integer part)
+ * Used for Answer 1 and Answer 2
+ */
+export function extractFirst10Total(intPart: string, fracPart: string): DigitSumResult {
+  const combinedDigits = (intPart + fracPart).replace(/[^0-9]/g, '');
+  const first10 = combinedDigits.substring(0, 10);
+  const digitsList = first10.split('').map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+  
+  const { steps, singleDigit } = reduceDigitsArray(digitsList);
+
+  // Form display string keeping decimal point in correct location
+  const intLen = intPart.length;
+  let displayValue = '';
+  if (intLen >= 10) {
+    displayValue = first10;
+  } else {
+    displayValue = `${first10.substring(0, intLen)}.${first10.substring(intLen)}`;
+  }
+
+  return {
+    extractedDigits: first10,
+    displayValue,
+    digitsList,
+    steps,
+    singleDigit,
+  };
+}
+
+/**
+ * Extraction Mode 2: First 10 Digits AFTER Decimal Point (.)
+ * Used for Answer 3 and Answer 4
+ */
+export function extractFirst10AfterDot(intPart: string, fracPart: string): DigitSumResult {
+  const first10Frac = fracPart.substring(0, 10);
+  const digitsList = first10Frac.split('').map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+
+  const { steps, singleDigit } = reduceDigitsArray(digitsList);
+  const displayValue = `${intPart}.${first10Frac}`;
+
+  return {
+    extractedDigits: first10Frac,
+    displayValue,
+    digitsList,
+    steps,
+    singleDigit,
   };
 }
 
@@ -168,23 +228,39 @@ export interface Section1Item {
   pos: number;
   char: string;
   originalChar: string;
-  step1Val: number;
-  step2Val: number;
-  percentageFraction: Fraction;
+  step1Val: number; // pos * 4
+  step2Frac: Fraction; // (p_i / p_last) * p_i
+  step2Display: string;
+  step3Frac: Fraction; // (step2 / S2) * S1
+  step3Display: string;
+  step4GroupFrac: Fraction; // Sum of step 3 for this character
+  step4GroupDisplay: string;
+  percentageRatioFrac: Fraction; // step3 / step3_last
+  percentage100Frac: Fraction; // ratio * 100
   percentageDisplay: string;
-  termFraction: Fraction;
+  finalValueFrac: Fraction; // step4Group * ratio
   resultDisplay: string;
   isTransferred: boolean;
 }
 
+export interface CharacterGroupSummary {
+  char: string;
+  positions: number[];
+  step3SumFrac: Fraction;
+  step3SumDisplay: string;
+}
+
 export interface AnswerDetails {
+  key: string;
   title: string;
   subtitle: string;
+  formulaDescription: string;
   exactFormula: string;
   exactFraction: string;
   decimalFull: string;
-  first10Digits: string;
+  extractedDigits: string;
   fullDisplay10: string;
+  digitsList: number[];
   digitSumSteps: number[];
   singleDigit: number;
 }
@@ -193,57 +269,29 @@ export interface CalculationResult {
   original: string;
   normalizedChars: string[];
   totalChars: number;
+  step1Sum: number; // S1
+  step2SumFrac: Fraction; // S2
+  step2SumDisplay: string;
+  step3LastFrac: Fraction;
+  step3SumFrac: Fraction;
+  step3SumDisplay: string;
+  charGroups: CharacterGroupSummary[];
   section1: Section1Item[];
   transferredIndices: number[];
+  transferredCount: number;
   transferredSumFraction: Fraction;
   transferredSumDisplay: string;
   answer1: AnswerDetails;
   answer2: AnswerDetails;
-}
-
-function calculateAnswerDetails(
-  title: string,
-  subtitle: string,
-  exactFormula: string,
-  fraction: Fraction,
-  isSqrt: boolean
-): AnswerDetails {
-  if (isSqrt) {
-    const sqrtInfo = fraction.sqrtDecimalString(50);
-    const digitSum = reduceToSingleDigit(sqrtInfo.fracPart);
-    return {
-      title,
-      subtitle,
-      exactFormula,
-      exactFraction: `√(${fraction.toString()})`,
-      decimalFull: sqrtInfo.fullString,
-      first10Digits: digitSum.first10Digits,
-      fullDisplay10: `${sqrtInfo.intPart}.${digitSum.first10Digits}`,
-      digitSumSteps: digitSum.steps,
-      singleDigit: digitSum.singleDigit,
-    };
-  } else {
-    const decInfo = fraction.toDecimalInfo(50);
-    const digitSum = reduceToSingleDigit(decInfo.fracPart);
-    return {
-      title,
-      subtitle,
-      exactFormula,
-      exactFraction: fraction.toString(),
-      decimalFull: decInfo.fullString,
-      first10Digits: digitSum.first10Digits,
-      fullDisplay10: `${decInfo.intPart}.${digitSum.first10Digits}`,
-      digitSumSteps: digitSum.steps,
-      singleDigit: digitSum.singleDigit,
-    };
-  }
+  answer3: AnswerDetails;
+  answer4: AnswerDetails;
 }
 
 export function calculateArabicPower(
   text: string,
   transferredIndicesInput?: number[]
 ): CalculationResult {
-  // تنظيف علامات التشكيل والتطويل
+  // تنظيف علامات التشكيل والتطويل والمسافات
   const cleanedText = text.replace(/[\u064B-\u0652\u0640]/g, '');
   const rawChars = cleanedText.split('').filter(c => c.trim() !== '');
   const normalizedChars = rawChars.map(normalizeChar);
@@ -253,32 +301,86 @@ export function calculateArabicPower(
     throw new Error('الرجاء إدخال أحرف عربية صحيحة');
   }
 
-  // الخطوة 1: العد الطبيعي للمواقع (1, 2, 3, ..., n)
-  const step1Pos = normalizedChars.map((_, i) => i + 1);
+  // الخطوة 1: العد الطبيعي للمواقع وضرب كل خانة في 4 ثم جمع كل الخانات
+  // p_i = i * 4
+  const step1Values = normalizedChars.map((_, i) => (i + 1) * 4);
+  const S1_num = step1Values.reduce((acc, v) => acc + v, 0);
+  const S1 = new Fraction(BigInt(S1_num), ONE);
+  const p_last = BigInt(step1Values[n - 1]);
 
-  // الخطوة 2: جمع القيم طبيعي من الخطوة 1 لكل حرف موحد
-  const step2Map = new Map<string, number>();
-  normalizedChars.forEach((c, idx) => {
-    step2Map.set(c, (step2Map.get(c) || 0) + step1Pos[idx]);
+  // الخطوة 2: تقسيم كل خانة من خطوة 1 في الحرف الأخير ثم الضرب في نفس الخانة
+  // v_{2, i} = (p_i / p_last) * p_i = p_i^2 / p_last
+  const step2Fractions = step1Values.map(p_i => {
+    const pBig = BigInt(p_i);
+    return new Fraction(pBig * pBig, p_last);
   });
 
-  // الخطوة 3: استخلاص النسب المئوية وضربها في قيمة الخطوة 2
-  const defaultTransferred = transferredIndicesInput ?? step1Pos.map((_, i) => i);
+  let S2 = new Fraction(ZERO, ONE);
+  step2Fractions.forEach(f => {
+    S2 = S2.add(f);
+  });
+
+  // الخطوة 3: تقسيم كل خانة من خطوة 2 في جمع الناتج من خطوة 2 (S2) ثم الضرب في جمع الناتج من خطوة 1 (S1)
+  // v_{3, i} = (v_{2, i} / S2) * S1
+  const step3Fractions = step2Fractions.map(v2 => {
+    return v2.div(S2).mul(S1);
+  });
+
+  let S3 = new Fraction(ZERO, ONE);
+  step3Fractions.forEach(f => {
+    S3 = S3.add(f);
+  });
+  const v3_last = step3Fractions[n - 1];
+
+  // الخطوة 4: جمع القيم طبيعي من خطوة 3 حسب الحرف الموحد
+  // Group identical characters together
+  const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction }>();
+  normalizedChars.forEach((c, idx) => {
+    const existing = charGroupsMap.get(c);
+    const v3 = step3Fractions[idx];
+    if (existing) {
+      existing.positions.push(idx + 1);
+      existing.sum = existing.sum.add(v3);
+    } else {
+      charGroupsMap.set(c, {
+        positions: [idx + 1],
+        sum: v3,
+      });
+    }
+  });
+
+  const charGroups: CharacterGroupSummary[] = [];
+  charGroupsMap.forEach((val, charKey) => {
+    charGroups.push({
+      char: charKey,
+      positions: val.positions,
+      step3SumFrac: val.sum,
+      step3SumDisplay: val.sum.toString(),
+    });
+  });
+
+  // الخطوة 5: استخلاص النسب المئوية من خطوة 3 مقارنة بالخانة الأخيرة ثم ضرب كل نسبة في قيمتها العددية من خطوة 4
+  const defaultTransferred = transferredIndicesInput ?? normalizedChars.map((_, i) => i);
 
   const section1: Section1Item[] = normalizedChars.map((c, idx) => {
-    const pos = step1Pos[idx];
+    const pos = idx + 1;
     const originalChar = rawChars[idx];
-    const letterStep2Val = step2Map.get(c)!;
+    const step1Val = step1Values[idx];
+    const step2Frac = step2Fractions[idx];
+    const step3Frac = step3Fractions[idx];
 
-    // النسبة المئوية ككسر مبسط
-    const pctFraction = new Fraction(BigInt(pos), BigInt(n));
-    // النسبة المئوية بالنسبة المئوية (مثل 25/1%)
-    const pct100Fraction = pctFraction.mul(new Fraction(100, 1));
-    const percentageDisplay = `${pct100Fraction.toString()}% (${pctFraction.toString()})`;
+    // نسبة الخانة مقارنة بالخانة الأخيرة من خطوة 3
+    // Ratio = v3_i / v3_last
+    const percentageRatioFrac = step3Frac.div(v3_last);
+    const percentage100Frac = percentageRatioFrac.mul(new Fraction(HUNDRED, ONE));
+    const percentageDisplay = `${percentage100Frac.toString()}%`;
 
-    // الناتج الجزئي (Term Fraction) = النسبة المئوية * قيمة مجموع الحرف من خطوة 2
-    const termFraction = pctFraction.mul(new Fraction(BigInt(letterStep2Val), 1));
-    const resultDisplay = termFraction.toString();
+    // القيمة التجميعية للحرف من خطوة 4
+    const charGroupSum = charGroupsMap.get(c)!.sum;
+
+    // الناتج النهائي للخانة في خطوة 5 = القيمة التجميعية للحرف * نسبة الخانة
+    const finalValueFrac = charGroupSum.mul(percentageRatioFrac);
+    const resultDisplay = finalValueFrac.toString();
 
     const isTransferred = defaultTransferred.includes(idx);
 
@@ -286,11 +388,17 @@ export function calculateArabicPower(
       pos,
       char: c,
       originalChar,
-      step1Val: pos,
-      step2Val: letterStep2Val,
-      percentageFraction: pctFraction,
+      step1Val,
+      step2Frac,
+      step2Display: step2Frac.toString(),
+      step3Frac,
+      step3Display: step3Frac.toString(),
+      step4GroupFrac: charGroupSum,
+      step4GroupDisplay: charGroupSum.toString(),
+      percentageRatioFrac,
+      percentage100Frac,
       percentageDisplay,
-      termFraction,
+      finalValueFrac,
       resultDisplay,
       isTransferred,
     };
@@ -298,54 +406,115 @@ export function calculateArabicPower(
 
   // حساب مجموع الخانات المحددة S والعدد N
   const transferredItems = section1.filter(item => item.isTransferred);
-  const count = transferredItems.length;
+  const transferredCount = transferredItems.length;
 
-  let S = new Fraction(0, 1);
-  if (count > 0) {
+  let S = new Fraction(ZERO, ONE);
+  if (transferredCount > 0) {
     S = transferredItems.reduce(
-      (acc, item) => acc.add(item.termFraction),
-      new Fraction(0, 1)
+      (acc, item) => acc.add(item.finalValueFrac),
+      new Fraction(ZERO, ONE)
     );
   }
 
   const transferredSumDisplay = S.toString();
-  const N = count;
+  const N = transferredCount > 0 ? transferredCount : 1;
+  const N_frac = new Fraction(BigInt(N), ONE);
+  const sDivN = S.div(N_frac);
 
-  // صيغة جمع الخانات المحددة
-  const itemsFormula = count > 0
+  const itemsFormula = transferredCount > 0
     ? transferredItems.map(item => item.resultDisplay).join(' + ')
     : '0';
 
-  // الجواب الأول 🟨
-  // الجذر التربيعي لمجموع الخانات المحددة (√S)
-  const answer1 = calculateAnswerDetails(
-    'الجواب الأول 🟨',
-    'الجذر التربيعي لمجموع الخانات المحددة (√S)',
-    `S = ${itemsFormula} = ${S.toString()}`,
-    S,
-    true
-  );
+  // حساب الأجوبة الأربعة (Output Gates)
+  // الجواب الأول: الجذر التربيعي لمجموع الخانات المحددة (√S) - أول 10 أرقام من كامل العدد
+  const sqrtS = S.sqrtDecimalString(60);
+  const digitSumAns1 = extractFirst10Total(sqrtS.intPart, sqrtS.fracPart);
+  const answer1: AnswerDetails = {
+    key: 'ans1',
+    title: 'الجواب الأول 🟨',
+    subtitle: 'الجذر التربيعي لمجموع الخانات (أول 10 أرقام من كامل العدد)',
+    formulaDescription: 'جمع الخانات المحددة ➔ سكوير رووت للناتج ➔ حساب أول 10 من الجواب',
+    exactFormula: `S = ${itemsFormula} = ${S.toString()}`,
+    exactFraction: `√(${S.toString()})`,
+    decimalFull: sqrtS.fullString,
+    extractedDigits: digitSumAns1.extractedDigits,
+    fullDisplay10: digitSumAns1.displayValue,
+    digitsList: digitSumAns1.digitsList,
+    digitSumSteps: digitSumAns1.steps,
+    singleDigit: digitSumAns1.singleDigit,
+  };
 
-  // الجواب الثاني 🟨
-  // الجذر التربيعي لـ (المجموع S ÷ عدد الخانات المحددة N)
-  const sDivN = count > 0 ? S.div(new Fraction(count, 1)) : new Fraction(0, 1);
-  const answer2 = calculateAnswerDetails(
-    'الجواب الثاني 🟨',
-    `الجذر التربيعي لـ (المجموع ÷ عدد الخانات المحددة N)`,
-    `${S.toString()} ÷ ${N} = ${sDivN.toString()}`,
-    sDivN,
-    true
-  );
+  // الجواب الثاني: الجذر التربيعي لـ (المجموع S ÷ عدد الخانات N) - أول 10 أرقام من كامل العدد
+  const sqrtSDivN = sDivN.sqrtDecimalString(60);
+  const digitSumAns2 = extractFirst10Total(sqrtSDivN.intPart, sqrtSDivN.fracPart);
+  const answer2: AnswerDetails = {
+    key: 'ans2',
+    title: 'الجواب الثاني 🟨',
+    subtitle: 'الجذر التربيعي لـ (المجموع ÷ عدد الخانات) (أول 10 أرقام من كامل العدد)',
+    formulaDescription: 'جمع الخانات ➔ تقسيم على عدد الخانات ➔ سكوير رووت ➔ حساب أول 10 من الجواب',
+    exactFormula: `${S.toString()} ÷ ${transferredCount} = ${sDivN.toString()}`,
+    exactFraction: `√(${sDivN.toString()})`,
+    decimalFull: sqrtSDivN.fullString,
+    extractedDigits: digitSumAns2.extractedDigits,
+    fullDisplay10: digitSumAns2.displayValue,
+    digitsList: digitSumAns2.digitsList,
+    digitSumSteps: digitSumAns2.steps,
+    singleDigit: digitSumAns2.singleDigit,
+  };
+
+  // الجواب الثالث: الجذر التربيعي لمجموع الخانات المحددة (√S) - أول 10 أرقام بعد الفاصلة (.)
+  const digitSumAns3 = extractFirst10AfterDot(sqrtS.intPart, sqrtS.fracPart);
+  const answer3: AnswerDetails = {
+    key: 'ans3',
+    title: 'الجواب الثالث 🟨',
+    subtitle: 'الجذر التربيعي لمجموع الخانات (أول 10 أرقام بعد الفاصلة .)',
+    formulaDescription: 'جمع الخانات ➔ سكوير رووت للناتج ➔ حساب أول 10 بعد (.) من الجواب',
+    exactFormula: `S = ${itemsFormula} = ${S.toString()}`,
+    exactFraction: `√(${S.toString()})`,
+    decimalFull: sqrtS.fullString,
+    extractedDigits: digitSumAns3.extractedDigits,
+    fullDisplay10: digitSumAns3.displayValue,
+    digitsList: digitSumAns3.digitsList,
+    digitSumSteps: digitSumAns3.steps,
+    singleDigit: digitSumAns3.singleDigit,
+  };
+
+  // الجواب الرابع: الجذر التربيعي لـ (المجموع S ÷ عدد الخانات N) - أول 10 أرقام بعد الفاصلة (.)
+  const digitSumAns4 = extractFirst10AfterDot(sqrtSDivN.intPart, sqrtSDivN.fracPart);
+  const answer4: AnswerDetails = {
+    key: 'ans4',
+    title: 'الجواب الرابع 🟨',
+    subtitle: 'الجذر التربيعي لـ (المجموع ÷ عدد الخانات) (أول 10 أرقام بعد الفاصلة .)',
+    formulaDescription: 'جمع الخانات ➔ تقسيم على عدد الخانات ➔ سكوير رووت ➔ حساب أول 10 بعد (.) من الجواب',
+    exactFormula: `${S.toString()} ÷ ${transferredCount} = ${sDivN.toString()}`,
+    exactFraction: `√(${sDivN.toString()})`,
+    decimalFull: sqrtSDivN.fullString,
+    extractedDigits: digitSumAns4.extractedDigits,
+    fullDisplay10: digitSumAns4.displayValue,
+    digitsList: digitSumAns4.digitsList,
+    digitSumSteps: digitSumAns4.steps,
+    singleDigit: digitSumAns4.singleDigit,
+  };
 
   return {
     original: text,
     normalizedChars,
     totalChars: n,
+    step1Sum: S1_num,
+    step2SumFrac: S2,
+    step2SumDisplay: S2.toString(),
+    step3LastFrac: v3_last,
+    step3SumFrac: S3,
+    step3SumDisplay: S3.toString(),
+    charGroups,
     section1,
     transferredIndices: section1.filter(item => item.isTransferred).map(item => item.pos - 1),
+    transferredCount,
     transferredSumFraction: S,
     transferredSumDisplay,
     answer1,
     answer2,
+    answer3,
+    answer4,
   };
 }
