@@ -233,8 +233,11 @@ export interface Section1Item {
   step2Display: string;
   step3Frac: Fraction; // (step2 / S2) * S1
   step3Display: string;
-  step4GroupFrac: Fraction; // Sum of step 3 for this character
+  step4GroupFrac: Fraction; // (Sum of step 3) / count for this character
   step4GroupDisplay: string;
+  step4SumFrac: Fraction; // Raw sum of step 3
+  step4SumDisplay: string;
+  step4Count: number; // Number of positions/occurrences
   percentageRatioFrac: Fraction; // step3 / step3_last
   percentage100Frac: Fraction; // ratio * 100
   percentageDisplay: string;
@@ -246,8 +249,11 @@ export interface Section1Item {
 export interface CharacterGroupSummary {
   char: string;
   positions: number[];
+  count: number;
   step3SumFrac: Fraction;
   step3SumDisplay: string;
+  step4AvgFrac: Fraction;
+  step4AvgDisplay: string;
 }
 
 export interface AnswerDetails {
@@ -332,21 +338,28 @@ export function calculateArabicPower(
   });
   const v3_last = step3Fractions[n - 1];
 
-  // الخطوة 4: جمع القيم طبيعي من خطوة 3 حسب الحرف الموحد
-  // Group identical characters together
-  const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction }>();
+  // الخطوة 4: جمع القيم من خطوة 3 حسب الحرف الموحد ثم القسمة على عدد تكرار الحرف (متوسط الحرف)
+  // Group identical characters together, calculate sum, and divide by count of positions (occurrences)
+  const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction; count: number; averageFrac: Fraction }>();
   normalizedChars.forEach((c, idx) => {
     const existing = charGroupsMap.get(c);
     const v3 = step3Fractions[idx];
     if (existing) {
       existing.positions.push(idx + 1);
       existing.sum = existing.sum.add(v3);
+      existing.count += 1;
     } else {
       charGroupsMap.set(c, {
         positions: [idx + 1],
         sum: v3,
+        count: 1,
+        averageFrac: v3,
       });
     }
+  });
+
+  charGroupsMap.forEach((val) => {
+    val.averageFrac = val.sum.div(new Fraction(BigInt(val.count), ONE));
   });
 
   const charGroups: CharacterGroupSummary[] = [];
@@ -354,12 +367,15 @@ export function calculateArabicPower(
     charGroups.push({
       char: charKey,
       positions: val.positions,
+      count: val.count,
       step3SumFrac: val.sum,
       step3SumDisplay: val.sum.toString(),
+      step4AvgFrac: val.averageFrac,
+      step4AvgDisplay: val.averageFrac.toString(),
     });
   });
 
-  // الخطوة 5: استخلاص النسب المئوية من خطوة 3 مقارنة بالخانة الأخيرة ثم ضرب كل نسبة في قيمتها العددية من خطوة 4
+  // الخطوة 5: استخلاص النسب المئوية من خطوة 3 مقارنة بالخانة الأخيرة ثم ضرب كل نسبة في قيمتها العددية من خطوة 4 (المتوسط)
   const defaultTransferred = transferredIndicesInput ?? normalizedChars.map((_, i) => i);
 
   const section1: Section1Item[] = normalizedChars.map((c, idx) => {
@@ -375,11 +391,12 @@ export function calculateArabicPower(
     const percentage100Frac = percentageRatioFrac.mul(new Fraction(HUNDRED, ONE));
     const percentageDisplay = `${percentage100Frac.toString()}%`;
 
-    // القيمة التجميعية للحرف من خطوة 4
-    const charGroupSum = charGroupsMap.get(c)!.sum;
+    // القيمة من خطوة 4 (مجموع الحرف مقسوماً على عدد الخانات)
+    const charGroupInfo = charGroupsMap.get(c)!;
+    const charGroupAvg = charGroupInfo.averageFrac;
 
-    // الناتج النهائي للخانة في خطوة 5 = القيمة التجميعية للحرف * نسبة الخانة
-    const finalValueFrac = charGroupSum.mul(percentageRatioFrac);
+    // الناتج النهائي للخانة في خطوة 5 = القيمة التجميعية للحرف (المتوسط) * نسبة الخانة
+    const finalValueFrac = charGroupAvg.mul(percentageRatioFrac);
     const resultDisplay = finalValueFrac.toString();
 
     const isTransferred = defaultTransferred.includes(idx);
@@ -393,8 +410,11 @@ export function calculateArabicPower(
       step2Display: step2Frac.toString(),
       step3Frac,
       step3Display: step3Frac.toString(),
-      step4GroupFrac: charGroupSum,
-      step4GroupDisplay: charGroupSum.toString(),
+      step4GroupFrac: charGroupAvg,
+      step4GroupDisplay: charGroupAvg.toString(),
+      step4SumFrac: charGroupInfo.sum,
+      step4SumDisplay: charGroupInfo.sum.toString(),
+      step4Count: charGroupInfo.count,
       percentageRatioFrac,
       percentage100Frac,
       percentageDisplay,

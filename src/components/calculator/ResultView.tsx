@@ -341,11 +341,14 @@ export default function ResultView({
               </div>
             </div>
             <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-              <span className="text-slate-400 text-[10px] block mb-1">الخطوة 4: تجميع الحروف الموحدة (Character Groups):</span>
+              <span className="text-slate-400 text-[10px] block mb-1">الخطوة 4: تجميع الحروف الموحدة وحساب المتوسط (القسمة على عدد الخانات/التكرار):</span>
               <div className="flex flex-wrap gap-2">
                 {result.charGroups.map(g => (
-                  <span key={g.char} className="px-2 py-0.5 bg-purple-500/20 rounded border border-purple-500/30 text-purple-200 font-mono text-[11px]">
-                    {g.char}: {g.step3SumDisplay} (الخانات: {g.positions.join(', ')})
+                  <span key={g.char} className="px-2.5 py-1 bg-purple-500/20 rounded-lg border border-purple-500/30 text-purple-200 font-mono text-[11px] flex items-center gap-1">
+                    <span className="font-sans font-bold text-white text-xs">{g.char}:</span>
+                    <span>{g.step3SumDisplay} ÷ {g.count} = </span>
+                    <span className="text-yellow-300 font-black">{g.step4AvgDisplay}</span>
+                    <span className="text-[9px] text-slate-400 font-sans">(خانات: {g.positions.join(', ')})</span>
                   </span>
                 ))}
               </div>
@@ -383,7 +386,7 @@ export default function ResultView({
                     <th className="py-2 px-2 text-center">
                       خطوة 4
                       <span className="block text-[9px] text-purple-400 font-normal">
-                        (مجموع الحرف)
+                        (المجموع ÷ الخانات)
                       </span>
                     </th>
                     <th className="py-2 px-2 text-center">
