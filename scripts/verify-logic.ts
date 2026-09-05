@@ -83,6 +83,21 @@ try {
     }
     console.log("✅ Normalization verified: ة->ت, ى->أ, etc.!");
 
+    // TEST 3: Step 1 Exact Calculations (Word "مكارم" & Word "مدد")
+    console.log(`\n--- TEST 3: Step 1 Calculations (Words "مكارم" and "مدد") ---`);
+    const resultMakarim = calculateArabicPower("مكارم");
+    console.log(`Word "مكارم": positions sum S=${resultMakarim.step1Details.sumPositions} (Expected: 15), Step 1 fraction=${resultMakarim.step1Details.rawFractionDisplay} (Expected: 225/4)`);
+    if (resultMakarim.step1Details.sumPositions !== 15 || resultMakarim.step1Details.rawFractionDisplay !== '225/4') {
+        throw new Error(`Step 1 for مكارم failed: got ${resultMakarim.step1Details.rawFractionDisplay}`);
+    }
+
+    const resultMadad = calculateArabicPower("مدد");
+    console.log(`Word "مدد": positions sum S=${resultMadad.step1Details.sumPositions} (Expected: 6), raw=${resultMadad.step1Details.rawFractionDisplay} (Expected: 36/4), simplified=${resultMadad.step1Details.fractionDisplay} (Expected: 9/1)`);
+    if (resultMadad.step1Details.sumPositions !== 6 || resultMadad.step1Details.rawFractionDisplay !== '36/4' || resultMadad.step1Details.fractionDisplay !== '9/1') {
+        throw new Error(`Step 1 for مدد failed: got raw ${resultMadad.step1Details.rawFractionDisplay}, simplified ${resultMadad.step1Details.fractionDisplay}`);
+    }
+    console.log("✅ Step 1 verified for مكارم (225/4) and مدد (36/4 = 9/1) perfectly!");
+
     console.log("\n==================================================");
     console.log("🎉 ALL TESTS PASSED WITH 100% MATHEMATICAL ACCURACY!");
     console.log("==================================================");

@@ -145,7 +145,25 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: Position * 4 and sum S1
+    // Step 1: Position numbering, sum S, and formula (S ÷ 4) * S = S^2 / 4
+    const step1Chars = chars.map((c, i) => ({ pos: i + 1, char: c, originalChar: rawChars[i] }));
+    const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
+    const sumFormulaStr = step1Chars.map(item => item.pos).join(' + ') + ` = ${sumPositions}`;
+    const S_squared = BigInt(sumPositions * sumPositions);
+    const step1Fraction = new Fraction(S_squared, 4n);
+    const rawFractionDisplay = `${S_squared}/4`;
+    const fractionDisplay = step1Fraction.toString();
+
+    const step1Details = {
+        charPositions: step1Chars,
+        sumPositions,
+        sumFormulaStr,
+        equationStr: '(S ÷ 4) × S = S² / 4',
+        rawFractionDisplay,
+        fractionDisplay
+    };
+
+    // Position * 4 and sum S1
     const step1Values = chars.map((_, i) => (i + 1) * 4);
     const S1_num = step1Values.reduce((a, b) => a + b, 0);
     const S1 = new Fraction(S1_num, 1);
@@ -238,6 +256,7 @@ function processWord(text, selectedIndices = null) {
         wordInput: text,
         normalizedChars: chars,
         totalChars: n,
+        step1Details,
         S1: S1.toString(),
         S2: S2.toString(),
         v3_last: v3_last.toString(),

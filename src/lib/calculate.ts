@@ -224,6 +224,25 @@ export function extractFirst10AfterDot(intPart: string, fracPart: string): Digit
   };
 }
 
+export interface Step1CharItem {
+  pos: number;
+  char: string;
+  originalChar: string;
+}
+
+export interface Step1Summary {
+  charPositions: Step1CharItem[];
+  sumPositions: number; // S = sum(1..n)
+  sumFormulaStr: string; // e.g., "1 + 2 + 3 + 4 + 5 = 15"
+  equationStr: string; // "(S ÷ 4) × S = S² / 4"
+  calculationStr: string; // "(15 ÷ 4) × 15 = 225 / 4"
+  rawNumerator: bigint; // S²
+  rawDenominator: bigint; // 4
+  fraction: Fraction; // simplified Fraction (e.g. 225/4 or 9/1)
+  fractionDisplay: string; // "225/4" or "9/1"
+  rawFractionDisplay: string; // "225/4" or "36/4"
+}
+
 export interface Section1Item {
   pos: number;
   char: string;
@@ -275,6 +294,7 @@ export interface CalculationResult {
   original: string;
   normalizedChars: string[];
   totalChars: number;
+  step1Details: Step1Summary;
   step1Sum: number; // S1
   step2SumFrac: Fraction; // S2
   step2SumDisplay: string;
@@ -307,7 +327,37 @@ export function calculateArabicPower(
     throw new Error('الرجاء إدخال أحرف عربية صحيحة');
   }
 
-  // الخطوة 1: العد الطبيعي للمواقع وضرب كل خانة في 4 ثم جمع كل الخانات
+  // الخطوة 1: ترقيم الحروف تصاعدياً من 1 وحساب المجموع الكلي S وتطبيق المعادلة (S ÷ 4) × S = S² / 4
+  const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => ({
+    pos: i + 1,
+    char: c,
+    originalChar: rawChars[i],
+  }));
+
+  const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0); // S
+  const sumFormulaStr = step1Chars.map(item => item.pos).join(' + ') + ` = ${sumPositions}`;
+  
+  const S_big = BigInt(sumPositions);
+  const S_squared = S_big * S_big;
+  const step1Fraction = new Fraction(S_squared, FOUR);
+  const rawFractionDisplay = `${S_squared}/4`;
+  const fractionDisplay = step1Fraction.toString();
+  const calculationStr = `(${sumPositions} ÷ 4) × ${sumPositions} = (${sumPositions}² ÷ 4) = ${rawFractionDisplay}${fractionDisplay !== rawFractionDisplay ? ` = ${fractionDisplay}` : ''}`;
+
+  const step1Details: Step1Summary = {
+    charPositions: step1Chars,
+    sumPositions,
+    sumFormulaStr,
+    equationStr: '(S ÷ 4) × S = S² / 4',
+    calculationStr,
+    rawNumerator: S_squared,
+    rawDenominator: FOUR,
+    fraction: step1Fraction,
+    fractionDisplay,
+    rawFractionDisplay,
+  };
+
+  // العد الطبيعي للمواقع وضرب كل خانة في 4 ثم جمع كل الخانات
   // p_i = i * 4
   const step1Values = normalizedChars.map((_, i) => (i + 1) * 4);
   const S1_num = step1Values.reduce((acc, v) => acc + v, 0);
@@ -520,6 +570,7 @@ export function calculateArabicPower(
     original: text,
     normalizedChars,
     totalChars: n,
+    step1Details,
     step1Sum: S1_num,
     step2SumFrac: S2,
     step2SumDisplay: S2.toString(),
