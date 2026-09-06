@@ -5,98 +5,109 @@ console.log("   RUNNING VERIFICATION TESTS FOR 5-STEP LOGIC    ");
 console.log("==================================================");
 
 try {
-    // TEST 1: Word "جليل" with cells 0, 1, 2 selected (Cell 3 unselected) - EXACT HANDWRITTEN SHEET 1 & 2
-    const resultJaleelPartial = calculateArabicPower("جليل", [0, 1, 2]);
-    console.log(`\n--- TEST 1: Word "جليل" with cells [1, 2, 3] selected matching handwritten sheet ---`);
-    console.log(`Normalized chars: [${resultJaleelPartial.normalizedChars.join(', ')}]`);
-    console.log(`Step 1 Sum S1 = ${resultJaleelPartial.step1Sum} (Expected: 40)`);
-    console.log(`Step 2 Sum S2 = ${resultJaleelPartial.step2SumDisplay} (Expected: 30/1)`);
+    // TEST 1: Word "مدد" - EXACT HANDWRITTEN SHEET MATCH 100%
+    console.log(`\n--- TEST 1: Word "مدد" (All 5 Steps matching handwritten Sheet) ---`);
+    const resultMadad = calculateArabicPower("مدد");
     
-    // Check all 4 cells values in Step 5
-    const cell1 = resultJaleelPartial.section1[0];
-    const cell2 = resultJaleelPartial.section1[1];
-    const cell3 = resultJaleelPartial.section1[2];
-    const cell4 = resultJaleelPartial.section1[3];
-
-    console.log(`Cell 1 (ج): Step 1=${cell1.step1Val}, Step 2=${cell1.step2Display}, Step 3=${cell1.step3Display}, Step 4=${cell1.step4GroupDisplay}, Ratio=${cell1.percentageDisplay}, Final=${cell1.resultDisplay}`);
-    console.log(`Cell 2 (ل): Step 1=${cell2.step1Val}, Step 2=${cell2.step2Display}, Step 3=${cell2.step3Display}, Step 4=${cell2.step4GroupDisplay}, Ratio=${cell2.percentageDisplay}, Final=${cell2.resultDisplay}`);
-    console.log(`Cell 3 (ي): Step 1=${cell3.step1Val}, Step 2=${cell3.step2Display}, Step 3=${cell3.step3Display}, Step 4=${cell3.step4GroupDisplay}, Ratio=${cell3.percentageDisplay}, Final=${cell3.resultDisplay}`);
-    console.log(`Cell 4 (ل): Step 1=${cell4.step1Val}, Step 2=${cell4.step2Display}, Step 3=${cell4.step3Display}, Step 4=${cell4.step4GroupDisplay}, Ratio=${cell4.percentageDisplay}, Final=${cell4.resultDisplay}`);
-
-    if (cell1.resultDisplay !== '1/12' || cell2.resultDisplay !== '10/3' || cell3.resultDisplay !== '27/4' || cell4.resultDisplay !== '40/3') {
-        throw new Error(`Step 5 final cell values mismatch: ${cell1.resultDisplay}, ${cell2.resultDisplay}, ${cell3.resultDisplay}, ${cell4.resultDisplay}`);
-    }
-    console.log("✅ Step 5 Final values match handwritten Sheet perfectly (1/12, 10/3, 27/4, 40/3)!");
-
-    // Check Sum S for cells [1, 2, 3] = 1/12 + 10/3 + 27/4 = 61/6
-    console.log(`Selected Sum S: ${resultJaleelPartial.transferredSumDisplay} (Expected: 61/6)`);
-    if (resultJaleelPartial.transferredSumDisplay !== '61/6') {
-        throw new Error(`Sum S mismatch: expected 61/6, got ${resultJaleelPartial.transferredSumDisplay}`);
+    console.log(`Step 1: S = ${resultMadad.step1Details.sumPositions}, raw=${resultMadad.step1Details.rawFractionDisplay}, simplified=${resultMadad.step1Details.fractionDisplay}`);
+    if (resultMadad.step1Details.sumPositions !== 6 || resultMadad.step1Details.fractionDisplay !== '9/1') {
+        throw new Error(`Step 1 for مدد failed: got ${resultMadad.step1Details.fractionDisplay}`);
     }
 
-    // Check Answer 1: sqrt(61/6) -> 3.188521078 -> sum 43 -> 7
-    console.log(`Answer 1 (الجواب الأول):`);
-    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer1.fullDisplay10}`);
-    console.log(`  - Digits List      : ${resultJaleelPartial.answer1.digitsList.join(', ')}`);
-    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer1.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer1.singleDigit}`);
-    if (resultJaleelPartial.answer1.fullDisplay10 !== '3.188521078' || resultJaleelPartial.answer1.singleDigit !== 7 || resultJaleelPartial.answer1.digitSumSteps[0] !== 43) {
-        throw new Error(`Answer 1 mismatch: ${JSON.stringify(resultJaleelPartial.answer1)}`);
+    console.log(`Step 2 Sum S2: ${resultMadad.step2SumDisplay} (Expected: 14/3)`);
+    if (resultMadad.step2SumDisplay !== '14/3') {
+        throw new Error(`Step 2 sum S2 mismatch: expected 14/3, got ${resultMadad.step2SumDisplay}`);
     }
-    console.log("✅ Answer 1 verified (3.188521078 -> 43 -> 7)!");
 
-    // Check Answer 2: sqrt(61/18) -> 1.840893502 -> sum 40 -> 4
-    console.log(`Answer 2 (الجواب الثاني):`);
-    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer2.fullDisplay10}`);
-    console.log(`  - Digits List      : ${resultJaleelPartial.answer2.digitsList.join(', ')}`);
-    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer2.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer2.singleDigit}`);
-    if (resultJaleelPartial.answer2.fullDisplay10 !== '1.840893502' || resultJaleelPartial.answer2.singleDigit !== 4 || resultJaleelPartial.answer2.digitSumSteps[0] !== 40) {
-        throw new Error(`Answer 2 mismatch: ${JSON.stringify(resultJaleelPartial.answer2)}`);
+    // Check Step 3 values: م=9/14, د1=18/7, د2=81/14
+    const cellM = resultMadad.section1[0];
+    const cellD1 = resultMadad.section1[1];
+    const cellD2 = resultMadad.section1[2];
+
+    console.log(`Step 3 Values:`);
+    console.log(`  - م  : ${cellM.step3Display} (Expected: 9/14)`);
+    console.log(`  - د#1: ${cellD1.step3Display} (Expected: 18/7)`);
+    console.log(`  - د#2: ${cellD2.step3Display} (Expected: 81/14)`);
+
+    if (cellM.step3Display !== '9/14' || cellD1.step3Display !== '18/7' || cellD2.step3Display !== '81/14') {
+        throw new Error(`Step 3 values mismatch: م=${cellM.step3Display}, د1=${cellD1.step3Display}, د2=${cellD2.step3Display}`);
     }
-    console.log("✅ Answer 2 verified (1.840893502 -> 40 -> 4)!");
+    console.log("✅ Step 3 values match handwritten Sheet perfectly (9/14, 18/7, 81/14)!");
 
-    // Check Answer 3: sqrt(61/6) -> first 10 digits after dot: 1885210782 -> sum 42 -> 6
-    console.log(`Answer 3 (الجواب الثالث):`);
-    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer3.fullDisplay10}`);
-    console.log(`  - Digits List      : ${resultJaleelPartial.answer3.digitsList.join(', ')}`);
-    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer3.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer3.singleDigit}`);
-    if (resultJaleelPartial.answer3.extractedDigits !== '1885210782' || resultJaleelPartial.answer3.singleDigit !== 6 || resultJaleelPartial.answer3.digitSumSteps[0] !== 42) {
-        throw new Error(`Answer 3 mismatch: ${JSON.stringify(resultJaleelPartial.answer3)}`);
+    // Check Step 4 (averages): م=9/14, د=117/28
+    console.log(`Step 4 Averages:`);
+    console.log(`  - م: ${cellM.step4GroupDisplay} (Expected: 9/14)`);
+    console.log(`  - د: ${cellD1.step4GroupDisplay} (Expected: 117/28)`);
+    if (cellM.step4GroupDisplay !== '9/14' || cellD1.step4GroupDisplay !== '117/28') {
+        throw new Error(`Step 4 average mismatch: م=${cellM.step4GroupDisplay}, د=${cellD1.step4GroupDisplay}`);
     }
-    console.log("✅ Answer 3 verified (3.1885210782 -> 42 -> 6)!");
+    console.log("✅ Step 4 averages match handwritten Sheet perfectly (9/14, 117/28)!");
 
-    // Check Answer 4: sqrt(61/18) -> first 10 digits after dot: 8408935028 -> sum 47 -> 11 -> 2
-    console.log(`Answer 4 (الجواب الرابع):`);
-    console.log(`  - 10 Digits Display: ${resultJaleelPartial.answer4.fullDisplay10}`);
-    console.log(`  - Digits List      : ${resultJaleelPartial.answer4.digitsList.join(', ')}`);
-    console.log(`  - Steps & Single   : ${resultJaleelPartial.answer4.digitSumSteps.join(' -> ')} => ${resultJaleelPartial.answer4.singleDigit}`);
-    if (resultJaleelPartial.answer4.extractedDigits !== '8408935028' || resultJaleelPartial.answer4.singleDigit !== 2 || resultJaleelPartial.answer4.digitSumSteps[0] !== 47) {
-        throw new Error(`Answer 4 mismatch: ${JSON.stringify(resultJaleelPartial.answer4)}`);
+    // Check Step 5 final cell values: م=1/14, د1=13/7, د2=117/28
+    console.log(`Step 5 Final Values:`);
+    console.log(`  - م  : Ratio=${cellM.percentageDisplay}, Final=${cellM.resultDisplay} (Expected: 1/14)`);
+    console.log(`  - د#1: Ratio=${cellD1.percentageDisplay}, Final=${cellD1.resultDisplay} (Expected: 13/7)`);
+    console.log(`  - د#2: Ratio=${cellD2.percentageDisplay}, Final=${cellD2.resultDisplay} (Expected: 117/28)`);
+
+    if (cellM.resultDisplay !== '1/14' || cellD1.resultDisplay !== '13/7' || cellD2.resultDisplay !== '117/28') {
+        throw new Error(`Step 5 final cell values mismatch: ${cellM.resultDisplay}, ${cellD1.resultDisplay}, ${cellD2.resultDisplay}`);
     }
-    console.log("✅ Answer 4 verified (1.8408935028 -> 47 -> 11 -> 2)!");
+    console.log("✅ Step 5 Final values match handwritten Sheet perfectly (1/14, 13/7, 117/28)!");
 
-    // TEST 2: Normalization verification
+    // Check Sum S = 1/14 + 13/7 + 117/28 = 171/28
+    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 171/28)`);
+    if (resultMadad.transferredSumDisplay !== '171/28') {
+        throw new Error(`Sum S mismatch: expected 171/28, got ${resultMadad.transferredSumDisplay}`);
+    }
+
+    // Check 4 Answer Gates
+    console.log(`Answer 1: ${resultMadad.answer1.fullDisplay10} => Steps: ${resultMadad.answer1.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer1.singleDigit}`);
+    console.log(`Answer 2: ${resultMadad.answer2.fullDisplay10} => Steps: ${resultMadad.answer2.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer2.singleDigit}`);
+    console.log(`Answer 3: ${resultMadad.answer3.fullDisplay10} => Steps: ${resultMadad.answer3.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer3.singleDigit}`);
+    console.log(`Answer 4: ${resultMadad.answer4.fullDisplay10} => Steps: ${resultMadad.answer4.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer4.singleDigit}`);
+    
+    if (resultMadad.answer1.fullDisplay10 !== '2.471263413' || resultMadad.answer1.singleDigit !== 6) {
+        throw new Error(`Answer 1 mismatch: ${JSON.stringify(resultMadad.answer1)}`);
+    }
+    if (resultMadad.answer2.fullDisplay10 !== '1.426784596' || resultMadad.answer2.singleDigit !== 7) {
+        throw new Error(`Answer 2 mismatch: ${JSON.stringify(resultMadad.answer2)}`);
+    }
+    if (resultMadad.answer3.extractedDigits !== '4712634131' || resultMadad.answer3.singleDigit !== 5) {
+        throw new Error(`Answer 3 mismatch: ${JSON.stringify(resultMadad.answer3)}`);
+    }
+    if (resultMadad.answer4.extractedDigits !== '4267845968' || resultMadad.answer4.singleDigit !== 5) {
+        throw new Error(`Answer 4 mismatch: ${JSON.stringify(resultMadad.answer4)}`);
+    }
+    console.log("✅ All 4 Answer Gates verified for 'مدد'!");
+
+    // TEST 2: Word "مكارم"
+    console.log(`\n--- TEST 2: Word "مكارم" ---`);
+    const resultMakarim = calculateArabicPower("مكارم");
+    console.log(`Step 1 S=${resultMakarim.step1Details.sumPositions}, fraction=${resultMakarim.step1Details.rawFractionDisplay}`);
+    if (resultMakarim.step1Details.sumPositions !== 15 || resultMakarim.step1Details.rawFractionDisplay !== '225/4') {
+        throw new Error(`Step 1 for مكارم failed: got ${resultMakarim.step1Details.rawFractionDisplay}`);
+    }
+    console.log(`Step 2 S2: ${resultMakarim.step2SumDisplay} (Expected: 11/1)`);
+    if (resultMakarim.step2SumDisplay !== '11/1') {
+        throw new Error(`Step 2 for مكارم failed: got ${resultMakarim.step2SumDisplay}`);
+    }
+    console.log(`Step 3 values for مكارم: [${resultMakarim.section1.map(c => c.step3Display).join(', ')}] (Expected: 45/44, 45/11, 405/44, 180/11, 1125/44)`);
+    const makarimStep3Expected = ['45/44', '45/11', '405/44', '180/11', '1125/44'];
+    resultMakarim.section1.forEach((c, i) => {
+        if (c.step3Display !== makarimStep3Expected[i]) {
+            throw new Error(`Step 3 cell ${i} for مكارم mismatch: expected ${makarimStep3Expected[i]}, got ${c.step3Display}`);
+        }
+    });
+    console.log("✅ Step 3 for 'مكارم' verified (45/44, 45/11, 405/44, 180/11, 1125/44)!");
+
+    // TEST 3: Character Normalization
+    console.log(`\n--- TEST 3: Character Normalization ("شجرة هدى بيت") ---`);
     const resultNorm = calculateArabicPower("شجرة هدى بيت");
-    console.log(`\n--- TEST 2: Character Normalization ("شجرة هدى بيت") ---`);
     console.log(`Normalized: [${resultNorm.normalizedChars.join(', ')}]`);
     if (resultNorm.normalizedChars[3] !== 'ت' || resultNorm.normalizedChars[6] !== 'أ' || resultNorm.normalizedChars[9] !== 'ت') {
         throw new Error("Character normalization failed!");
     }
     console.log("✅ Normalization verified: ة->ت, ى->أ, etc.!");
-
-    // TEST 3: Step 1 Exact Calculations (Word "مكارم" & Word "مدد")
-    console.log(`\n--- TEST 3: Step 1 Calculations (Words "مكارم" and "مدد") ---`);
-    const resultMakarim = calculateArabicPower("مكارم");
-    console.log(`Word "مكارم": positions sum S=${resultMakarim.step1Details.sumPositions} (Expected: 15), Step 1 fraction=${resultMakarim.step1Details.rawFractionDisplay} (Expected: 225/4)`);
-    if (resultMakarim.step1Details.sumPositions !== 15 || resultMakarim.step1Details.rawFractionDisplay !== '225/4') {
-        throw new Error(`Step 1 for مكارم failed: got ${resultMakarim.step1Details.rawFractionDisplay}`);
-    }
-
-    const resultMadad = calculateArabicPower("مدد");
-    console.log(`Word "مدد": positions sum S=${resultMadad.step1Details.sumPositions} (Expected: 6), raw=${resultMadad.step1Details.rawFractionDisplay} (Expected: 36/4), simplified=${resultMadad.step1Details.fractionDisplay} (Expected: 9/1)`);
-    if (resultMadad.step1Details.sumPositions !== 6 || resultMadad.step1Details.rawFractionDisplay !== '36/4' || resultMadad.step1Details.fractionDisplay !== '9/1') {
-        throw new Error(`Step 1 for مدد failed: got raw ${resultMadad.step1Details.rawFractionDisplay}, simplified ${resultMadad.step1Details.fractionDisplay}`);
-    }
-    console.log("✅ Step 1 verified for مكارم (225/4) and مدد (36/4 = 9/1) perfectly!");
 
     console.log("\n==================================================");
     console.log("🎉 ALL TESTS PASSED WITH 100% MATHEMATICAL ACCURACY!");

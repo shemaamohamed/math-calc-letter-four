@@ -425,8 +425,8 @@ export default function ResultView({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">الخطوة 1: المجموع S1</span>
-                <span className="font-mono text-cyan-300 font-bold">{result.step1Sum}</span>
+                <span className="text-slate-400 text-[10px] block">الخطوة 1: كسر البداية (S² / 4)</span>
+                <span className="font-mono text-cyan-300 font-bold">{result.step1Details.fractionDisplay}</span>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
                 <span className="text-slate-400 text-[10px] block">الخطوة 2: المجموع S2</span>
@@ -464,7 +464,7 @@ export default function ResultView({
                     <th className="py-2 px-2 text-center w-12">
                       الخانة
                       <span className="block text-[9px] text-slate-400 font-normal">
-                        (خطوة 1: ×4)
+                        (الترتيب)
                       </span>
                     </th>
                     <th className="py-2 px-2 text-center w-12">الحرف</th>
@@ -530,7 +530,7 @@ export default function ResultView({
                                 : 'bg-white/5 text-slate-400'
                             }`}
                           >
-                            #{item.pos} ({item.step1Val})
+                            #{item.pos}
                           </span>
                         </td>
 
@@ -627,7 +627,7 @@ export default function ResultView({
                       <div className="flex items-center justify-between gap-1.5 border-b border-white/5 pb-1.5 min-w-0">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <span className="text-[10px] font-bold text-slate-400 bg-white/5 px-1.5 py-0.5 rounded flex-shrink-0">
-                            #{item.pos} (قيمة: {item.step1Val})
+                            الخانة #{item.pos}
                           </span>
                           <span className="text-sm font-black text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20 flex-shrink-0">
                             {item.char}

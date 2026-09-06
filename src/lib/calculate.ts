@@ -357,18 +357,12 @@ export function calculateArabicPower(
     rawFractionDisplay,
   };
 
-  // العد الطبيعي للمواقع وضرب كل خانة في 4 ثم جمع كل الخانات
-  // p_i = i * 4
-  const step1Values = normalizedChars.map((_, i) => (i + 1) * 4);
-  const S1_num = step1Values.reduce((acc, v) => acc + v, 0);
-  const S1 = new Fraction(BigInt(S1_num), ONE);
-  const p_last = BigInt(step1Values[n - 1]);
-
-  // الخطوة 2: تقسيم كل خانة من خطوة 1 في الحرف الأخير ثم الضرب في نفس الخانة
-  // v_{2, i} = (p_i / p_last) * p_i = p_i^2 / p_last
-  const step2Fractions = step1Values.map(p_i => {
-    const pBig = BigInt(p_i);
-    return new Fraction(pBig * pBig, p_last);
+  // الخطوة 2: العد الطبيعي للمواقع (i = 1..n)، وتقسيم كل خانة على رقم الخانة الأخيرة n ثم الضرب في نفس الخانة
+  // v_{2, i} = (i / n) * i = i^2 / n
+  const p_last = BigInt(n);
+  const step2Fractions = normalizedChars.map((_, i) => {
+    const posBig = BigInt(i + 1);
+    return new Fraction(posBig * posBig, p_last);
   });
 
   let S2 = new Fraction(ZERO, ONE);
@@ -376,10 +370,10 @@ export function calculateArabicPower(
     S2 = S2.add(f);
   });
 
-  // الخطوة 3: تقسيم كل خانة من خطوة 2 في جمع الناتج من خطوة 2 (S2) ثم الضرب في جمع الناتج من خطوة 1 (S1)
-  // v_{3, i} = (v_{2, i} / S2) * S1
+  // الخطوة 3: تقسيم كل خانة من خطوة 2 على مجموع خطوة 2 (S2) ثم الضرب في كسر الخطوة الأولى (Step 1 Fraction)
+  // v_{3, i} = (v_{2, i} / S2) * Step1_Fraction
   const step3Fractions = step2Fractions.map(v2 => {
-    return v2.div(S2).mul(S1);
+    return v2.div(S2).mul(step1Fraction);
   });
 
   let S3 = new Fraction(ZERO, ONE);
@@ -431,7 +425,7 @@ export function calculateArabicPower(
   const section1: Section1Item[] = normalizedChars.map((c, idx) => {
     const pos = idx + 1;
     const originalChar = rawChars[idx];
-    const step1Val = step1Values[idx];
+    const step1Val = pos;
     const step2Frac = step2Fractions[idx];
     const step3Frac = step3Fractions[idx];
 
@@ -571,7 +565,7 @@ export function calculateArabicPower(
     normalizedChars,
     totalChars: n,
     step1Details,
-    step1Sum: S1_num,
+    step1Sum: sumPositions,
     step2SumFrac: S2,
     step2SumDisplay: S2.toString(),
     step3LastFrac: v3_last,

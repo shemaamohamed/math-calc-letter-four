@@ -163,22 +163,17 @@ function processWord(text, selectedIndices = null) {
         fractionDisplay
     };
 
-    // Position * 4 and sum S1
-    const step1Values = chars.map((_, i) => (i + 1) * 4);
-    const S1_num = step1Values.reduce((a, b) => a + b, 0);
-    const S1 = new Fraction(S1_num, 1);
-    const p_last = BigInt(step1Values[n - 1]);
-
-    // Step 2: (p_i / p_last) * p_i and sum S2
-    const step2Fractions = step1Values.map(p_i => {
-        const p = BigInt(p_i);
+    // Step 2: (i / n) * i = i^2 / n and sum S2
+    const p_last = BigInt(n);
+    const step2Fractions = chars.map((_, i) => {
+        const p = BigInt(i + 1);
         return new Fraction(p * p, p_last);
     });
     let S2 = new Fraction(0n, 1n);
     step2Fractions.forEach(f => S2 = S2.add(f));
 
-    // Step 3: (v2 / S2) * S1
-    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(S1));
+    // Step 3: (v2 / S2) * step1Fraction
+    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(step1Fraction));
     const v3_last = step3Fractions[n - 1];
 
     // Step 4: Group identical characters, sum step 3, and divide by count (average)
@@ -218,7 +213,7 @@ function processWord(text, selectedIndices = null) {
         return {
             pos,
             char: c,
-            step1: step1Values[idx],
+            step1: pos,
             step2: step2Fractions[idx].toString(),
             step3: step3Val.toString(),
             step4Group: charAvg.toString(),
@@ -257,7 +252,7 @@ function processWord(text, selectedIndices = null) {
         normalizedChars: chars,
         totalChars: n,
         step1Details,
-        S1: S1.toString(),
+        S1: sumPositions.toString(),
         S2: S2.toString(),
         v3_last: v3_last.toString(),
         charGroups: charGroupsMap,

@@ -5,24 +5,24 @@ console.log("             🧪 COMPREHENSIVE ARABIC MATH LOGIC VERIFICATION 🧪
 console.log("================================================================================\n");
 
 // ============================================================================
-// TEST 1: EXACT MATCH WITH HANDWRITTEN IMAGES ("جليل" - Cells 1, 2, 3 Transferred)
+// TEST 1: EXACT MATCH WITH HANDWRITTEN IMAGES ("مدد" - All Cells Transferred)
 // ============================================================================
 console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 1: Word 'جليل' with Cells [1, 2, 3] Transferred (Matching Image 2 & 3)");
+console.log("📌 TEST 1: Word 'مدد' with ALL Cells [1, 2, 3] Transferred (Matching Handwritten Sheet)");
 console.log("--------------------------------------------------------------------------------");
 
-const test1 = calculateArabicPower("جليل", [0, 1, 2]);
+const test1 = calculateArabicPower("مدد");
 
 console.log(`Original Word   : "${test1.original}"`);
 console.log(`Normalized Chars: [${test1.normalizedChars.join(', ')}]`);
-console.log(`Step 1 Sum (S1) : ${test1.step1Sum}`);
+console.log(`Step 1 (S)      : ${test1.step1Details.sumPositions} -> Fraction = ${test1.step1Details.fractionDisplay}`);
 console.log(`Step 2 Sum (S2) : ${test1.step2SumDisplay}`);
 console.log(`Step 3 Last Val : ${test1.step3LastFrac.toString()}`);
 console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوات الخمس):");
 
 test1.section1.forEach(cell => {
   console.log(`  [الخانة ${cell.pos} (${cell.char})]:`);
-  console.log(`    - خطوة 1 (عد طبيعي × 4): ${cell.step1Val}`);
+  console.log(`    - خطوة 1 (الترتيب)     : ${cell.step1Val}`);
   console.log(`    - خطوة 2 (تقسيم وضرب)  : ${cell.step2Display}`);
   console.log(`    - خطوة 3 (كسر قياسي)   : ${cell.step3Display}`);
   console.log(`    - خطوة 4 (مجموع الحرف) : ${cell.step4GroupDisplay}`);
@@ -60,42 +60,44 @@ console.log(`     خطوات جمع الأرقام والاختزال: ${test1.a
 console.log(`     الرقم المفرد النهائي: [ ${test1.answer4.singleDigit} ]`);
 
 // Validations
-const expectedCellValues = ['1/12', '10/3', '27/4', '40/3'];
+const expectedCellValues = ['1/14', '13/7', '117/28'];
 const actualCellValues = test1.section1.map(c => c.resultDisplay);
 const isSection1Valid = JSON.stringify(actualCellValues) === JSON.stringify(expectedCellValues);
 
-const isAns1Valid = test1.answer1.fullDisplay10 === '3.188521078' && test1.answer1.singleDigit === 7 && test1.answer1.digitSumSteps[0] === 43;
-const isAns2Valid = test1.answer2.fullDisplay10 === '1.840893502' && test1.answer2.singleDigit === 4 && test1.answer2.digitSumSteps[0] === 40;
-const isAns3Valid = test1.answer3.extractedDigits === '1885210782' && test1.answer3.singleDigit === 6 && test1.answer3.digitSumSteps[0] === 42;
-const isAns4Valid = test1.answer4.extractedDigits === '8408935028' && test1.answer4.singleDigit === 2 && test1.answer4.digitSumSteps[0] === 47;
+const isAns1Valid = test1.answer1.fullDisplay10 === '2.471263413' && test1.answer1.singleDigit === 6;
+const isAns2Valid = test1.answer2.fullDisplay10 === '1.426784596' && test1.answer2.singleDigit === 7;
+const isAns3Valid = test1.answer3.extractedDigits === '4712634131' && test1.answer3.singleDigit === 5;
+const isAns4Valid = test1.answer4.extractedDigits === '4267845968' && test1.answer4.singleDigit === 5;
 
 if (isSection1Valid && isAns1Valid && isAns2Valid && isAns3Valid && isAns4Valid) {
-  console.log("\n>>> ✅ TEST 1 PASSED: 100% IDENTICAL TO HANDWRITTEN CALCULATION! <<<\n");
+  console.log("\n>>> ✅ TEST 1 PASSED: 100% IDENTICAL TO HANDWRITTEN CALCULATION FOR 'مدد'! <<<\n");
 } else {
   console.error(">>> ❌ TEST 1 FAILED! <<<");
   process.exit(1);
 }
 
 // ============================================================================
-// TEST 2: ALL CELLS TRANSFERRED FOR "جليل" ([0, 1, 2, 3])
+// TEST 2: WORD "مكارم"
 // ============================================================================
 console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 2: Word 'جليل' with ALL Cells [1, 2, 3, 4] Transferred");
+console.log("📌 TEST 2: Word 'مكارم' (S = 15, Fraction = 225/4)");
 console.log("--------------------------------------------------------------------------------");
 
-const test2 = calculateArabicPower("جليل");
-console.log(`Sum of all cells S = ${test2.transferredSumDisplay} (1/12 + 10/3 + 27/4 + 40/3 = 282/12 = 47/2)`);
+const test2 = calculateArabicPower("مكارم");
+console.log(`Step 1 Fraction: ${test2.step1Details.fractionDisplay}`);
+console.log(`Step 2 Sum S2  : ${test2.step2SumDisplay}`);
+console.log(`Sum of all cells S = ${test2.transferredSumDisplay}`);
 console.log(`Answer 1 (√S)    : ${test2.answer1.exactFraction} => ${test2.answer1.fullDisplay10} (Single Digit: ${test2.answer1.singleDigit})`);
-console.log(`Answer 2 (√(S/4)): ${test2.answer2.exactFraction} => ${test2.answer2.fullDisplay10} (Single Digit: ${test2.answer2.singleDigit})`);
+console.log(`Answer 2 (√(S/N)): ${test2.answer2.exactFraction} => ${test2.answer2.fullDisplay10} (Single Digit: ${test2.answer2.singleDigit})`);
 console.log(`Answer 3 (√S .)  : ${test2.answer3.exactFraction} => ${test2.answer3.fullDisplay10} (Single Digit: ${test2.answer3.singleDigit})`);
-console.log(`Answer 4 (√(S/4).): ${test2.answer4.exactFraction} => ${test2.answer4.fullDisplay10} (Single Digit: ${test2.answer4.singleDigit})`);
+console.log(`Answer 4 (√(S/N).): ${test2.answer4.exactFraction} => ${test2.answer4.fullDisplay10} (Single Digit: ${test2.answer4.singleDigit})`);
 console.log(">>> ✅ TEST 2 PASSED! <<<\n");
 
 // ============================================================================
-// TEST 3: CHARACTER NORMALIZATION RULES (Matching Image 1)
+// TEST 3: CHARACTER NORMALIZATION RULES
 // ============================================================================
 console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 3: Character Normalization Rules (Matching Image 1)");
+console.log("📌 TEST 3: Character Normalization Rules");
 console.log("--------------------------------------------------------------------------------");
 
 const alifVariants = ['أ', 'إ', 'آ', 'ا', 'ء', 'ئ', 'ؤ', 'ى'];
@@ -122,26 +124,7 @@ haVariants.forEach(c => {
   if (norm !== 'ه') throw new Error(`Normalization failed for ${c}`);
 });
 
-console.log("\n>>> ✅ TEST 3 PASSED: All Normalization Rules Match Image 1! <<<\n");
-
-// ============================================================================
-// TEST 4: COMPLEX WORD / PHRASE TEST
-// ============================================================================
-console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 4: Multi-character Sentence Test ('الله نور السماوات والارض')");
-console.log("--------------------------------------------------------------------------------");
-
-const test4 = calculateArabicPower("الله نور السماوات والارض");
-console.log(`Total Characters : ${test4.totalChars}`);
-console.log(`Normalized Chars : [${test4.normalizedChars.join('')}]`);
-console.log(`Step 1 Sum S1    : ${test4.step1Sum}`);
-console.log(`Step 2 Sum S2    : ${test4.step2SumDisplay}`);
-console.log(`Total Fraction S : ${test4.transferredSumDisplay}`);
-console.log(`Answer 1 (√S)    : ${test4.answer1.fullDisplay10} ➔ Root: ${test4.answer1.singleDigit}`);
-console.log(`Answer 2 (√(S/N)): ${test4.answer2.fullDisplay10} ➔ Root: ${test4.answer2.singleDigit}`);
-console.log(`Answer 3 (√S .)  : ${test4.answer3.fullDisplay10} ➔ Root: ${test4.answer3.singleDigit}`);
-console.log(`Answer 4 (√(S/N).): ${test4.answer4.fullDisplay10} ➔ Root: ${test4.answer4.singleDigit}`);
-console.log(">>> ✅ TEST 4 PASSED! <<<\n");
+console.log("\n>>> ✅ TEST 3 PASSED: All Normalization Rules Verified! <<<\n");
 
 console.log("================================================================================");
 console.log("🎉 ALL LOGICAL, MATHEMATICAL, AND NORMALIZATION TESTS COMPLETED SUCCESSFULLY! 🎉");

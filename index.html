@@ -294,7 +294,7 @@
                 const isChecked = item.isSelected;
                 stepsHTML += `
                     <tr style="${isChecked ? 'background: rgba(16, 185, 129, 0.1);' : 'opacity: 0.6;'}">
-                        <td>${item.pos} (قيمة: ${item.step1})</td>
+                        <td>${item.pos}</td>
                         <td><strong>${item.char}</strong></td>
                         <td dir="ltr">${item.step2}</td>
                         <td dir="ltr">${item.step3}</td>
@@ -342,13 +342,13 @@
                 <div class="card">
                     <h2>📋 جدول التحليل والخطوات الخمس (القسم الأول)</h2>
                     <p><strong>النص المدخل:</strong> ${res.wordInput} | <strong>الأحرف بعد التوحيد:</strong> ${res.normalizedChars.join(' ، ')}</p>
-                    <p><strong>S1:</strong> ${res.S1} | <strong>S2:</strong> ${res.S2} | <strong>الخانات المحددة (N):</strong> ${res.selectedCount} | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
+                    <p><strong>كسر البداية:</strong> ${res.step1Details.fractionDisplay} | <strong>S2:</strong> ${res.S2} | <strong>الخانات المحددة (N):</strong> ${res.selectedCount} | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
 
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>الخانة (خطوة 1: ×4)</th>
+                                    <th>الخانة</th>
                                     <th>الحرف</th>
                                     <th>خطوة 2 (تقسيم وضرب)</th>
                                     <th>خطوة 3 (كسر قياسي)</th>
