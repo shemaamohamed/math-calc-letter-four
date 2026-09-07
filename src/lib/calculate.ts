@@ -234,13 +234,13 @@ export interface Step1Summary {
   charPositions: Step1CharItem[];
   sumPositions: number; // S = sum(1..n)
   sumFormulaStr: string; // e.g., "1 + 2 + 3 + 4 + 5 = 15"
-  equationStr: string; // "(S ÷ 4) × S = S² / 4"
-  calculationStr: string; // "(15 ÷ 4) × 15 = 225 / 4"
-  rawNumerator: bigint; // S²
+  equationStr: string; // "S ÷ 4"
+  calculationStr: string; // "15 ÷ 4 = 15/4"
+  rawNumerator: bigint; // S
   rawDenominator: bigint; // 4
-  fraction: Fraction; // simplified Fraction (e.g. 225/4 or 9/1)
-  fractionDisplay: string; // "225/4" or "9/1"
-  rawFractionDisplay: string; // "225/4" or "36/4"
+  fraction: Fraction; // simplified Fraction (e.g. 15/4 or 3/2)
+  fractionDisplay: string; // "15/4" or "3/2"
+  rawFractionDisplay: string; // "15/4" or "6/4"
 }
 
 export interface Section1Item {
@@ -327,7 +327,7 @@ export function calculateArabicPower(
     throw new Error('الرجاء إدخال أحرف عربية صحيحة');
   }
 
-  // الخطوة 1: ترقيم الحروف تصاعدياً من 1 وحساب المجموع الكلي S وتطبيق المعادلة (S ÷ 4) × S = S² / 4
+  // الخطوة 1: ترقيم الحروف تصاعدياً من 1 وحساب المجموع الكلي S وتطبيق المعادلة S ÷ 4
   const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => ({
     pos: i + 1,
     char: c,
@@ -338,19 +338,18 @@ export function calculateArabicPower(
   const sumFormulaStr = step1Chars.map(item => item.pos).join(' + ') + ` = ${sumPositions}`;
   
   const S_big = BigInt(sumPositions);
-  const S_squared = S_big * S_big;
-  const step1Fraction = new Fraction(S_squared, FOUR);
-  const rawFractionDisplay = `${S_squared}/4`;
+  const step1Fraction = new Fraction(S_big, FOUR);
+  const rawFractionDisplay = `${sumPositions}/4`;
   const fractionDisplay = step1Fraction.toString();
-  const calculationStr = `(${sumPositions} ÷ 4) × ${sumPositions} = (${sumPositions}² ÷ 4) = ${rawFractionDisplay}${fractionDisplay !== rawFractionDisplay ? ` = ${fractionDisplay}` : ''}`;
+  const calculationStr = `${sumPositions} ÷ 4 = ${rawFractionDisplay}${fractionDisplay !== rawFractionDisplay ? ` = ${fractionDisplay}` : ''}`;
 
   const step1Details: Step1Summary = {
     charPositions: step1Chars,
     sumPositions,
     sumFormulaStr,
-    equationStr: '(S ÷ 4) × S = S² / 4',
+    equationStr: 'S ÷ 4',
     calculationStr,
-    rawNumerator: S_squared,
+    rawNumerator: S_big,
     rawDenominator: FOUR,
     fraction: step1Fraction,
     fractionDisplay,

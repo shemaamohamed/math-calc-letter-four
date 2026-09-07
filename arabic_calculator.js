@@ -145,20 +145,20 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: Position numbering, sum S, and formula (S ÷ 4) * S = S^2 / 4
+    // Step 1: Position numbering, sum S, and formula S / 4
     const step1Chars = chars.map((c, i) => ({ pos: i + 1, char: c, originalChar: rawChars[i] }));
     const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
     const sumFormulaStr = step1Chars.map(item => item.pos).join(' + ') + ` = ${sumPositions}`;
-    const S_squared = BigInt(sumPositions * sumPositions);
-    const step1Fraction = new Fraction(S_squared, 4n);
-    const rawFractionDisplay = `${S_squared}/4`;
+    const S_big = BigInt(sumPositions);
+    const step1Fraction = new Fraction(S_big, 4n);
+    const rawFractionDisplay = `${sumPositions}/4`;
     const fractionDisplay = step1Fraction.toString();
 
     const step1Details = {
         charPositions: step1Chars,
         sumPositions,
         sumFormulaStr,
-        equationStr: '(S ÷ 4) × S = S² / 4',
+        equationStr: 'S ÷ 4',
         rawFractionDisplay,
         fractionDisplay
     };

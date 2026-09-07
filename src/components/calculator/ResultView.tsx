@@ -221,7 +221,7 @@ export default function ResultView({
                     الخطوة الأولى: ترقيم الحروف وتطبيق معادلة كسر البداية
                   </CardTitle>
                   <p className="text-[10px] sm:text-[11px] text-slate-400">
-                    ترقيم تصاعدي يبدأ من 1 ➔ حساب المجموع S ➔ تطبيق معادلة (S ÷ 4) × S = S² / 4
+                    ترقيم تصاعدي يبدأ من 1 ➔ حساب المجموع S ➔ تطبيق معادلة S ÷ 4
                   </p>
                 </div>
               </div>
@@ -275,10 +275,10 @@ export default function ResultView({
                   3. تطبيق المعادلة:
                 </span>
                 <div className="font-mono text-xs font-bold text-yellow-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5 truncate">
-                  (S ÷ 4) × S = S² / 4
+                  S ÷ 4
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  ({result.step1Details.sumPositions} ÷ 4) × {result.step1Details.sumPositions} = {result.step1Details.rawNumerator.toString()}/4
+                  {result.step1Details.sumPositions} ÷ 4 = {result.step1Details.rawNumerator.toString()}/4
                 </div>
               </div>
 
@@ -425,7 +425,7 @@ export default function ResultView({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">الخطوة 1: كسر البداية (S² / 4)</span>
+                <span className="text-slate-400 text-[10px] block">الخطوة 1: كسر البداية (S ÷ 4)</span>
                 <span className="font-mono text-cyan-300 font-bold">{result.step1Details.fractionDisplay}</span>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">

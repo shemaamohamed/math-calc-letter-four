@@ -60,17 +60,17 @@ console.log(`     خطوات جمع الأرقام والاختزال: ${test1.a
 console.log(`     الرقم المفرد النهائي: [ ${test1.answer4.singleDigit} ]`);
 
 // Validations
-const expectedCellValues = ['1/14', '13/7', '117/28'];
+const expectedCellValues = ['1/84', '13/42', '39/56'];
 const actualCellValues = test1.section1.map(c => c.resultDisplay);
 const isSection1Valid = JSON.stringify(actualCellValues) === JSON.stringify(expectedCellValues);
 
-const isAns1Valid = test1.answer1.fullDisplay10 === '2.471263413' && test1.answer1.singleDigit === 6;
-const isAns2Valid = test1.answer2.fullDisplay10 === '1.426784596' && test1.answer2.singleDigit === 7;
-const isAns3Valid = test1.answer3.extractedDigits === '4712634131' && test1.answer3.singleDigit === 5;
-const isAns4Valid = test1.answer4.extractedDigits === '4267845968' && test1.answer4.singleDigit === 5;
+const isAns1Valid = test1.answer1.fullDisplay10 === '1.008889063' && test1.answer1.singleDigit === 7;
+const isAns2Valid = test1.answer2.fullDisplay10 === '0.582482372' && test1.answer2.singleDigit === 5;
+const isAns3Valid = test1.answer3.extractedDigits === '0088890637' && test1.answer3.singleDigit === 4;
+const isAns4Valid = test1.answer4.extractedDigits === '5824823725' && test1.answer4.singleDigit === 1;
 
 if (isSection1Valid && isAns1Valid && isAns2Valid && isAns3Valid && isAns4Valid) {
-  console.log("\n>>> ✅ TEST 1 PASSED: 100% IDENTICAL TO HANDWRITTEN CALCULATION FOR 'مدد'! <<<\n");
+  console.log("\n>>> ✅ TEST 1 PASSED: ACCURATE TO NEW STEP 1 S / 4 RULE FOR 'مدد'! <<<\n");
 } else {
   console.error(">>> ❌ TEST 1 FAILED! <<<");
   process.exit(1);
@@ -80,7 +80,7 @@ if (isSection1Valid && isAns1Valid && isAns2Valid && isAns3Valid && isAns4Valid)
 // TEST 2: WORD "مكارم"
 // ============================================================================
 console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 2: Word 'مكارم' (S = 15, Fraction = 225/4)");
+console.log("📌 TEST 2: Word 'مكارم' (S = 15, Fraction = 15/4)");
 console.log("--------------------------------------------------------------------------------");
 
 const test2 = calculateArabicPower("مكارم");
