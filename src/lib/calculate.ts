@@ -228,27 +228,30 @@ export interface Step1CharItem {
   pos: number;
   char: string;
   originalChar: string;
+  initialValue: number; // pos * multiplier (الضرب في المعامل الثابت 4)
 }
 
 export interface Step1Summary {
   charPositions: Step1CharItem[];
-  sumPositions: number; // S = sum(1..n)
-  sumFormulaStr: string; // e.g., "1 + 2 + 3 + 4 + 5 = 15"
-  equationStr: string; // "S ÷ 4"
-  calculationStr: string; // "15 ÷ 4 = 15/4"
-  rawNumerator: bigint; // S
-  rawDenominator: bigint; // 4
-  fraction: Fraction; // simplified Fraction (e.g. 15/4 or 3/2)
-  fractionDisplay: string; // "15/4" or "3/2"
-  rawFractionDisplay: string; // "15/4" or "6/4"
+  multiplier: number; // المعامل الثابت (افتراضياً 4)
+  sumPositions: number; // مجموع الترتيب (1 + 2 + ... + n)
+  sumCellValues: number; // مجموع الخانات بعد المعامل S1 (مثال: 4 + 8 + 12 + 16 = 40)
+  sumFormulaStr: string; // e.g., "4 + 8 + 12 + 16 = 40"
+  equationStr: string; // "الخانة × 4 ➔ تجميع الخانات"
+  calculationStr: string; // "4 + 8 + 12 + 16 = 40"
+  rawNumerator: bigint; // S1
+  rawDenominator: bigint; // 1
+  fraction: Fraction; // Fraction(S1, 1)
+  fractionDisplay: string; // "40/1" or "40"
+  rawFractionDisplay: string; // "40/1"
 }
 
 export interface Section1Item {
   pos: number;
   char: string;
   originalChar: string;
-  step1Val: number; // pos * 4
-  step2Frac: Fraction; // (p_i / p_last) * p_i
+  step1Val: number; // pos * multiplier (4, 8, 12, 16...)
+  step2Frac: Fraction; // (v1_i / v1_last) * v1_i
   step2Display: string;
   step3Frac: Fraction; // (step2 / S2) * S1
   step3Display: string;
@@ -313,9 +316,58 @@ export interface CalculationResult {
   answer4: AnswerDetails;
 }
 
+/**
+ * الخوارزمية المستقلة للخطوة الأولى (المعامل الأولي والتجميع):
+ * 1. المرور على كل خانة وضرب قيمتها في المعامل الثابت (مثال: 4)
+ * 2. خطوة التجميع (Aggregation): جمع نواتج كل الخانات معاً في وعاء بيانات واحد
+ * 3. إرجاع الناتج الإجمالي وتفاصيل كل خانة
+ */
+export function calculateStep1Aggregation(
+  rawChars: string[],
+  normalizedChars: string[],
+  multiplier: number = 4
+): Step1Summary {
+  const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => {
+    const pos = i + 1;
+    const initialValue = pos * multiplier;
+    return {
+      pos,
+      char: c,
+      originalChar: rawChars[i] ?? c,
+      initialValue,
+    };
+  });
+
+  const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
+  const sumCellValues = step1Chars.reduce((acc, item) => acc + item.initialValue, 0);
+  const sumFormulaStr = step1Chars.map(item => item.initialValue).join(' + ') + ` = ${sumCellValues}`;
+  
+  const S_big = BigInt(sumCellValues);
+  const step1Fraction = new Fraction(S_big, ONE);
+  const rawFractionDisplay = `${sumCellValues}/1`;
+  const fractionDisplay = step1Fraction.toString();
+  const calculationStr = sumFormulaStr;
+
+  return {
+    charPositions: step1Chars,
+    multiplier,
+    sumPositions,
+    sumCellValues,
+    sumFormulaStr,
+    equationStr: `(الترتيب × ${multiplier}) ➔ تجميع الخانات`,
+    calculationStr,
+    rawNumerator: S_big,
+    rawDenominator: ONE,
+    fraction: step1Fraction,
+    fractionDisplay,
+    rawFractionDisplay,
+  };
+}
+
 export function calculateArabicPower(
   text: string,
-  transferredIndicesInput?: number[]
+  transferredIndicesInput?: number[],
+  cellMultiplier: number = 4
 ): CalculationResult {
   // تنظيف علامات التشكيل والتطويل والمسافات
   const cleanedText = text.replace(/[\u064B-\u0652\u0640]/g, '');
@@ -327,41 +379,19 @@ export function calculateArabicPower(
     throw new Error('الرجاء إدخال أحرف عربية صحيحة');
   }
 
-  // الخطوة 1: ترقيم الحروف تصاعدياً من 1 وحساب المجموع الكلي S وتطبيق المعادلة S ÷ 4
-  const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => ({
-    pos: i + 1,
-    char: c,
-    originalChar: rawChars[i],
-  }));
+  // الخطوة الأولى (المعامل الأولي والتجميع):
+  // 1. المرور على كل خانة وضرب قيمتها في المعامل الثابت (مثال: 4)
+  // 2. تجميع جميع النواتج معاً في مجموع واحد S1
+  const step1Details = calculateStep1Aggregation(rawChars, normalizedChars, cellMultiplier);
+  const step1Fraction = step1Details.fraction;
+  const sumCellValues = step1Details.sumCellValues;
 
-  const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0); // S
-  const sumFormulaStr = step1Chars.map(item => item.pos).join(' + ') + ` = ${sumPositions}`;
-  
-  const S_big = BigInt(sumPositions);
-  const step1Fraction = new Fraction(S_big, FOUR);
-  const rawFractionDisplay = `${sumPositions}/4`;
-  const fractionDisplay = step1Fraction.toString();
-  const calculationStr = `${sumPositions} ÷ 4 = ${rawFractionDisplay}${fractionDisplay !== rawFractionDisplay ? ` = ${fractionDisplay}` : ''}`;
-
-  const step1Details: Step1Summary = {
-    charPositions: step1Chars,
-    sumPositions,
-    sumFormulaStr,
-    equationStr: 'S ÷ 4',
-    calculationStr,
-    rawNumerator: S_big,
-    rawDenominator: FOUR,
-    fraction: step1Fraction,
-    fractionDisplay,
-    rawFractionDisplay,
-  };
-
-  // الخطوة 2: العد الطبيعي للمواقع (i = 1..n)، وتقسيم كل خانة على رقم الخانة الأخيرة n ثم الضرب في نفس الخانة
-  // v_{2, i} = (i / n) * i = i^2 / n
-  const p_last = BigInt(n);
-  const step2Fractions = normalizedChars.map((_, i) => {
-    const posBig = BigInt(i + 1);
-    return new Fraction(posBig * posBig, p_last);
+  // الخطوة 2: تقسيم كل خانة على قيمة الخانة الأخيرة من الخطوة الأولى ثم الضرب في نفس الخانة
+  // v_{2, i} = (v_{1, i} / v_{1, n}) * v_{1, i} = v_{1, i}^2 / v_{1, n}
+  const v1_last = BigInt(step1Details.charPositions[n - 1].initialValue);
+  const step2Fractions = step1Details.charPositions.map(item => {
+    const valBig = BigInt(item.initialValue);
+    return new Fraction(valBig * valBig, v1_last);
   });
 
   let S2 = new Fraction(ZERO, ONE);
@@ -369,8 +399,8 @@ export function calculateArabicPower(
     S2 = S2.add(f);
   });
 
-  // الخطوة 3: تقسيم كل خانة من خطوة 2 على مجموع خطوة 2 (S2) ثم الضرب في كسر الخطوة الأولى (Step 1 Fraction)
-  // v_{3, i} = (v_{2, i} / S2) * Step1_Fraction
+  // الخطوة 3: تقسيم كل خانة من خطوة 2 على مجموع خطوة 2 (S2) ثم الضرب في مجموع الخطوة الأولى (S1)
+  // v_{3, i} = (v_{2, i} / S2) * S1
   const step3Fractions = step2Fractions.map(v2 => {
     return v2.div(S2).mul(step1Fraction);
   });
@@ -424,7 +454,7 @@ export function calculateArabicPower(
   const section1: Section1Item[] = normalizedChars.map((c, idx) => {
     const pos = idx + 1;
     const originalChar = rawChars[idx];
-    const step1Val = pos;
+    const step1Val = step1Details.charPositions[idx].initialValue;
     const step2Frac = step2Fractions[idx];
     const step3Frac = step3Fractions[idx];
 
@@ -564,7 +594,7 @@ export function calculateArabicPower(
     normalizedChars,
     totalChars: n,
     step1Details,
-    step1Sum: sumPositions,
+    step1Sum: sumCellValues,
     step2SumFrac: S2,
     step2SumDisplay: S2.toString(),
     step3LastFrac: v3_last,

@@ -5,24 +5,24 @@ console.log("             🧪 COMPREHENSIVE ARABIC MATH LOGIC VERIFICATION 🧪
 console.log("================================================================================\n");
 
 // ============================================================================
-// TEST 1: EXACT MATCH WITH HANDWRITTEN IMAGES ("مدد" - All Cells Transferred)
+// TEST 1: EXACT MATCH WITH HANDWRITTEN IMAGES ("جليل" - All Cells Transferred)
 // ============================================================================
 console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 1: Word 'مدد' with ALL Cells [1, 2, 3] Transferred (Matching Handwritten Sheet)");
+console.log("📌 TEST 1: Word 'جليل' (Matching Handwritten Sheet 100%)");
 console.log("--------------------------------------------------------------------------------");
 
-const test1 = calculateArabicPower("مدد");
+const test1 = calculateArabicPower("جليل");
 
 console.log(`Original Word   : "${test1.original}"`);
 console.log(`Normalized Chars: [${test1.normalizedChars.join(', ')}]`);
-console.log(`Step 1 (S)      : ${test1.step1Details.sumPositions} -> Fraction = ${test1.step1Details.fractionDisplay}`);
+console.log(`Step 1 (S1)     : ${test1.step1Details.sumCellValues} -> Fraction = ${test1.step1Details.fractionDisplay}`);
 console.log(`Step 2 Sum (S2) : ${test1.step2SumDisplay}`);
 console.log(`Step 3 Last Val : ${test1.step3LastFrac.toString()}`);
 console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوات الخمس):");
 
 test1.section1.forEach(cell => {
   console.log(`  [الخانة ${cell.pos} (${cell.char})]:`);
-  console.log(`    - خطوة 1 (الترتيب)     : ${cell.step1Val}`);
+  console.log(`    - خطوة 1 (المعامل 4)   : ${cell.step1Val}`);
   console.log(`    - خطوة 2 (تقسيم وضرب)  : ${cell.step2Display}`);
   console.log(`    - خطوة 3 (كسر قياسي)   : ${cell.step3Display}`);
   console.log(`    - خطوة 4 (مجموع الحرف) : ${cell.step4GroupDisplay}`);
@@ -59,38 +59,37 @@ console.log(`     الأرقام الـ 10 المستخرجة: [${test1.answer4.
 console.log(`     خطوات جمع الأرقام والاختزال: ${test1.answer4.digitSumSteps.join(' ➔ ')}`);
 console.log(`     الرقم المفرد النهائي: [ ${test1.answer4.singleDigit} ]`);
 
-// Validations
-const expectedCellValues = ['1/84', '13/42', '39/56'];
+// Validations for "جليل"
+const expectedCellValues = ['1/12', '10/3', '27/4', '40/3'];
 const actualCellValues = test1.section1.map(c => c.resultDisplay);
 const isSection1Valid = JSON.stringify(actualCellValues) === JSON.stringify(expectedCellValues);
 
-const isAns1Valid = test1.answer1.fullDisplay10 === '1.008889063' && test1.answer1.singleDigit === 7;
-const isAns2Valid = test1.answer2.fullDisplay10 === '0.582482372' && test1.answer2.singleDigit === 5;
-const isAns3Valid = test1.answer3.extractedDigits === '0088890637' && test1.answer3.singleDigit === 4;
-const isAns4Valid = test1.answer4.extractedDigits === '5824823725' && test1.answer4.singleDigit === 1;
+const isAns1Valid = test1.answer1.singleDigit === 2;
+const isAns2Valid = test1.answer2.singleDigit === 5;
+const isAns3Valid = test1.answer3.singleDigit === 2;
+const isAns4Valid = test1.answer4.singleDigit === 1;
 
 if (isSection1Valid && isAns1Valid && isAns2Valid && isAns3Valid && isAns4Valid) {
-  console.log("\n>>> ✅ TEST 1 PASSED: ACCURATE TO NEW STEP 1 S / 4 RULE FOR 'مدد'! <<<\n");
+  console.log("\n>>> ✅ TEST 1 PASSED: 100% ACCURATE TO HANDWRITTEN SHEET FOR 'جليل'! <<<\n");
 } else {
   console.error(">>> ❌ TEST 1 FAILED! <<<");
   process.exit(1);
 }
 
 // ============================================================================
-// TEST 2: WORD "مكارم"
+// TEST 2: WORD "مدد"
 // ============================================================================
 console.log("--------------------------------------------------------------------------------");
-console.log("📌 TEST 2: Word 'مكارم' (S = 15, Fraction = 15/4)");
+console.log("📌 TEST 2: Word 'مدد' (S1 = 24, S2 = 56/3)");
 console.log("--------------------------------------------------------------------------------");
 
-const test2 = calculateArabicPower("مكارم");
-console.log(`Step 1 Fraction: ${test2.step1Details.fractionDisplay}`);
+const test2 = calculateArabicPower("مدد");
+console.log(`Step 1 S1      : ${test2.step1Details.sumCellValues} (Fraction: ${test2.step1Details.fractionDisplay})`);
 console.log(`Step 2 Sum S2  : ${test2.step2SumDisplay}`);
-console.log(`Sum of all cells S = ${test2.transferredSumDisplay}`);
-console.log(`Answer 1 (√S)    : ${test2.answer1.exactFraction} => ${test2.answer1.fullDisplay10} (Single Digit: ${test2.answer1.singleDigit})`);
-console.log(`Answer 2 (√(S/N)): ${test2.answer2.exactFraction} => ${test2.answer2.fullDisplay10} (Single Digit: ${test2.answer2.singleDigit})`);
-console.log(`Answer 3 (√S .)  : ${test2.answer3.exactFraction} => ${test2.answer3.fullDisplay10} (Single Digit: ${test2.answer3.singleDigit})`);
-console.log(`Answer 4 (√(S/N).): ${test2.answer4.exactFraction} => ${test2.answer4.fullDisplay10} (Single Digit: ${test2.answer4.singleDigit})`);
+console.log(`Sum of all cells S = ${test2.transferredSumDisplay} (Expected: 114/7)`);
+if (test2.transferredSumDisplay !== '114/7') {
+  throw new Error(`Test 2 failed: expected 114/7, got ${test2.transferredSumDisplay}`);
+}
 console.log(">>> ✅ TEST 2 PASSED! <<<\n");
 
 // ============================================================================

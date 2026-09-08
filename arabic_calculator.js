@@ -145,29 +145,37 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: Position numbering, sum S, and formula S / 4
-    const step1Chars = chars.map((c, i) => ({ pos: i + 1, char: c, originalChar: rawChars[i] }));
+    // Step 1: Position numbering, multiplier (4), and sum aggregation S1
+    const cellMultiplier = 4;
+    const step1Chars = chars.map((c, i) => {
+        const pos = i + 1;
+        const initialValue = pos * cellMultiplier;
+        return { pos, char: c, originalChar: rawChars[i], initialValue };
+    });
     const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
-    const sumFormulaStr = step1Chars.map(item => item.pos).join(' + ') + ` = ${sumPositions}`;
-    const S_big = BigInt(sumPositions);
-    const step1Fraction = new Fraction(S_big, 4n);
-    const rawFractionDisplay = `${sumPositions}/4`;
+    const sumCellValues = step1Chars.reduce((acc, item) => acc + item.initialValue, 0);
+    const sumFormulaStr = step1Chars.map(item => item.initialValue).join(' + ') + ` = ${sumCellValues}`;
+    const S_big = BigInt(sumCellValues);
+    const step1Fraction = new Fraction(S_big, 1n);
+    const rawFractionDisplay = `${sumCellValues}/1`;
     const fractionDisplay = step1Fraction.toString();
 
     const step1Details = {
         charPositions: step1Chars,
+        multiplier: cellMultiplier,
         sumPositions,
+        sumCellValues,
         sumFormulaStr,
-        equationStr: 'S ÷ 4',
+        equationStr: `(الترتيب × ${cellMultiplier}) ➔ تجميع الخانات`,
         rawFractionDisplay,
         fractionDisplay
     };
 
-    // Step 2: (i / n) * i = i^2 / n and sum S2
-    const p_last = BigInt(n);
-    const step2Fractions = chars.map((_, i) => {
-        const p = BigInt(i + 1);
-        return new Fraction(p * p, p_last);
+    // Step 2: (v1_i / v1_last) * v1_i = v1_i^2 / v1_last and sum S2
+    const v1_last = BigInt(step1Chars[n - 1].initialValue);
+    const step2Fractions = step1Chars.map(item => {
+        const valBig = BigInt(item.initialValue);
+        return new Fraction(valBig * valBig, v1_last);
     });
     let S2 = new Fraction(0n, 1n);
     step2Fractions.forEach(f => S2 = S2.add(f));
@@ -213,7 +221,7 @@ function processWord(text, selectedIndices = null) {
         return {
             pos,
             char: c,
-            step1: pos,
+            step1: step1Chars[idx].initialValue,
             step2: step2Fractions[idx].toString(),
             step3: step3Val.toString(),
             step4Group: charAvg.toString(),
@@ -252,7 +260,7 @@ function processWord(text, selectedIndices = null) {
         normalizedChars: chars,
         totalChars: n,
         step1Details,
-        S1: sumPositions.toString(),
+        S1: sumCellValues.toString(),
         S2: S2.toString(),
         v3_last: v3_last.toString(),
         charGroups: charGroupsMap,

@@ -207,7 +207,7 @@ export default function ResultView({
         </div>
       </div>
 
-      {/* STEP 1 HERO: ترقيم الحروف وحساب كسر البداية */}
+      {/* STEP 1 HERO: ترقيم الحروف وتطبيق المعامل الأولي والتجميع */}
       {result.step1Details && (
         <Card className="glass border-indigo-500/30 bg-gradient-to-b from-indigo-950/30 to-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.12)] overflow-hidden w-full min-w-0">
           <CardHeader className="py-2.5 px-3 sm:px-5 border-b border-white/10 bg-indigo-950/40">
@@ -218,10 +218,10 @@ export default function ResultView({
                 </div>
                 <div>
                   <CardTitle className="text-sm sm:text-base font-bold text-indigo-200">
-                    الخطوة الأولى: ترقيم الحروف وتطبيق معادلة كسر البداية
+                    الخطوة الأولى: المعامل الأولي وتجميع الخانات
                   </CardTitle>
                   <p className="text-[10px] sm:text-[11px] text-slate-400">
-                    ترقيم تصاعدي يبدأ من 1 ➔ حساب المجموع S ➔ تطبيق معادلة S ÷ 4
+                    ضرب كل خانة في المعامل الثابت ({result.step1Details.multiplier ?? 4}) ➔ تجميع كل الخانات ➔ الناتج النهائي S1 = {result.step1Details.sumCellValues}
                   </p>
                 </div>
               </div>
@@ -231,20 +231,23 @@ export default function ResultView({
             </div>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 space-y-3">
-            {/* 1. Letter Numbering Visualization (أرقام الحروف فوق كل حرف) */}
+            {/* 1. Letter Multiplier Visualization (الضرب في 4 لكل خانة) */}
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                1. ترقيم الحروف (الرقم الترتيبي مكتوب فوق كل حرف):
+                1. ضرب كل خانة في المعامل الثابت ({result.step1Details.multiplier ?? 4}):
               </span>
               <div className="flex flex-wrap items-center gap-2 p-2.5 bg-black/40 rounded-xl border border-white/5 overflow-x-auto">
                 {result.step1Details.charPositions.map(item => (
                   <div
                     key={`step1-char-${item.pos}`}
-                    className="flex flex-col items-center justify-center bg-indigo-950/40 border border-indigo-500/30 rounded-lg px-2.5 py-1.5 min-w-[42px] shadow-sm"
+                    className="flex flex-col items-center justify-center bg-indigo-950/40 border border-indigo-500/30 rounded-lg px-2.5 py-1.5 min-w-[50px] shadow-sm"
                   >
-                    <span className="text-[11px] font-mono font-bold text-amber-300 border-b border-indigo-500/30 pb-0.5 mb-1 w-full text-center">
-                      {item.pos}
+                    <span className="text-[9px] font-mono text-slate-400">
+                      #{item.pos} × {result.step1Details.multiplier ?? 4}
+                    </span>
+                    <span className="text-xs font-mono font-black text-amber-300 border-b border-indigo-500/30 pb-0.5 mb-1 w-full text-center">
+                      = {item.initialValue}
                     </span>
                     <span className="text-base font-black text-white">
                       {item.char}
@@ -256,47 +259,42 @@ export default function ResultView({
 
             {/* 2. Three Step Calculations Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
-              {/* Box 1: مجموع الأرقام S */}
+              {/* Box 1: خطوة التجميع */}
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
                 <span className="text-[11px] text-slate-400 font-medium block">
-                  2. مجموع الأرقام (S):
+                  2. خطوة التجميع (Sum of all cells):
                 </span>
                 <div className="font-mono text-xs font-bold text-cyan-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5">
                   {result.step1Details.sumFormulaStr}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  المجموع الكلي S = {result.step1Details.sumPositions}
+                  مجموع كل الخانات مجتمعة = {result.step1Details.sumCellValues}
                 </div>
               </div>
 
-              {/* Box 2: تطبيق المعادلة */}
+              {/* Box 2: صيغة المعادلة */}
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
                 <span className="text-[11px] text-slate-400 font-medium block">
-                  3. تطبيق المعادلة:
+                  3. منطق المعادلة:
                 </span>
                 <div className="font-mono text-xs font-bold text-yellow-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5 truncate">
-                  S ÷ 4
+                  ∑(الترتيب × 4) = S1
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {result.step1Details.sumPositions} ÷ 4 = {result.step1Details.rawNumerator.toString()}/4
+                  {result.step1Details.charPositions.map(c => `${c.pos}×4`).join(' + ')} = {result.step1Details.sumCellValues}
                 </div>
               </div>
 
               {/* Box 3: النتيجة في صورة كسر */}
               <div className="p-2.5 rounded-xl bg-indigo-950/30 border border-indigo-500/30 space-y-1">
                 <span className="text-[11px] text-indigo-300 font-bold block">
-                  4. الناتج النهائي للخطوة الأولى:
+                  4. الناتج النهائي للخطوة الأولى (S1):
                 </span>
                 <div className="font-mono text-sm font-black text-indigo-200 dir-ltr bg-black/60 p-2 rounded-lg border border-indigo-500/30 text-center">
-                  {result.step1Details.rawFractionDisplay}
-                  {result.step1Details.fractionDisplay !== result.step1Details.rawFractionDisplay && (
-                    <span className="text-emerald-400 text-xs mr-1.5">
-                      {' '}➔ {result.step1Details.fractionDisplay}
-                    </span>
-                  )}
+                  {result.step1Details.fractionDisplay}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  يُستخدم هذا الكسر في متابعة الحساب
+                  يُستخدم هذا الناتج في الخطوات التالية
                 </div>
               </div>
             </div>
@@ -425,7 +423,7 @@ export default function ResultView({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">الخطوة 1: كسر البداية (S ÷ 4)</span>
+                <span className="text-slate-400 text-[10px] block">الخطوة 1: مجموع الخانات S1</span>
                 <span className="font-mono text-cyan-300 font-bold">{result.step1Details.fractionDisplay}</span>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
@@ -468,6 +466,12 @@ export default function ResultView({
                       </span>
                     </th>
                     <th className="py-2 px-2 text-center w-12">الحرف</th>
+                    <th className="py-2 px-2 text-center">
+                      خطوة 1
+                      <span className="block text-[9px] text-indigo-400 font-normal">
+                        (الترتيب × 4)
+                      </span>
+                    </th>
                     <th className="py-2 px-2 text-center">
                       خطوة 2
                       <span className="block text-[9px] text-cyan-400 font-normal">
@@ -545,6 +549,11 @@ export default function ResultView({
                           >
                             {item.char}
                           </span>
+                        </td>
+
+                        {/* Step 1 Value (pos * 4) */}
+                        <td className="py-1.5 px-2 text-center font-mono font-bold text-indigo-300 text-xs dir-ltr">
+                          {item.step1Val}
                         </td>
 
                         {/* Step 2 Value */}
@@ -662,7 +671,11 @@ export default function ResultView({
                       </div>
 
                       {/* Row 2: 5 Steps Breakdown */}
-                      <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-black/40 p-2 rounded-lg font-mono min-w-0">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] bg-black/40 p-2 rounded-lg font-mono min-w-0">
+                        <div className="text-slate-400 truncate">
+                          خطوة 1 (×4):{' '}
+                          <strong className="text-indigo-300 font-bold dir-ltr">{item.step1Val}</strong>
+                        </div>
                         <div className="text-slate-400 truncate">
                           خطوة 2:{' '}
                           <strong className="text-cyan-300 font-bold dir-ltr">{item.step2Display}</strong>
@@ -679,7 +692,7 @@ export default function ResultView({
                           نسبة:{' '}
                           <strong className="text-amber-300 font-bold">{item.percentageDisplay}</strong>
                         </div>
-                        <div className="col-span-2 pt-1 border-t border-white/5 flex justify-between items-center text-[11px] min-w-0">
+                        <div className="col-span-2 sm:col-span-3 pt-1 border-t border-white/5 flex justify-between items-center text-[11px] min-w-0">
                           <span className="text-slate-400 font-sans">الناتج الجزئي:</span>
                           <span className="text-emerald-400 font-black dir-ltr text-xs">
                             {item.resultDisplay}

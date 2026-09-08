@@ -278,12 +278,13 @@
             const res = processWord(val, selectedIndices);
             const output = document.getElementById('outputArea');
 
-            // Render Step 1 Letter Numbering Badges
+            // Render Step 1 Letter Multiplier Badges
             let step1Badges = '';
             if (res.step1Details) {
                 step1Badges = res.step1Details.charPositions.map(c => `
-                    <div style="display: flex; flex-direction: column; align-items: center; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 4px 8px; min-width: 40px;">
-                        <span style="font-size: 0.75rem; font-weight: bold; color: #fbbf24; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; text-align: center; margin-bottom: 2px;">${c.pos}</span>
+                    <div style="display: flex; flex-direction: column; align-items: center; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 4px 8px; min-width: 48px;">
+                        <span style="font-size: 0.65rem; color: #94a3b8;">#${c.pos} × ${res.step1Details.multiplier}</span>
+                        <span style="font-size: 0.8rem; font-weight: bold; color: #fbbf24; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; text-align: center; margin-bottom: 2px;">= ${c.initialValue}</span>
                         <span style="font-size: 1.1rem; font-weight: 900; color: #fff;">${c.char}</span>
                     </div>
                 `).join('');
@@ -296,6 +297,7 @@
                     <tr style="${isChecked ? 'background: rgba(16, 185, 129, 0.1);' : 'opacity: 0.6;'}">
                         <td>${item.pos}</td>
                         <td><strong>${item.char}</strong></td>
+                        <td dir="ltr" style="color: #a5b4fc; font-weight: bold;">${item.step1}</td>
                         <td dir="ltr">${item.step2}</td>
                         <td dir="ltr">${item.step3}</td>
                         <td dir="ltr">${item.step4Group}</td>
@@ -313,11 +315,11 @@
             output.innerHTML = `
                 <!-- Step 1 Hero Block -->
                 <div class="card" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(30, 27, 75, 0.25);">
-                    <h2 style="color: #a5b4fc;">١. الخطوة الأولى: ترقيم الحروف وتطبيق معادلة كسر البداية</h2>
-                    <p style="color: #cbd5e1; font-size: 0.85rem;">ترقيم تصاعدي يبدأ من 1 ➔ حساب المجموع S ➔ تطبيق المعادلة S ÷ 4</p>
+                    <h2 style="color: #a5b4fc;">١. الخطوة الأولى: المعامل الأولي وتجميع الخانات</h2>
+                    <p style="color: #cbd5e1; font-size: 0.85rem;">ضرب كل خانة في المعامل الثابت (${res.step1Details.multiplier}) ➔ تجميع الخانات ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues}</p>
                     
                     <div style="margin: 0.8rem 0;">
-                        <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. ترقيم الحروف (الرقم الترتيبي فوق كل حرف):</div>
+                        <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. ضرب كل خانة في المعامل 4:</div>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
                             ${step1Badges}
                         </div>
@@ -325,16 +327,19 @@
 
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                            <div style="font-size: 0.75rem; color: #94a3b8;">2. مجموع الأرقام (S):</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">2. خطوة التجميع (Sum of all cells):</div>
                             <div style="font-weight: bold; color: #67e8f9; font-family: monospace;" dir="ltr">${res.step1Details.sumFormulaStr}</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">المجموع الإجمالي = ${res.step1Details.sumCellValues}</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                            <div style="font-size: 0.75rem; color: #94a3b8;">3. تطبيق المعادلة:</div>
-                            <div style="font-weight: bold; color: #fde047; font-family: monospace;" dir="ltr">S ÷ 4</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">3. منطق المعادلة:</div>
+                            <div style="font-weight: bold; color: #fde047; font-family: monospace;" dir="ltr">∑(الترتيب × 4) = S1</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">${res.step1Details.charPositions.map(c => `${c.pos}×4`).join(' + ')} = ${res.step1Details.sumCellValues}</div>
                         </div>
                         <div style="background: rgba(99, 102, 241, 0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
-                            <div style="font-size: 0.75rem; color: #c7d2fe;">4. كسر الخطوة الأولى:</div>
-                            <div style="font-size: 1.1rem; font-weight: 900; color: #e0e7ff; font-family: monospace;" dir="ltr">${res.step1Details.rawFractionDisplay} ${res.step1Details.fractionDisplay !== res.step1Details.rawFractionDisplay ? '➔ ' + res.step1Details.fractionDisplay : ''}</div>
+                            <div style="font-size: 0.75rem; color: #c7d2fe;">4. الناتج النهائي للخطوة الأولى (S1):</div>
+                            <div style="font-size: 1.1rem; font-weight: 900; color: #e0e7ff; font-family: monospace;" dir="ltr">${res.step1Details.fractionDisplay}</div>
+                            <div style="font-size: 0.7rem; color: #c7d2fe; margin-top: 2px;">يُستخدم في الخطوات التالية</div>
                         </div>
                     </div>
                 </div>
@@ -342,7 +347,7 @@
                 <div class="card">
                     <h2>📋 جدول التحليل والخطوات الخمس (القسم الأول)</h2>
                     <p><strong>النص المدخل:</strong> ${res.wordInput} | <strong>الأحرف بعد التوحيد:</strong> ${res.normalizedChars.join(' ، ')}</p>
-                    <p><strong>كسر البداية:</strong> ${res.step1Details.fractionDisplay} | <strong>S2:</strong> ${res.S2} | <strong>الخانات المحددة (N):</strong> ${res.selectedCount} | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
+                    <p><strong>ناتج S1:</strong> ${res.step1Details.fractionDisplay} | <strong>S2:</strong> ${res.S2} | <strong>الخانات المحددة (N):</strong> ${res.selectedCount} | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
 
                     <div class="table-responsive">
                         <table>
@@ -350,6 +355,7 @@
                                 <tr>
                                     <th>الخانة</th>
                                     <th>الحرف</th>
+                                    <th>خطوة 1 (× 4)</th>
                                     <th>خطوة 2 (تقسيم وضرب)</th>
                                     <th>خطوة 3 (كسر قياسي)</th>
                                     <th>خطوة 4 (المجموع ÷ الخانات)</th>
