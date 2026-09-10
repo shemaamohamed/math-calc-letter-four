@@ -171,11 +171,10 @@ function processWord(text, selectedIndices = null) {
         fractionDisplay
     };
 
-    // Step 2: (v1_i / v1_last) * v1_i = v1_i^2 / v1_last and sum S2
-    const v1_last = BigInt(step1Chars[n - 1].initialValue);
+    // Step 2: (v1_i / S1) * v1_i = v1_i^2 / S1 and sum S2
     const step2Fractions = step1Chars.map(item => {
         const valBig = BigInt(item.initialValue);
-        return new Fraction(valBig * valBig, v1_last);
+        return new Fraction(valBig * valBig, S_big);
     });
     let S2 = new Fraction(0n, 1n);
     step2Fractions.forEach(f => S2 = S2.add(f));
@@ -184,7 +183,7 @@ function processWord(text, selectedIndices = null) {
     const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(step1Fraction));
     const v3_last = step3Fractions[n - 1];
 
-    // Step 4: Group identical characters, sum step 3, and divide by count (average)
+    // Step 4: Group identical characters and sum step 3 (Natural Sum)
     const charGroupsMap = {};
     chars.forEach((c, idx) => {
         const v3 = step3Fractions[idx];
@@ -203,19 +202,19 @@ function processWord(text, selectedIndices = null) {
 
     Object.keys(charGroupsMap).forEach(c => {
         const group = charGroupsMap[c];
-        group.average = group.sum.div(new Fraction(BigInt(group.count), 1n));
+        group.average = group.sum; // Natural sum
     });
 
-    // Step 5: Percentage per position relative to last char, multiplied by step 4 char average
+    // Step 5: Percentage per position relative to S1, multiplied by step 4 char natural sum
     const defaultSelected = selectedIndices || chars.map((_, i) => i);
     const step5Details = chars.map((c, idx) => {
         const pos = idx + 1;
         const step3Val = step3Fractions[idx];
-        const ratio = step3Val.div(v3_last);
+        const ratio = step3Val.div(step1Fraction);
         const percentageDisplay = `${ratio.mul(new Fraction(100n, 1n)).toString()}%`;
         const charGroup = charGroupsMap[c];
-        const charAvg = charGroup.average;
-        const finalValue = charAvg.mul(ratio);
+        const charSum = charGroup.sum;
+        const finalValue = charSum.mul(ratio);
         const isSelected = defaultSelected.includes(idx);
 
         return {
@@ -224,7 +223,7 @@ function processWord(text, selectedIndices = null) {
             step1: step1Chars[idx].initialValue,
             step2: step2Fractions[idx].toString(),
             step3: step3Val.toString(),
-            step4Group: charAvg.toString(),
+            step4Group: charSum.toString(),
             step4RawSum: charGroup.sum.toString(),
             step4Count: charGroup.count,
             percentage: percentageDisplay,

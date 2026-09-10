@@ -386,12 +386,12 @@ export function calculateArabicPower(
   const step1Fraction = step1Details.fraction;
   const sumCellValues = step1Details.sumCellValues;
 
-  // الخطوة 2: تقسيم كل خانة على قيمة الخانة الأخيرة من الخطوة الأولى ثم الضرب في نفس الخانة
-  // v_{2, i} = (v_{1, i} / v_{1, n}) * v_{1, i} = v_{1, i}^2 / v_{1, n}
-  const v1_last = BigInt(step1Details.charPositions[n - 1].initialValue);
+  // الخطوة 2: تقسيم كل خانة على الناتج النهائي من الخطوة الأولى (S1) ثم الضرب في نفس الخانة الأصلية
+  // v_{2, i} = (v_{1, i} / S1) * v_{1, i} = v_{1, i}^2 / S1
+  const S1_big = BigInt(sumCellValues);
   const step2Fractions = step1Details.charPositions.map(item => {
     const valBig = BigInt(item.initialValue);
-    return new Fraction(valBig * valBig, v1_last);
+    return new Fraction(valBig * valBig, S1_big);
   });
 
   let S2 = new Fraction(ZERO, ONE);
@@ -411,9 +411,9 @@ export function calculateArabicPower(
   });
   const v3_last = step3Fractions[n - 1];
 
-  // الخطوة 4: جمع القيم من خطوة 3 حسب الحرف الموحد ثم القسمة على عدد تكرار الحرف (متوسط الحرف)
-  // Group identical characters together, calculate sum, and divide by count of positions (occurrences)
-  const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction; count: number; averageFrac: Fraction }>();
+  // الخطوة 4: إجراء جمع طبيعي للنتائج (تجميع نتائج خطوة 3 حسب الحرف الموحد بدون قسمة على التكرار)
+  // Group identical characters together and sum their Step 3 values (Natural Sum)
+  const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction; count: number }>();
   normalizedChars.forEach((c, idx) => {
     const existing = charGroupsMap.get(c);
     const v3 = step3Fractions[idx];
@@ -426,13 +426,8 @@ export function calculateArabicPower(
         positions: [idx + 1],
         sum: v3,
         count: 1,
-        averageFrac: v3,
       });
     }
-  });
-
-  charGroupsMap.forEach((val) => {
-    val.averageFrac = val.sum.div(new Fraction(BigInt(val.count), ONE));
   });
 
   const charGroups: CharacterGroupSummary[] = [];
@@ -443,12 +438,13 @@ export function calculateArabicPower(
       count: val.count,
       step3SumFrac: val.sum,
       step3SumDisplay: val.sum.toString(),
-      step4AvgFrac: val.averageFrac,
-      step4AvgDisplay: val.averageFrac.toString(),
+      step4AvgFrac: val.sum, // الجمع الطبيعي للحرف
+      step4AvgDisplay: val.sum.toString(),
     });
   });
 
-  // الخطوة 5: استخلاص النسب المئوية من خطوة 3 مقارنة بالخانة الأخيرة ثم ضرب كل نسبة في قيمتها العددية من خطوة 4 (المتوسط)
+  // الخطوة 5: تقسيم كل خانة من الخطوة الثالثة على الناتج النهائي للخطوة الأولى (S1) والضرب في 100
+  // ثم ضرب الناتج في ناتج جمع الحرف من الخطوة الرابعة
   const defaultTransferred = transferredIndicesInput ?? normalizedChars.map((_, i) => i);
 
   const section1: Section1Item[] = normalizedChars.map((c, idx) => {
@@ -458,18 +454,18 @@ export function calculateArabicPower(
     const step2Frac = step2Fractions[idx];
     const step3Frac = step3Fractions[idx];
 
-    // نسبة الخانة مقارنة بالخانة الأخيرة من خطوة 3
-    // Ratio = v3_i / v3_last
-    const percentageRatioFrac = step3Frac.div(v3_last);
+    // النسبة المئوية للخانة = (خطوة 3 ÷ ناتج خطوة 1 الإجمالي S1) × 100
+    // Ratio = v3_i / S1
+    const percentageRatioFrac = step3Frac.div(step1Fraction);
     const percentage100Frac = percentageRatioFrac.mul(new Fraction(HUNDRED, ONE));
     const percentageDisplay = `${percentage100Frac.toString()}%`;
 
-    // القيمة من خطوة 4 (مجموع الحرف مقسوماً على عدد الخانات)
+    // القيمة التجميعية للحرف من خطوة 4 (جمع طبيعي)
     const charGroupInfo = charGroupsMap.get(c)!;
-    const charGroupAvg = charGroupInfo.averageFrac;
+    const charGroupSum = charGroupInfo.sum;
 
-    // الناتج النهائي للخانة في خطوة 5 = القيمة التجميعية للحرف (المتوسط) * نسبة الخانة
-    const finalValueFrac = charGroupAvg.mul(percentageRatioFrac);
+    // الناتج النهائي للخانة في خطوة 5 = ناتج جمع الحرف الطبيعي × نسبة الخانة
+    const finalValueFrac = charGroupSum.mul(percentageRatioFrac);
     const resultDisplay = finalValueFrac.toString();
 
     const isTransferred = defaultTransferred.includes(idx);
@@ -483,10 +479,10 @@ export function calculateArabicPower(
       step2Display: step2Frac.toString(),
       step3Frac,
       step3Display: step3Frac.toString(),
-      step4GroupFrac: charGroupAvg,
-      step4GroupDisplay: charGroupAvg.toString(),
-      step4SumFrac: charGroupInfo.sum,
-      step4SumDisplay: charGroupInfo.sum.toString(),
+      step4GroupFrac: charGroupSum,
+      step4GroupDisplay: charGroupSum.toString(),
+      step4SumFrac: charGroupSum,
+      step4SumDisplay: charGroupSum.toString(),
       step4Count: charGroupInfo.count,
       percentageRatioFrac,
       percentage100Frac,
