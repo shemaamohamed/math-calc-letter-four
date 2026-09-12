@@ -443,7 +443,7 @@ export function calculateArabicPower(
     });
   });
 
-  // الخطوة 5: تقسيم كل خانة من الخطوة الثالثة على الناتج النهائي للخطوة الأولى (S1) والضرب في 100
+  // الخطوة 5: تقسيم كل خانة من خطوة 1 على الناتج النهائي للخطوة الأولى (S1) والضرب في 100
   // ثم ضرب الناتج في ناتج جمع الحرف من الخطوة الرابعة
   const defaultTransferred = transferredIndicesInput ?? normalizedChars.map((_, i) => i);
 
@@ -454,9 +454,10 @@ export function calculateArabicPower(
     const step2Frac = step2Fractions[idx];
     const step3Frac = step3Fractions[idx];
 
-    // النسبة المئوية للخانة = (خطوة 3 ÷ ناتج خطوة 1 الإجمالي S1) × 100
-    // Ratio = v3_i / S1
-    const percentageRatioFrac = step3Frac.div(step1Fraction);
+    // النسبة المئوية للخانة = (قيمة الخانة من خطوة 1 ÷ ناتج خطوة 1 الإجمالي S1) × 100
+    // Ratio = v1_i / S1
+    const step1CellFrac = new Fraction(BigInt(step1Val), ONE);
+    const percentageRatioFrac = step1CellFrac.div(step1Fraction);
     const percentage100Frac = percentageRatioFrac.mul(new Fraction(HUNDRED, ONE));
     const percentageDisplay = `${percentage100Frac.toString()}%`;
 

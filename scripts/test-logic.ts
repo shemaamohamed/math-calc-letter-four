@@ -61,11 +61,11 @@ console.log(`     خطوات جمع الأرقام والاختزال: ${testMad
 console.log(`     الرقم المفرد النهائي: [ ${testMadad.answer4.singleDigit} ]`);
 
 // Validations for "مدد"
-const expectedMadadCells = ['6/49', '312/49', '702/49'];
+const expectedMadadCells = ['2/7', '52/7', '78/7'];
 const actualMadadCells = testMadad.section1.map(c => c.resultDisplay);
 const isSection1Valid = JSON.stringify(actualMadadCells) === JSON.stringify(expectedMadadCells);
 
-if (isSection1Valid && testMadad.transferredSumDisplay === '1020/49') {
+if (isSection1Valid && testMadad.transferredSumDisplay === '132/7') {
   console.log("\n>>> ✅ TEST 1 PASSED: 100% ACCURATE TO HANDWRITTEN SHEET FOR 'مدد'! <<<\n");
 } else {
   console.error(">>> ❌ TEST 1 FAILED! <<<");
@@ -82,9 +82,9 @@ console.log("-------------------------------------------------------------------
 const testJalil = calculateArabicPower("جليل");
 console.log(`Step 1 S1      : ${testJalil.step1Details.sumCellValues} (Fraction: ${testJalil.step1Details.fractionDisplay})`);
 console.log(`Step 2 Sum S2  : ${testJalil.step2SumDisplay}`);
-console.log(`Sum of all cells S = ${testJalil.transferredSumDisplay} (Expected: 964/45)`);
-if (testJalil.transferredSumDisplay !== '964/45') {
-  throw new Error(`Test 2 failed: expected 964/45, got ${testJalil.transferredSumDisplay}`);
+console.log(`Sum of all cells S = ${testJalil.transferredSumDisplay} (Expected: 296/15)`);
+if (testJalil.transferredSumDisplay !== '296/15') {
+  throw new Error(`Test 2 failed: expected 296/15, got ${testJalil.transferredSumDisplay}`);
 }
 console.log(">>> ✅ TEST 2 PASSED! <<<\n");
 

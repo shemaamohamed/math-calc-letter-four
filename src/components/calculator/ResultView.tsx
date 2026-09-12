@@ -492,7 +492,7 @@ export default function ResultView({
                     <th className="py-2 px-2 text-center">
                       النسبة %
                       <span className="block text-[9px] text-amber-400 font-normal">
-                        (خطوة 3 ÷ S1)
+                        (خطوة 1 ÷ S1 × 100)
                       </span>
                     </th>
                     <th className="py-2 px-2 text-center">

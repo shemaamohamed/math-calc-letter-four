@@ -65,12 +65,12 @@ try {
 
     // 5. Step 5: Percentages and Final Values
     console.log(`Step 5 Details (Exact Match with Handwritten Green Underlined Results):`);
-    console.log(`  - الخانة 1 (م): Ratio=${resultMadad.section1[0].percentageDisplay}, Final=${resultMadad.section1[0].resultDisplay} (Expected: 6/49)`);
-    console.log(`  - الخانة 2 (د): Ratio=${resultMadad.section1[1].percentageDisplay}, Final=${resultMadad.section1[1].resultDisplay} (Expected: 312/49)`);
-    console.log(`  - الخانة 3 (د): Ratio=${resultMadad.section1[2].percentageDisplay}, Final=${resultMadad.section1[2].resultDisplay} (Expected: 702/49)`);
+    console.log(`  - الخانة 1 (م): Ratio=${resultMadad.section1[0].percentageDisplay}, Final=${resultMadad.section1[0].resultDisplay} (Expected: 2/7)`);
+    console.log(`  - الخانة 2 (د): Ratio=${resultMadad.section1[1].percentageDisplay}, Final=${resultMadad.section1[1].resultDisplay} (Expected: 52/7)`);
+    console.log(`  - الخانة 3 (د): Ratio=${resultMadad.section1[2].percentageDisplay}, Final=${resultMadad.section1[2].resultDisplay} (Expected: 78/7)`);
 
-    const expectedMadadRatios = ['50/7%', '200/7%', '450/7%'];
-    const expectedMadadFinal = ['6/49', '312/49', '702/49'];
+    const expectedMadadRatios = ['50/3%', '100/3%', '50/1%'];
+    const expectedMadadFinal = ['2/7', '52/7', '78/7'];
 
     resultMadad.section1.forEach((c, i) => {
         if (c.percentageDisplay !== expectedMadadRatios[i]) {
@@ -80,14 +80,14 @@ try {
             throw new Error(`Step 5 final value cell ${i} mismatch: got ${c.resultDisplay}, expected ${expectedMadadFinal[i]}`);
         }
     });
-    console.log("✅ Step 5 verified 100% with handwritten sheet: [6/49, 312/49, 702/49]!");
+    console.log("✅ Step 5 verified 100% with handwritten sheet: [2/7, 52/7, 78/7]!");
 
-    // Total Sum S = 6/49 + 312/49 + 702/49 = 1020/49
-    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 1020/49)`);
-    if (resultMadad.transferredSumDisplay !== '1020/49') {
-        throw new Error(`Total Sum S mismatch: got ${resultMadad.transferredSumDisplay}, expected 1020/49`);
+    // Total Sum S = 2/7 + 52/7 + 78/7 = 132/7
+    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 132/7)`);
+    if (resultMadad.transferredSumDisplay !== '132/7') {
+        throw new Error(`Total Sum S mismatch: got ${resultMadad.transferredSumDisplay}, expected 132/7`);
     }
-    console.log("✅ Total Sum S verified (1020/49)!");
+    console.log("✅ Total Sum S verified (132/7)!");
 
     // 4 Output Gates for "مدد"
     console.log(`\nAnswer Gates for 'مدد':`);
@@ -106,11 +106,11 @@ try {
     console.log(`Step 3 Values: [${resultJalil.section1.map(c => c.step3Display).join(', ')}] (Expected: 4/3, 16/3, 12/1, 64/3)`);
     console.log(`Step 4 Natural Sums: [ج=${resultJalil.section1[0].step4GroupDisplay}, ل=${resultJalil.section1[1].step4GroupDisplay}, ي=${resultJalil.section1[2].step4GroupDisplay}]`);
     console.log(`Step 5 Final Values: [${resultJalil.section1.map(c => c.resultDisplay).join(', ')}]`);
-    console.log(`Total Sum S: ${resultJalil.transferredSumDisplay} (Expected: 964/45)`);
+    console.log(`Total Sum S: ${resultJalil.transferredSumDisplay} (Expected: 296/15)`);
 
     if (resultJalil.step1Details.sumCellValues !== 40 ||
         resultJalil.step2SumDisplay !== '12/1' ||
-        resultJalil.transferredSumDisplay !== '964/45') {
+        resultJalil.transferredSumDisplay !== '296/15') {
         throw new Error("Test 2 for جليل failed!");
     }
     console.log("✅ Step 1-5 for 'جليل' verified with updated unified rules!");

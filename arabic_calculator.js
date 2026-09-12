@@ -205,12 +205,15 @@ function processWord(text, selectedIndices = null) {
         group.average = group.sum; // Natural sum
     });
 
-    // Step 5: Percentage per position relative to S1, multiplied by step 4 char natural sum
+    // Step 5: Divide each cell from step 1 by final result of step 1 (S1) * 100, multiplied by step 4 char natural sum
     const defaultSelected = selectedIndices || chars.map((_, i) => i);
     const step5Details = chars.map((c, idx) => {
         const pos = idx + 1;
+        const step1Val = step1Chars[idx].initialValue;
+        const step2Frac = step2Fractions[idx];
         const step3Val = step3Fractions[idx];
-        const ratio = step3Val.div(step1Fraction);
+        const step1CellFrac = new Fraction(BigInt(step1Val), 1n);
+        const ratio = step1CellFrac.div(step1Fraction);
         const percentageDisplay = `${ratio.mul(new Fraction(100n, 1n)).toString()}%`;
         const charGroup = charGroupsMap[c];
         const charSum = charGroup.sum;
