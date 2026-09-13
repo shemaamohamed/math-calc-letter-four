@@ -2,7 +2,7 @@ import { calculateArabicPower, normalizeChar } from '../src/lib/calculate';
 
 console.log("================================================================================");
 console.log("             🧪 COMPREHENSIVE ARABIC MATH LOGIC VERIFICATION 🧪                 ");
-console.log("             (Unified 5-Step Engine with Zero Approximations)                   ");
+console.log("             (Unified 6-Step Engine with Zero Approximations)                   ");
 console.log("================================================================================\n");
 
 // ============================================================================
@@ -16,19 +16,21 @@ const testMadad = calculateArabicPower("مدد");
 
 console.log(`Original Word   : "${testMadad.original}"`);
 console.log(`Normalized Chars: [${testMadad.normalizedChars.join(', ')}]`);
-console.log(`Step 1 (S1)     : ${testMadad.step1Details.sumCellValues} -> Fraction = ${testMadad.step1Details.fractionDisplay}`);
+console.log(`Step 1 (S1)     : ${testMadad.step1Details.sumCellValues} -> Fraction = ${testMadad.step1Details.fractionDisplay}, Last Cell = ${testMadad.step1LastVal}`);
 console.log(`Step 2 Sum (S2) : ${testMadad.step2SumDisplay}`);
 console.log(`Step 3 Last Val : ${testMadad.step3LastFrac.toString()}`);
-console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوات الخمس):");
+console.log(`Step 5 Sum (S5) : ${testMadad.step5SumDisplay}`);
+console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوات الست):");
 
 testMadad.section1.forEach(cell => {
   console.log(`  [الخانة ${cell.pos} (${cell.char})]:`);
-  console.log(`    - خطوة 1 (المعامل 4)   : ${cell.step1Val}`);
-  console.log(`    - خطوة 2 (تقسيم وضرب)  : ${cell.step2Display}`);
-  console.log(`    - خطوة 3 (كسر قياسي)   : ${cell.step3Display}`);
-  console.log(`    - خطوة 4 (جمع الحرف)   : ${cell.step4GroupDisplay}`);
-  console.log(`    - خطوة 5 (النسبة %)    : ${cell.percentageDisplay}`);
-  console.log(`    - الناتج الكسري النهائي: ${cell.resultDisplay} ${cell.isTransferred ? '✅ [زر انتقال: مفعّل]' : '❌ [زر انتقال: غير مفعّل]'}`);
+  console.log(`    - خطوة 1 (المعامل 4)       : ${cell.step1Val}`);
+  console.log(`    - خطوة 2 (تعديل آخر خانة) : ${cell.step2Display} (${cell.step2Formula})`);
+  console.log(`    - خطوة 3 (حساب مركب)      : ${cell.step3Display} (${cell.step3Formula})`);
+  console.log(`    - خطوة 4 (جمع المتغير)    : ${cell.step4GroupDisplay}`);
+  console.log(`    - خطوة 5 (النسبة الأولى)  : ${cell.step5RatioDisplay} (${cell.step5Formula})`);
+  console.log(`    - خطوة 6 (النسبة النهائية): ${cell.step6RatioDisplay} (${cell.step6Formula})`);
+  console.log(`    - الناتج الكسري النهائي   : ${cell.resultDisplay} = ${cell.finalFormula} ${cell.isTransferred ? '✅ [زر انتقال: مفعّل]' : '❌ [زر انتقال: غير مفعّل]'}`);
 });
 
 console.log("\n📊 OUTPUT GATES (القسم الثاني: بوابات النتائج الأربعة):");

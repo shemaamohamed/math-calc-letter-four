@@ -291,7 +291,7 @@
             }
 
             let stepsHTML = '';
-            res.step5Details.forEach((item, idx) => {
+            res.step6Details.forEach((item, idx) => {
                 const isChecked = item.isSelected;
                 stepsHTML += `
                     <tr style="${isChecked ? 'background: rgba(16, 185, 129, 0.1);' : 'opacity: 0.6;'}">
@@ -300,9 +300,10 @@
                         <td dir="ltr" style="color: #a5b4fc; font-weight: bold;">${item.step1}</td>
                         <td dir="ltr">${item.step2}</td>
                         <td dir="ltr">${item.step3}</td>
-                        <td dir="ltr">${item.step4Group}</td>
-                        <td dir="ltr">${item.percentage}</td>
-                        <td dir="ltr" style="color: #10b981; font-weight: bold;">${item.finalValue}</td>
+                        <td dir="ltr" style="color: #c084fc; font-weight: bold;">${item.step4Group}</td>
+                        <td dir="ltr" style="color: #fbbf24;">${item.step5Percentage}</td>
+                        <td dir="ltr" style="color: #2dd4bf;">${item.step6Percentage}</td>
+                        <td dir="ltr" style="color: #10b981; font-weight: bold; border-bottom: 2px solid #10b981;">${item.finalValue}</td>
                         <td>
                             <button class="toggle-btn ${isChecked ? 'active' : ''}" onclick="toggleCell(${idx})">
                                 ${isChecked ? '✓ منتقلة' : 'انتقال'}
@@ -316,7 +317,7 @@
                 <!-- Step 1 Hero Block -->
                 <div class="card" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(30, 27, 75, 0.25);">
                     <h2 style="color: #a5b4fc;">١. الخطوة الأولى: المعامل الأولي وتجميع الخانات</h2>
-                    <p style="color: #cbd5e1; font-size: 0.85rem;">ضرب كل خانة في المعامل الثابت (${res.step1Details.multiplier}) ➔ تجميع الخانات ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues}</p>
+                    <p style="color: #cbd5e1; font-size: 0.85rem;">ضرب كل خانة في المعامل الثابت (${res.step1Details.multiplier}) ➔ تجميع الخانات ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues} | آخر خانة = ${res.step1Details.lastCellVal}</p>
                     
                     <div style="margin: 0.8rem 0;">
                         <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. ضرب كل خانة في المعامل 4:</div>
@@ -325,29 +326,34 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 10px;">
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                            <div style="font-size: 0.75rem; color: #94a3b8;">2. خطوة التجميع (Sum of all cells):</div>
-                            <div style="font-weight: bold; color: #67e8f9; font-family: monospace;" dir="ltr">${res.step1Details.sumFormulaStr}</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">المجموع الإجمالي = ${res.step1Details.sumCellValues}</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 1: المجموع S1:</div>
+                            <div style="font-weight: bold; color: #67e8f9; font-family: monospace;" dir="ltr">${res.step1Details.fractionDisplay}</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">آخر خانة = ${res.step1Details.lastCellVal}</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
-                            <div style="font-size: 0.75rem; color: #94a3b8;">3. منطق المعادلة:</div>
-                            <div style="font-weight: bold; color: #fde047; font-family: monospace;" dir="ltr">∑(الترتيب × 4) = S1</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">${res.step1Details.charPositions.map(c => `${c.pos}×4`).join(' + ')} = ${res.step1Details.sumCellValues}</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 2: المجموع S2:</div>
+                            <div style="font-weight: bold; color: #fde047; font-family: monospace;" dir="ltr">${res.S2}</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">(الخانة ÷ ${res.step1Details.lastCellVal} × الخانة)</div>
+                        </div>
+                        <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                            <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 5: مجموع النسب S5:</div>
+                            <div style="font-weight: bold; color: #fbbf24; font-family: monospace;" dir="ltr">${res.step5Sum}%</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">مجموع النسب الأولى</div>
                         </div>
                         <div style="background: rgba(99, 102, 241, 0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
-                            <div style="font-size: 0.75rem; color: #c7d2fe;">4. الناتج النهائي للخطوة الأولى (S1):</div>
-                            <div style="font-size: 1.1rem; font-weight: 900; color: #e0e7ff; font-family: monospace;" dir="ltr">${res.step1Details.fractionDisplay}</div>
-                            <div style="font-size: 0.7rem; color: #c7d2fe; margin-top: 2px;">يُستخدم في الخطوات التالية</div>
+                            <div style="font-size: 0.75rem; color: #c7d2fe;">مجموع الخانات المنتقلة (S):</div>
+                            <div style="font-size: 1.1rem; font-weight: 900; color: #e0e7ff; font-family: monospace;" dir="ltr">${res.sumS}</div>
+                            <div style="font-size: 0.7rem; color: #c7d2fe; margin-top: 2px;">العدد N = ${res.selectedCount}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h2>📋 جدول التحليل والخطوات الخمس (القسم الأول)</h2>
+                    <h2>📋 جدول التحليل والخطوات الست (القسم الأول)</h2>
                     <p><strong>النص المدخل:</strong> ${res.wordInput} | <strong>الأحرف بعد التوحيد:</strong> ${res.normalizedChars.join(' ، ')}</p>
-                    <p><strong>ناتج S1:</strong> ${res.step1Details.fractionDisplay} | <strong>S2:</strong> ${res.S2} | <strong>الخانات المحددة (N):</strong> ${res.selectedCount} | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
+                    <p><strong>ناتج S1:</strong> ${res.step1Details.fractionDisplay} | <strong>S2:</strong> ${res.S2} | <strong>S5:</strong> ${res.step5Sum}% | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
 
                     <div class="table-responsive">
                         <table>
@@ -356,11 +362,12 @@
                                     <th>الخانة</th>
                                     <th>الحرف</th>
                                     <th>خطوة 1 (× 4)</th>
-                                    <th>خطوة 2 (تقسيم على S1 × الخانة)</th>
-                                    <th>خطوة 3 (كسر قياسي)</th>
-                                    <th>خطوة 4 (جمع طبيعي للحرف)</th>
-                                    <th>النسبة % (خطوة 1 ÷ S1 × 100)</th>
-                                    <th>الناتج الجزئي النهائي</th>
+                                    <th>خطوة 2 (÷ آخر خانة × نفسها)</th>
+                                    <th>خطوة 3 (÷ S2 × S1)</th>
+                                    <th>خطوة 4 (المتغير الحرفي)</th>
+                                    <th>خطوة 5 (النسبة الأولى %)</th>
+                                    <th>خطوة 6 (النسبة النهائية %)</th>
+                                    <th>الناتج المعتمد</th>
                                     <th>زر الانتقال</th>
                                 </tr>
                             </thead>

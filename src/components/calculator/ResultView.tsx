@@ -302,7 +302,7 @@ export default function ResultView({
         </Card>
       )}
 
-      {/* SECTION 1: 5-STEP TABLE / جدول التحليل والخطوات الخمس */}
+      {/* SECTION 1: 6-STEP TABLE / جدول التحليل والخطوات الست */}
       <Card className="glass border-purple-500/30 shadow-[0_0_25px_rgba(168,85,247,0.1)] overflow-hidden w-full min-w-0">
         <CardHeader className="py-2.5 px-3 sm:px-5 border-b border-white/10 bg-slate-900/60 min-w-0">
           <div className="flex flex-col gap-2 min-w-0">
@@ -311,10 +311,10 @@ export default function ResultView({
               <div className="min-w-0">
                 <CardTitle className="text-base sm:text-lg font-bold text-purple-300 flex items-center gap-2 truncate">
                   <Calculator className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                  جدول التحليل والخطوات الخمس (Arbitrary-Precision 5 Steps)
+                  جدول التحليل والخطوات الست (Arbitrary-Precision 6 Steps)
                 </CardTitle>
                 <p className="text-[11px] text-slate-400 mt-0.5">
-                  حسابات كسرية دقيقة 100% بدون أي تقريب مع أزرار الانتقال التفاعلية.
+                  حسابات كسرية دقيقة 100% بدون أي تقريب وفق الشرح والورقة اليدوية مع أزرار الانتقال التفاعلية.
                 </p>
               </div>
 
@@ -414,37 +414,48 @@ export default function ResultView({
           </div>
         </CardHeader>
 
-        {/* Optional Collapsible 5 Steps Breakdown */}
+        {/* Optional Collapsible 6 Steps Breakdown */}
         {showStepsBreakdown && (
-          <div className="p-3 bg-black/40 border-b border-white/10 text-xs text-slate-300 space-y-2">
+          <div className="p-3 bg-black/40 border-b border-white/10 text-xs text-slate-300 space-y-2.5">
             <h4 className="font-bold text-purple-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-              <span>ملخص الخطوات الرياضية الخمس (Mathematical Breakdown):</span>
+              <span>ملخص الخطوات الرياضية الست (Mathematical 6-Step Breakdown):</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">الخطوة 1: مجموع الخانات S1</span>
-                <span className="font-mono text-cyan-300 font-bold">{result.step1Details.fractionDisplay}</span>
+                <span className="text-slate-400 text-[10px] block">1. مجموع خطوة 1 (S1):</span>
+                <span className="font-mono text-indigo-300 font-bold">{result.step1Details.fractionDisplay}</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">الخانة الأخيرة = {result.step1LastVal}</span>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">الخطوة 2: المجموع S2</span>
+                <span className="text-slate-400 text-[10px] block">2. مجموع خطوة 2 (S2):</span>
                 <span className="font-mono text-cyan-300 font-bold">{result.step2SumDisplay}</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">(الخانة ÷ {result.step1LastVal} × الخانة)</span>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">الخطوة 3: قيمة الخانة الأخيرة</span>
-                <span className="font-mono text-yellow-300 font-bold">{result.step3LastFrac.toString()}</span>
+                <span className="text-slate-400 text-[10px] block">3. مجموع خطوة 3 (S3):</span>
+                <span className="font-mono text-yellow-300 font-bold">{result.step3SumDisplay}</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">(خطوة 2 ÷ S2) × S1</span>
               </div>
-            </div>
-            <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-              <span className="text-slate-400 text-[10px] block mb-1">الخطوة 4: تجميع الحروف الموحدة (جمع طبيعي للنتائج):</span>
-              <div className="flex flex-wrap gap-2">
-                {result.charGroups.map(g => (
-                  <span key={g.char} className="px-2.5 py-1 bg-purple-500/20 rounded-lg border border-purple-500/30 text-purple-200 font-mono text-[11px] flex items-center gap-1">
-                    <span className="font-sans font-bold text-white text-xs">{g.char}:</span>
-                    <span className="text-yellow-300 font-black">{g.step4AvgDisplay}</span>
-                    <span className="text-[9px] text-slate-400 font-sans">(خانات: {g.positions.join(', ')})</span>
-                  </span>
-                ))}
+              <div className="p-2 rounded-lg bg-white/5 border border-white/5">
+                <span className="text-slate-400 text-[10px] block">4. المتغيرات الحرفية (جمع طبيعي):</span>
+                <div className="flex flex-wrap gap-1 mt-0.5">
+                  {result.charGroups.map(g => (
+                    <span key={g.char} className="px-1.5 py-0.5 bg-purple-500/20 rounded text-[10px] font-mono text-purple-200">
+                      <strong>{g.char}:</strong> {g.step4AvgDisplay}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="p-2 rounded-lg bg-white/5 border border-white/5">
+                <span className="text-slate-400 text-[10px] block">5. مجموع النسب الأولى (S5):</span>
+                <span className="font-mono text-amber-300 font-bold">{result.step5SumDisplay}%</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">(الخانة ÷ {result.step1LastVal} × 100)</span>
+              </div>
+              <div className="p-2 rounded-lg bg-white/5 border border-white/5">
+                <span className="text-slate-400 text-[10px] block">6. مجموع النسب النهائية:</span>
+                <span className="font-mono text-emerald-300 font-bold">{result.step6SumRatioDisplay}</span>
+                <span className="text-[9px] text-slate-400 block mt-0.5">(نسبة 5 ÷ S5 × 100)</span>
               </div>
             </div>
           </div>
@@ -454,54 +465,60 @@ export default function ResultView({
           {/* 1. TABLE VIEW */}
           {viewMode === 'table' ? (
             <div className="w-full max-w-full overflow-x-auto rounded-xl border border-white/10 bg-slate-950/70 md:max-h-[520px] md:overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600/40 scrollbar-track-white/5">
-              <table className="w-full min-w-[620px] text-right border-collapse text-xs">
+              <table className="w-full min-w-[760px] text-right border-collapse text-xs">
                 {/* Sticky Header */}
                 <thead className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md border-b border-white/10 text-slate-300 font-bold">
                   <tr>
-                    <th className="py-2 px-2 text-center w-12">
+                    <th className="py-2 px-1.5 text-center w-12">
                       الخانة
                       <span className="block text-[9px] text-slate-400 font-normal">
                         (الترتيب)
                       </span>
                     </th>
-                    <th className="py-2 px-2 text-center w-12">الحرف</th>
-                    <th className="py-2 px-2 text-center">
+                    <th className="py-2 px-1.5 text-center w-10">الحرف</th>
+                    <th className="py-2 px-1.5 text-center">
                       خطوة 1
                       <span className="block text-[9px] text-indigo-400 font-normal">
                         (الترتيب × 4)
                       </span>
                     </th>
-                    <th className="py-2 px-2 text-center">
+                    <th className="py-2 px-1.5 text-center">
                       خطوة 2
                       <span className="block text-[9px] text-cyan-400 font-normal">
-                        (القسمة على S1 × الخانة)
+                        (÷ آخر خانة × نفسها)
                       </span>
                     </th>
-                    <th className="py-2 px-2 text-center">
+                    <th className="py-2 px-1.5 text-center">
                       خطوة 3
                       <span className="block text-[9px] text-yellow-400 font-normal">
-                        (الكسر القياسي)
+                        (÷ S2 × S1)
                       </span>
                     </th>
-                    <th className="py-2 px-2 text-center">
+                    <th className="py-2 px-1.5 text-center">
                       خطوة 4
                       <span className="block text-[9px] text-purple-400 font-normal">
-                        (جمع طبيعي للحرف)
+                        (المتغير الحرفي)
                       </span>
                     </th>
-                    <th className="py-2 px-2 text-center">
-                      النسبة %
+                    <th className="py-2 px-1.5 text-center">
+                      خطوة 5
                       <span className="block text-[9px] text-amber-400 font-normal">
-                        (خطوة 1 ÷ S1 × 100)
+                        (النسبة الأولى %)
+                      </span>
+                    </th>
+                    <th className="py-2 px-1.5 text-center">
+                      خطوة 6
+                      <span className="block text-[9px] text-teal-400 font-normal">
+                        (النسبة النهائية %)
                       </span>
                     </th>
                     <th className="py-2 px-2 text-center">
-                      الناتج الجزئي
+                      الناتج المعتمد
                       <span className="block text-[9px] text-emerald-400 font-normal">
-                        (القيمة النهائية)
+                        (المتغير × النسبة 6)
                       </span>
                     </th>
-                    <th className="py-2 px-2 text-center w-24 sm:w-28">
+                    <th className="py-2 px-1.5 text-center w-24 sm:w-28">
                       زر الانتقال
                       <span className="block text-[9px] text-teal-400 font-normal">
                         (تحديد/تمرير)
@@ -525,7 +542,7 @@ export default function ResultView({
                         }`}
                       >
                         {/* Pos / الخانة */}
-                        <td className="py-1.5 px-2 text-center font-mono font-bold text-slate-300">
+                        <td className="py-1.5 px-1.5 text-center font-mono font-bold text-slate-300">
                           <span
                             className={`inline-block px-1.5 py-0.5 rounded text-[11px] ${
                               item.isTransferred
@@ -538,7 +555,7 @@ export default function ResultView({
                         </td>
 
                         {/* Char / الحرف */}
-                        <td className="py-1.5 px-2 text-center">
+                        <td className="py-1.5 px-1.5 text-center">
                           <span
                             className={`inline-flex items-center justify-center w-6 h-6 rounded-lg text-sm font-black transition-transform group-hover:scale-110 ${
                               item.isTransferred
@@ -551,37 +568,50 @@ export default function ResultView({
                         </td>
 
                         {/* Step 1 Value (pos * 4) */}
-                        <td className="py-1.5 px-2 text-center font-mono font-bold text-indigo-300 text-xs dir-ltr">
+                        <td className="py-1.5 px-1.5 text-center font-mono font-bold text-indigo-300 text-xs dir-ltr">
                           {item.step1Val}
                         </td>
 
                         {/* Step 2 Value */}
-                        <td className="py-1.5 px-2 text-center font-mono font-bold text-cyan-300 text-xs dir-ltr">
-                          {item.step2Display}
+                        <td className="py-1.5 px-1.5 text-center font-mono font-bold text-cyan-300 text-xs dir-ltr" title={item.step2Formula}>
+                          <div>{item.step2Display}</div>
+                          <div className="text-[9px] text-slate-500 font-sans">{item.step2Formula}</div>
                         </td>
 
                         {/* Step 3 Value */}
-                        <td className="py-1.5 px-2 text-center font-mono text-yellow-300 dir-ltr text-xs">
-                          {item.step3Display}
+                        <td className="py-1.5 px-1.5 text-center font-mono text-yellow-300 dir-ltr text-xs" title={item.step3Formula}>
+                          <div>{item.step3Display}</div>
+                          <div className="text-[9px] text-slate-500 font-sans">{item.step3Formula}</div>
                         </td>
 
-                        {/* Step 4 Char Group Sum */}
-                        <td className="py-1.5 px-2 text-center font-mono text-purple-300 dir-ltr text-xs">
-                          {item.step4GroupDisplay}
+                        {/* Step 4 Char Group Variable */}
+                        <td className="py-1.5 px-1.5 text-center font-mono text-purple-300 dir-ltr text-xs font-bold">
+                          <div>{item.step4GroupDisplay}</div>
+                          <div className="text-[9px] text-purple-400/70 font-sans">({item.char})</div>
                         </td>
 
-                        {/* Step 5 Percentage */}
-                        <td className="py-1.5 px-2 text-center font-mono text-amber-300 dir-ltr text-xs font-bold">
-                          {item.percentageDisplay}
+                        {/* Step 5 Initial Percentage */}
+                        <td className="py-1.5 px-1.5 text-center font-mono text-amber-300 dir-ltr text-xs font-bold" title={item.step5Formula}>
+                          <div>{item.step5RatioDisplay}</div>
+                          <div className="text-[9px] text-slate-500 font-sans">{item.step5Formula}</div>
                         </td>
 
-                        {/* Step 5 Final Result Fraction */}
-                        <td className="py-1.5 px-2 text-center font-mono font-black text-emerald-400 dir-ltr text-xs sm:text-sm">
-                          {item.resultDisplay}
+                        {/* Step 6 Final Percentage */}
+                        <td className="py-1.5 px-1.5 text-center font-mono text-teal-300 dir-ltr text-xs font-bold" title={item.step6Formula}>
+                          <div>{item.step6RatioDisplay}</div>
+                          <div className="text-[9px] text-slate-500 font-sans">{item.step6Formula}</div>
+                        </td>
+
+                        {/* Step 6 Final Approved Result Fraction (مع خط أخضر سفلي كما في ورقة المستخدم) */}
+                        <td className="py-1.5 px-2 text-center font-mono font-black text-emerald-400 dir-ltr text-xs sm:text-sm" title={item.finalFormula}>
+                          <div className="inline-block border-b-2 border-emerald-400 px-1 pb-0.5 font-bold">
+                            {item.resultDisplay}
+                          </div>
+                          <div className="text-[9px] text-emerald-500/80 font-sans mt-0.5">{item.finalFormula}</div>
                         </td>
 
                         {/* In-Line Transfer Button */}
-                        <td className="py-1.5 px-2 text-center">
+                        <td className="py-1.5 px-1.5 text-center">
                           <button
                             type="button"
                             onClick={e => {
@@ -669,31 +699,35 @@ export default function ResultView({
                         </button>
                       </div>
 
-                      {/* Row 2: 5 Steps Breakdown */}
+                      {/* Row 2: 6 Steps Breakdown */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] bg-black/40 p-2 rounded-lg font-mono min-w-0">
                         <div className="text-slate-400 truncate">
-                          خطوة 1 (×4):{' '}
+                          1 (×4):{' '}
                           <strong className="text-indigo-300 font-bold dir-ltr">{item.step1Val}</strong>
                         </div>
                         <div className="text-slate-400 truncate">
-                          خطوة 2:{' '}
+                          2 (تعديل):{' '}
                           <strong className="text-cyan-300 font-bold dir-ltr">{item.step2Display}</strong>
                         </div>
                         <div className="text-slate-400 dir-ltr text-left truncate">
-                          خطوة 3:{' '}
+                          3 (مركب):{' '}
                           <strong className="text-yellow-300 font-bold">{item.step3Display}</strong>
                         </div>
                         <div className="text-slate-400 truncate">
-                          مجموع الحرف:{' '}
+                          4 (المتغير):{' '}
                           <strong className="text-purple-300 font-bold dir-ltr">{item.step4GroupDisplay}</strong>
                         </div>
                         <div className="text-slate-400 dir-ltr text-left truncate">
-                          نسبة:{' '}
-                          <strong className="text-amber-300 font-bold">{item.percentageDisplay}</strong>
+                          5 (نسبة 1):{' '}
+                          <strong className="text-amber-300 font-bold">{item.step5RatioDisplay}</strong>
+                        </div>
+                        <div className="text-slate-400 dir-ltr text-left truncate">
+                          6 (نهائية):{' '}
+                          <strong className="text-teal-300 font-bold">{item.step6RatioDisplay}</strong>
                         </div>
                         <div className="col-span-2 sm:col-span-3 pt-1 border-t border-white/5 flex justify-between items-center text-[11px] min-w-0">
-                          <span className="text-slate-400 font-sans">الناتج الجزئي:</span>
-                          <span className="text-emerald-400 font-black dir-ltr text-xs">
+                          <span className="text-slate-400 font-sans">الناتج المعتمد:</span>
+                          <span className="text-emerald-400 font-black dir-ltr text-xs border-b-2 border-emerald-400 pb-0.5">
                             {item.resultDisplay}
                           </span>
                         </div>
