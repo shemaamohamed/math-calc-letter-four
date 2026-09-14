@@ -291,7 +291,7 @@
             }
 
             let stepsHTML = '';
-            res.step6Details.forEach((item, idx) => {
+            (res.step5Details || res.step6Details).forEach((item, idx) => {
                 const isChecked = item.isSelected;
                 stepsHTML += `
                     <tr style="${isChecked ? 'background: rgba(16, 185, 129, 0.1);' : 'opacity: 0.6;'}">
@@ -302,7 +302,6 @@
                         <td dir="ltr">${item.step3}</td>
                         <td dir="ltr" style="color: #c084fc; font-weight: bold;">${item.step4Group}</td>
                         <td dir="ltr" style="color: #fbbf24;">${item.step5Percentage}</td>
-                        <td dir="ltr" style="color: #2dd4bf;">${item.step6Percentage}</td>
                         <td dir="ltr" style="color: #10b981; font-weight: bold; border-bottom: 2px solid #10b981;">${item.finalValue}</td>
                         <td>
                             <button class="toggle-btn ${isChecked ? 'active' : ''}" onclick="toggleCell(${idx})">
@@ -340,7 +339,7 @@
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
                             <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 5: مجموع النسب S5:</div>
                             <div style="font-weight: bold; color: #fbbf24; font-family: monospace;" dir="ltr">${res.step5Sum}%</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">مجموع النسب الأولى</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">مجموع النسب المئوية</div>
                         </div>
                         <div style="background: rgba(99, 102, 241, 0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.4);">
                             <div style="font-size: 0.75rem; color: #c7d2fe;">مجموع الخانات المنتقلة (S):</div>
@@ -351,7 +350,7 @@
                 </div>
 
                 <div class="card">
-                    <h2>📋 جدول التحليل والخطوات الست (القسم الأول)</h2>
+                    <h2>📋 جدول التحليل والخطوات الخمس (القسم الأول)</h2>
                     <p><strong>النص المدخل:</strong> ${res.wordInput} | <strong>الأحرف بعد التوحيد:</strong> ${res.normalizedChars.join(' ، ')}</p>
                     <p><strong>ناتج S1:</strong> ${res.step1Details.fractionDisplay} | <strong>S2:</strong> ${res.S2} | <strong>S5:</strong> ${res.step5Sum}% | <strong>المجموع الكسري (S):</strong> <span class="badge">${res.sumS}</span></p>
 
@@ -365,8 +364,7 @@
                                     <th>خطوة 2 (÷ آخر خانة × نفسها)</th>
                                     <th>خطوة 3 (÷ S2 × S1)</th>
                                     <th>خطوة 4 (المتغير الحرفي)</th>
-                                    <th>خطوة 5 (النسبة الأولى %)</th>
-                                    <th>خطوة 6 (النسبة النهائية %)</th>
+                                    <th>خطوة 5 (النسبة %)</th>
                                     <th>الناتج المعتمد</th>
                                     <th>زر الانتقال</th>
                                 </tr>

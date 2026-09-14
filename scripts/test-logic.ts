@@ -20,7 +20,7 @@ console.log(`Step 1 (S1)     : ${testMadad.step1Details.sumCellValues} -> Fracti
 console.log(`Step 2 Sum (S2) : ${testMadad.step2SumDisplay}`);
 console.log(`Step 3 Last Val : ${testMadad.step3LastFrac.toString()}`);
 console.log(`Step 5 Sum (S5) : ${testMadad.step5SumDisplay}`);
-console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوات الست):");
+console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوات الخمس):");
 
 testMadad.section1.forEach(cell => {
   console.log(`  [الخانة ${cell.pos} (${cell.char})]:`);
@@ -28,9 +28,8 @@ testMadad.section1.forEach(cell => {
   console.log(`    - خطوة 2 (تعديل آخر خانة) : ${cell.step2Display} (${cell.step2Formula})`);
   console.log(`    - خطوة 3 (حساب مركب)      : ${cell.step3Display} (${cell.step3Formula})`);
   console.log(`    - خطوة 4 (جمع المتغير)    : ${cell.step4GroupDisplay}`);
-  console.log(`    - خطوة 5 (النسبة الأولى)  : ${cell.step5RatioDisplay} (${cell.step5Formula})`);
-  console.log(`    - خطوة 6 (النسبة النهائية): ${cell.step6RatioDisplay} (${cell.step6Formula})`);
-  console.log(`    - الناتج الكسري النهائي   : ${cell.resultDisplay} = ${cell.finalFormula} ${cell.isTransferred ? '✅ [زر انتقال: مفعّل]' : '❌ [زر انتقال: غير مفعّل]'}`);
+  console.log(`    - خطوة 5 (النسبة %)        : ${cell.step5RatioDisplay} (${cell.step5Formula})`);
+  console.log(`    - الناتج الكسري المعتمد   : ${cell.resultDisplay} = ${cell.finalFormula} ${cell.isTransferred ? '✅ [زر انتقال: مفعّل]' : '❌ [زر انتقال: غير مفعّل]'}`);
 });
 
 console.log("\n📊 OUTPUT GATES (القسم الثاني: بوابات النتائج الأربعة):");
@@ -63,12 +62,12 @@ console.log(`     خطوات جمع الأرقام والاختزال: ${testMad
 console.log(`     الرقم المفرد النهائي: [ ${testMadad.answer4.singleDigit} ]`);
 
 // Validations for "مدد"
-const expectedMadadCells = ['2/7', '52/7', '78/7'];
+const expectedMadadCells = ['4/7', '104/7', '156/7'];
 const actualMadadCells = testMadad.section1.map(c => c.resultDisplay);
 const isSection1Valid = JSON.stringify(actualMadadCells) === JSON.stringify(expectedMadadCells);
 
-if (isSection1Valid && testMadad.transferredSumDisplay === '132/7') {
-  console.log("\n>>> ✅ TEST 1 PASSED: 100% ACCURATE TO HANDWRITTEN SHEET FOR 'مدد'! <<<\n");
+if (isSection1Valid && testMadad.transferredSumDisplay === '264/7') {
+  console.log("\n>>> ✅ TEST 1 PASSED: 100% ACCURATE TO SPECIFICATIONS FOR 'مدد'! <<<\n");
 } else {
   console.error(">>> ❌ TEST 1 FAILED! <<<");
   process.exit(1);
@@ -84,9 +83,9 @@ console.log("-------------------------------------------------------------------
 const testJalil = calculateArabicPower("جليل");
 console.log(`Step 1 S1      : ${testJalil.step1Details.sumCellValues} (Fraction: ${testJalil.step1Details.fractionDisplay})`);
 console.log(`Step 2 Sum S2  : ${testJalil.step2SumDisplay}`);
-console.log(`Sum of all cells S = ${testJalil.transferredSumDisplay} (Expected: 296/15)`);
-if (testJalil.transferredSumDisplay !== '296/15') {
-  throw new Error(`Test 2 failed: expected 296/15, got ${testJalil.transferredSumDisplay}`);
+console.log(`Sum of all cells S = ${testJalil.transferredSumDisplay} (Expected: 148/3)`);
+if (testJalil.transferredSumDisplay !== '148/3') {
+  throw new Error(`Test 2 failed: expected 148/3, got ${testJalil.transferredSumDisplay}`);
 }
 console.log(">>> ✅ TEST 2 PASSED! <<<\n");
 

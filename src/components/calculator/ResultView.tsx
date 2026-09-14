@@ -302,7 +302,7 @@ export default function ResultView({
         </Card>
       )}
 
-      {/* SECTION 1: 6-STEP TABLE / جدول التحليل والخطوات الست */}
+      {/* SECTION 1: 5-STEP TABLE / جدول التحليل والخطوات الخمس */}
       <Card className="glass border-purple-500/30 shadow-[0_0_25px_rgba(168,85,247,0.1)] overflow-hidden w-full min-w-0">
         <CardHeader className="py-2.5 px-3 sm:px-5 border-b border-white/10 bg-slate-900/60 min-w-0">
           <div className="flex flex-col gap-2 min-w-0">
@@ -311,7 +311,7 @@ export default function ResultView({
               <div className="min-w-0">
                 <CardTitle className="text-base sm:text-lg font-bold text-purple-300 flex items-center gap-2 truncate">
                   <Calculator className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                  جدول التحليل والخطوات الست (Arbitrary-Precision 6 Steps)
+                  جدول التحليل والخطوات الخمس (Arbitrary-Precision 5 Steps)
                 </CardTitle>
                 <p className="text-[11px] text-slate-400 mt-0.5">
                   حسابات كسرية دقيقة 100% بدون أي تقريب وفق الشرح والورقة اليدوية مع أزرار الانتقال التفاعلية.
@@ -414,14 +414,14 @@ export default function ResultView({
           </div>
         </CardHeader>
 
-        {/* Optional Collapsible 6 Steps Breakdown */}
+        {/* Optional Collapsible 5 Steps Breakdown */}
         {showStepsBreakdown && (
           <div className="p-3 bg-black/40 border-b border-white/10 text-xs text-slate-300 space-y-2.5">
             <h4 className="font-bold text-purple-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-              <span>ملخص الخطوات الرياضية الست (Mathematical 6-Step Breakdown):</span>
+              <span>ملخص الخطوات الرياضية الخمس (Mathematical 5-Step Breakdown):</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
                 <span className="text-slate-400 text-[10px] block">1. مجموع خطوة 1 (S1):</span>
                 <span className="font-mono text-indigo-300 font-bold">{result.step1Details.fractionDisplay}</span>
@@ -438,7 +438,7 @@ export default function ResultView({
                 <span className="text-[9px] text-slate-400 block mt-0.5">(خطوة 2 ÷ S2) × S1</span>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">4. المتغيرات الحرفية (جمع طبيعي):</span>
+                <span className="text-slate-400 text-[10px] block">4. المتغيرات (جمع طبيعي):</span>
                 <div className="flex flex-wrap gap-1 mt-0.5">
                   {result.charGroups.map(g => (
                     <span key={g.char} className="px-1.5 py-0.5 bg-purple-500/20 rounded text-[10px] font-mono text-purple-200">
@@ -448,14 +448,9 @@ export default function ResultView({
                 </div>
               </div>
               <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">5. مجموع النسب الأولى (S5):</span>
-                <span className="font-mono text-amber-300 font-bold">{result.step5SumDisplay}%</span>
+                <span className="text-slate-400 text-[10px] block">5. مجموع النسب (S5):</span>
+                <span className="font-mono text-amber-300 font-bold">{result.step5SumDisplay}</span>
                 <span className="text-[9px] text-slate-400 block mt-0.5">(الخانة ÷ {result.step1LastVal} × 100)</span>
-              </div>
-              <div className="p-2 rounded-lg bg-white/5 border border-white/5">
-                <span className="text-slate-400 text-[10px] block">6. مجموع النسب النهائية:</span>
-                <span className="font-mono text-emerald-300 font-bold">{result.step6SumRatioDisplay}</span>
-                <span className="text-[9px] text-slate-400 block mt-0.5">(نسبة 5 ÷ S5 × 100)</span>
               </div>
             </div>
           </div>
@@ -465,7 +460,7 @@ export default function ResultView({
           {/* 1. TABLE VIEW */}
           {viewMode === 'table' ? (
             <div className="w-full max-w-full overflow-x-auto rounded-xl border border-white/10 bg-slate-950/70 md:max-h-[520px] md:overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600/40 scrollbar-track-white/5">
-              <table className="w-full min-w-[760px] text-right border-collapse text-xs">
+              <table className="w-full min-w-[720px] text-right border-collapse text-xs">
                 {/* Sticky Header */}
                 <thead className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md border-b border-white/10 text-slate-300 font-bold">
                   <tr>
@@ -503,19 +498,13 @@ export default function ResultView({
                     <th className="py-2 px-1.5 text-center">
                       خطوة 5
                       <span className="block text-[9px] text-amber-400 font-normal">
-                        (النسبة الأولى %)
-                      </span>
-                    </th>
-                    <th className="py-2 px-1.5 text-center">
-                      خطوة 6
-                      <span className="block text-[9px] text-teal-400 font-normal">
-                        (النسبة النهائية %)
+                        (النسبة %)
                       </span>
                     </th>
                     <th className="py-2 px-2 text-center">
                       الناتج المعتمد
                       <span className="block text-[9px] text-emerald-400 font-normal">
-                        (المتغير × النسبة 6)
+                        (المتغير × النسبة 5)
                       </span>
                     </th>
                     <th className="py-2 px-1.5 text-center w-24 sm:w-28">
@@ -590,19 +579,13 @@ export default function ResultView({
                           <div className="text-[9px] text-purple-400/70 font-sans">({item.char})</div>
                         </td>
 
-                        {/* Step 5 Initial Percentage */}
+                        {/* Step 5 Percentage */}
                         <td className="py-1.5 px-1.5 text-center font-mono text-amber-300 dir-ltr text-xs font-bold" title={item.step5Formula}>
                           <div>{item.step5RatioDisplay}</div>
                           <div className="text-[9px] text-slate-500 font-sans">{item.step5Formula}</div>
                         </td>
 
-                        {/* Step 6 Final Percentage */}
-                        <td className="py-1.5 px-1.5 text-center font-mono text-teal-300 dir-ltr text-xs font-bold" title={item.step6Formula}>
-                          <div>{item.step6RatioDisplay}</div>
-                          <div className="text-[9px] text-slate-500 font-sans">{item.step6Formula}</div>
-                        </td>
-
-                        {/* Step 6 Final Approved Result Fraction (مع خط أخضر سفلي كما في ورقة المستخدم) */}
+                        {/* Step 5 Final Approved Result Fraction */}
                         <td className="py-1.5 px-2 text-center font-mono font-black text-emerald-400 dir-ltr text-xs sm:text-sm" title={item.finalFormula}>
                           <div className="inline-block border-b-2 border-emerald-400 px-1 pb-0.5 font-bold">
                             {item.resultDisplay}
@@ -717,15 +700,11 @@ export default function ResultView({
                           4 (المتغير):{' '}
                           <strong className="text-purple-300 font-bold dir-ltr">{item.step4GroupDisplay}</strong>
                         </div>
-                        <div className="text-slate-400 dir-ltr text-left truncate">
-                          5 (نسبة 1):{' '}
+                        <div className="col-span-2 text-slate-400 dir-ltr text-left truncate">
+                          5 (النسبة %):{' '}
                           <strong className="text-amber-300 font-bold">{item.step5RatioDisplay}</strong>
                         </div>
-                        <div className="text-slate-400 dir-ltr text-left truncate">
-                          6 (نهائية):{' '}
-                          <strong className="text-teal-300 font-bold">{item.step6RatioDisplay}</strong>
-                        </div>
-                        <div className="col-span-2 sm:col-span-3 pt-1 border-t border-white/5 flex justify-between items-center text-[11px] min-w-0">
+                        <div className="col-span-2 pt-1 border-t border-white/5 flex justify-between items-center text-[11px] min-w-0">
                           <span className="text-slate-400 font-sans">الناتج المعتمد:</span>
                           <span className="text-emerald-400 font-black dir-ltr text-xs border-b-2 border-emerald-400 pb-0.5">
                             {item.resultDisplay}
