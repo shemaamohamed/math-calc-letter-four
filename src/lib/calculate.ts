@@ -413,21 +413,18 @@ export function calculateArabicPower(
   const step1LastVal = step1Details.charPositions[n - 1].initialValue; // 3
 
   // -------------------------------------------------------------------------
-  // الاستمرار في بقية المشروع: الإبقاء على بقية الخطوات الحسابية في المشروع كما هي دون تغيير
-  // - إبقاء الحسابات للخطوات 2 إلى 6 كما هي مطابقة تماماً لما هو مكتوب في ورقة العمل الأصلية
-  // - الخطوة 2: الخانات (4/3 ، 16/3 ، 12/1) والمجموع S2 = 56/3
-  // - الخطوة 3: الخانات (12/7 ، 48/7 ، 108/7) بالقانون: (خطوة 2 ÷ 56/3) × 24
+  // الخطوات 2 إلى 6: الحساب الرقمي الكسري المباشر المعتمد 100% على الورقة المرجعية اليدوية
+  // - إلغاء الضرب في 4 نهائياً والاعتماد على العد الطبيعي المباشر: 1، 2، 3...
+  // - خطوة 2: تقسيم كل خانة في خطوة 1 على آخر خانة ثم الضرب في نفسها -> S2 = 14/3 لـ "مدد"
+  // - خطوة 3: تقسيم كل خانة من خطوة 2 على S2 ثم الضرب في S1 (وهو 6 لـ "مدد") -> S3 = 6
   // -------------------------------------------------------------------------
-  const calcBaseMultiplier = 4;
-  const baseStep1Vals = normalizedChars.map((_, i) => (i + 1) * calcBaseMultiplier);
-  const baseStep1Last = baseStep1Vals[n - 1];
-  const baseStep1LastBig = BigInt(baseStep1Last);
-  const baseStep1Sum = baseStep1Vals.reduce((acc, v) => acc + v, 0);
-  const baseStep1Fraction = new Fraction(BigInt(baseStep1Sum), ONE);
+  const step1Vals = normalizedChars.map((_, i) => i + 1);
+  const step1LastValBig = BigInt(step1LastVal);
+  const step1Fraction = step1Details.fraction;
 
-  const step2Fractions = baseStep1Vals.map(val => {
+  const step2Fractions = step1Vals.map(val => {
     const valBig = BigInt(val);
-    return new Fraction(valBig * valBig, baseStep1LastBig);
+    return new Fraction(valBig * valBig, step1LastValBig);
   });
 
   let S2 = new Fraction(ZERO, ONE);
@@ -436,7 +433,7 @@ export function calculateArabicPower(
   });
 
   const step3Fractions = step2Fractions.map(v2 => {
-    return v2.div(S2).mul(baseStep1Fraction);
+    return v2.div(S2).mul(step1Fraction);
   });
 
   let S3 = new Fraction(ZERO, ONE);
@@ -447,7 +444,7 @@ export function calculateArabicPower(
 
   // -------------------------------------------------------------------------
   // الخطوة 4: الجمع والتعريف (م ، د)
-  // - جمع نواتج خطوة 3 المقابلة للحرف الموحد لتحديد المتغيرات (م = 12/7 ، د = 156/7)
+  // - جمع نواتج خطوة 3 المقابلة للحرف الموحد لتحديد المتغيرات (م = 3/7 ، د = 39/7)
   // -------------------------------------------------------------------------
   const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction; count: number }>();
   normalizedChars.forEach((c, idx) => {
@@ -519,12 +516,12 @@ export function calculateArabicPower(
     // Step 2: (الخانة ÷ آخر خانة) × الخانة
     const step2Frac = step2Fractions[idx];
     const step2Display = step2Frac.toString();
-    const step2Formula = `${baseStep1Vals[idx]} ÷ ${baseStep1Last} × ${baseStep1Vals[idx]}`;
+    const step2Formula = `${step1Vals[idx]} ÷ ${step1LastVal} × ${step1Vals[idx]}`;
 
-    // Step 3: (قيمة الخانة من خطوة 2 ÷ S2) × S1 (الأساس 24 المعتمد في بقية المشروع)
+    // Step 3: (قيمة الخانة من خطوة 2 ÷ S2) × S1
     const step3Frac = step3Fractions[idx];
     const step3Display = step3Frac.toString();
-    const step3Formula = `${step2Display} ÷ ${S2.toString()} × ${baseStep1Sum}`;
+    const step3Formula = `${step2Display} ÷ ${S2.toString()} × ${sumCellValues}`;
 
     // Step 4: الجمع الطبيعي للحرف المقابل (م أو د)
     const charGroupInfo = charGroupsMap.get(c)!;

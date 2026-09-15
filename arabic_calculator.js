@@ -173,24 +173,22 @@ function processWord(text, selectedIndices = null) {
         fractionDisplay
     };
 
-    // الاستمرار في بقية المشروع: الإبقاء على بقية الخطوات الحسابية في المشروع كما هي دون تغيير
-    const calcBaseMultiplier = 4;
-    const baseStep1Vals = chars.map((_, i) => (i + 1) * calcBaseMultiplier);
-    const baseStep1Last = baseStep1Vals[n - 1];
-    const baseStep1LastBig = BigInt(baseStep1Last);
-    const baseStep1Sum = baseStep1Vals.reduce((acc, v) => acc + v, 0);
-    const baseStep1Fraction = new Fraction(BigInt(baseStep1Sum), 1n);
+    // الخطوات 2 إلى 6: الحساب الرقمي الكسري المباشر المعتمد 100% على الورقة المرجعية اليدوية
+    // - إلغاء الضرب في 4 نهائياً والاعتماد على العد الطبيعي المباشر: 1، 2، 3...
+    const step1Vals = chars.map((_, i) => i + 1);
+    const step1LastValBig = BigInt(lastCellVal);
+    const step1FractionExact = step1Fraction;
 
     // Step 2: (v1_i / v1_last) * v1_i = v1_i^2 / v1_last and sum S2
-    const step2Fractions = baseStep1Vals.map(val => {
+    const step2Fractions = step1Vals.map(val => {
         const valBig = BigInt(val);
-        return new Fraction(valBig * valBig, baseStep1LastBig);
+        return new Fraction(valBig * valBig, step1LastValBig);
     });
     let S2 = new Fraction(0n, 1n);
     step2Fractions.forEach(f => S2 = S2.add(f));
 
-    // Step 3: (v2 / S2) * baseStep1Fraction
-    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(baseStep1Fraction));
+    // Step 3: (v2 / S2) * step1Fraction
+    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(step1FractionExact));
     const v3_last = step3Fractions[n - 1];
 
     // Step 4: Group identical characters and sum step 3 (Natural Sum - Variable definition)
@@ -251,9 +249,9 @@ function processWord(text, selectedIndices = null) {
             char: c,
             step1: step1Val,
             step2: step2Frac.toString(),
-            step2Formula: `${baseStep1Vals[idx]} ÷ ${baseStep1Last} × ${baseStep1Vals[idx]}`,
+            step2Formula: `${step1Vals[idx]} ÷ ${lastCellVal} × ${step1Vals[idx]}`,
             step3: step3Val.toString(),
-            step3Formula: `${step2Frac.toString()} ÷ ${S2.toString()} × ${baseStep1Sum}`,
+            step3Formula: `${step2Frac.toString()} ÷ ${S2.toString()} × ${sumCellValues}`,
             step4Group: charSum.toString(),
             step4RawSum: charGroup.sum.toString(),
             step4Count: charGroup.count,
