@@ -278,12 +278,12 @@
             const res = processWord(val, selectedIndices);
             const output = document.getElementById('outputArea');
 
-            // Render Step 1 Letter Multiplier Badges
+            // Render Step 1 Letter Badges (Direct Count)
             let step1Badges = '';
             if (res.step1Details) {
                 step1Badges = res.step1Details.charPositions.map(c => `
                     <div style="display: flex; flex-direction: column; align-items: center; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 8px; padding: 4px 8px; min-width: 48px;">
-                        <span style="font-size: 0.65rem; color: #94a3b8;">#${c.pos} × ${res.step1Details.multiplier}</span>
+                        <span style="font-size: 0.65rem; color: #94a3b8;">الخانة #${c.pos}</span>
                         <span style="font-size: 0.8rem; font-weight: bold; color: #fbbf24; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; text-align: center; margin-bottom: 2px;">= ${c.initialValue}</span>
                         <span style="font-size: 1.1rem; font-weight: 900; color: #fff;">${c.char}</span>
                     </div>
@@ -316,11 +316,11 @@
             output.innerHTML = `
                 <!-- Step 1 Hero Block -->
                 <div class="card" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(30, 27, 75, 0.25);">
-                    <h2 style="color: #a5b4fc;">١. الخطوة الأولى: المعامل الأولي وتجميع الخانات</h2>
-                    <p style="color: #cbd5e1; font-size: 0.85rem;">ضرب كل خانة في المعامل الثابت (${res.step1Details.multiplier}) ➔ تجميع الخانات ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues} | آخر خانة = ${res.step1Details.lastCellVal}</p>
+                    <h2 style="color: #a5b4fc;">١. الخطوة الأولى: العد المباشر وتجميع الخانات (تم إلغاء الضرب في 4)</h2>
+                    <p style="color: #cbd5e1; font-size: 0.85rem;">كتابة القيم بصورتها الطبيعية المباشرة (1، 2، 3...) ➔ جمع القيم ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues} | آخر خانة = ${res.step1Details.lastCellVal}</p>
                     
                     <div style="margin: 0.8rem 0;">
-                        <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. ضرب كل خانة في المعامل 4:</div>
+                        <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. كتابة العد المباشر لكل خانة:</div>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
                             ${step1Badges}
                         </div>
@@ -361,7 +361,7 @@
                                 <tr>
                                     <th>الخانة</th>
                                     <th>الحرف</th>
-                                    <th>خطوة 1 (× 4)</th>
+                                    <th>خطوة 1 (العد المباشر)</th>
                                     <th>خطوة 2 (÷ آخر خانة × نفسها)</th>
                                     <th>خطوة 3 (÷ S2 × S1)</th>
                                     <th>خطوة 4 (المتغير الحرفي)</th>

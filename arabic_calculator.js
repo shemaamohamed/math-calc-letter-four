@@ -145,11 +145,11 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: Position numbering, multiplier (4), and sum aggregation S1
-    const cellMultiplier = 4;
+    // Step 1: العد المباشر الطبيعي وتجميع الخانات (تم إلغاء الضرب في 4)
+    const cellMultiplier = 1;
     const step1Chars = chars.map((c, i) => {
         const pos = i + 1;
-        const initialValue = pos * cellMultiplier;
+        const initialValue = pos; // العد المباشر: 1, 2, 3...
         return { pos, char: c, originalChar: rawChars[i], initialValue };
     });
     const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
@@ -160,7 +160,6 @@ function processWord(text, selectedIndices = null) {
     const rawFractionDisplay = `${sumCellValues}/1`;
     const fractionDisplay = step1Fraction.toString();
     const lastCellVal = step1Chars[n - 1].initialValue;
-    const lastVal_big = BigInt(lastCellVal);
 
     const step1Details = {
         charPositions: step1Chars,
@@ -169,21 +168,29 @@ function processWord(text, selectedIndices = null) {
         sumCellValues,
         sumFormulaStr,
         lastCellVal,
-        equationStr: `(الترتيب × ${cellMultiplier}) ➔ تجميع الخانات`,
+        equationStr: `العد المباشر ➔ تجميع الخانات`,
         rawFractionDisplay,
         fractionDisplay
     };
 
+    // الاستمرار في بقية المشروع: الإبقاء على بقية الخطوات الحسابية في المشروع كما هي دون تغيير
+    const calcBaseMultiplier = 4;
+    const baseStep1Vals = chars.map((_, i) => (i + 1) * calcBaseMultiplier);
+    const baseStep1Last = baseStep1Vals[n - 1];
+    const baseStep1LastBig = BigInt(baseStep1Last);
+    const baseStep1Sum = baseStep1Vals.reduce((acc, v) => acc + v, 0);
+    const baseStep1Fraction = new Fraction(BigInt(baseStep1Sum), 1n);
+
     // Step 2: (v1_i / v1_last) * v1_i = v1_i^2 / v1_last and sum S2
-    const step2Fractions = step1Chars.map(item => {
-        const valBig = BigInt(item.initialValue);
-        return new Fraction(valBig * valBig, lastVal_big);
+    const step2Fractions = baseStep1Vals.map(val => {
+        const valBig = BigInt(val);
+        return new Fraction(valBig * valBig, baseStep1LastBig);
     });
     let S2 = new Fraction(0n, 1n);
     step2Fractions.forEach(f => S2 = S2.add(f));
 
-    // Step 3: (v2 / S2) * step1Fraction
-    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(step1Fraction));
+    // Step 3: (v2 / S2) * baseStep1Fraction
+    const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(baseStep1Fraction));
     const v3_last = step3Fractions[n - 1];
 
     // Step 4: Group identical characters and sum step 3 (Natural Sum - Variable definition)
@@ -244,7 +251,9 @@ function processWord(text, selectedIndices = null) {
             char: c,
             step1: step1Val,
             step2: step2Frac.toString(),
+            step2Formula: `${baseStep1Vals[idx]} ÷ ${baseStep1Last} × ${baseStep1Vals[idx]}`,
             step3: step3Val.toString(),
+            step3Formula: `${step2Frac.toString()} ÷ ${S2.toString()} × ${baseStep1Sum}`,
             step4Group: charSum.toString(),
             step4RawSum: charGroup.sum.toString(),
             step4Count: charGroup.count,

@@ -24,7 +24,7 @@ console.log("\n📊 STEP-BY-STEP BREAKDOWN (القسم الأول: الخطوا�
 
 testMadad.section1.forEach(cell => {
   console.log(`  [الخانة ${cell.pos} (${cell.char})]:`);
-  console.log(`    - خطوة 1 (المعامل 4)       : ${cell.step1Val}`);
+  console.log(`    - خطوة 1 (العد المباشر)   : ${cell.step1Val}`);
   console.log(`    - خطوة 2 (تعديل آخر خانة) : ${cell.step2Display} (${cell.step2Formula})`);
   console.log(`    - خطوة 3 (حساب مركب)      : ${cell.step3Display} (${cell.step3Formula})`);
   console.log(`    - خطوة 4 (جمع المتغير)    : ${cell.step4GroupDisplay}`);

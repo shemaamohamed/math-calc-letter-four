@@ -207,7 +207,7 @@ export default function ResultView({
         </div>
       </div>
 
-      {/* STEP 1 HERO: ترقيم الحروف وتطبيق المعامل الأولي والتجميع */}
+      {/* STEP 1 HERO: العد المباشر وتجميع الخانات (تم إلغاء الضرب في 4) */}
       {result.step1Details && (
         <Card className="glass border-indigo-500/30 bg-gradient-to-b from-indigo-950/30 to-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.12)] overflow-hidden w-full min-w-0">
           <CardHeader className="py-2.5 px-3 sm:px-5 border-b border-white/10 bg-indigo-950/40">
@@ -218,10 +218,10 @@ export default function ResultView({
                 </div>
                 <div>
                   <CardTitle className="text-sm sm:text-base font-bold text-indigo-200">
-                    الخطوة الأولى: المعامل الأولي وتجميع الخانات
+                    الخطوة الأولى: العد المباشر وتجميع الخانات (تم إلغاء الضرب في 4)
                   </CardTitle>
                   <p className="text-[10px] sm:text-[11px] text-slate-400">
-                    ضرب كل خانة في المعامل الثابت ({result.step1Details.multiplier ?? 4}) ➔ تجميع كل الخانات ➔ الناتج النهائي S1 = {result.step1Details.sumCellValues}
+                    كتابة القيم بصورتها الطبيعية المباشرة (1، 2، 3...) ➔ جمع القيم ➔ الناتج النهائي S1 = {result.step1Details.sumCellValues}
                   </p>
                 </div>
               </div>
@@ -231,11 +231,11 @@ export default function ResultView({
             </div>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 space-y-3">
-            {/* 1. Letter Multiplier Visualization (الضرب في 4 لكل خانة) */}
+            {/* 1. Direct Count Visualization (العد المباشر لكل خانة) */}
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                1. ضرب كل خانة في المعامل الثابت ({result.step1Details.multiplier ?? 4}):
+                1. كتابة العد المباشر لكل خانة بصورتها الطبيعية:
               </span>
               <div className="flex flex-wrap items-center gap-2 p-2.5 bg-black/40 rounded-xl border border-white/5 overflow-x-auto">
                 {result.step1Details.charPositions.map(item => (
@@ -244,7 +244,7 @@ export default function ResultView({
                     className="flex flex-col items-center justify-center bg-indigo-950/40 border border-indigo-500/30 rounded-lg px-2.5 py-1.5 min-w-[50px] shadow-sm"
                   >
                     <span className="text-[9px] font-mono text-slate-400">
-                      #{item.pos} × {result.step1Details.multiplier ?? 4}
+                      الخانة #{item.pos}
                     </span>
                     <span className="text-xs font-mono font-black text-amber-300 border-b border-indigo-500/30 pb-0.5 mb-1 w-full text-center">
                       = {item.initialValue}
@@ -262,13 +262,13 @@ export default function ResultView({
               {/* Box 1: خطوة التجميع */}
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
                 <span className="text-[11px] text-slate-400 font-medium block">
-                  2. خطوة التجميع (Sum of all cells):
+                  2. خطوة التجميع (جمع القيم المباشرة):
                 </span>
                 <div className="font-mono text-xs font-bold text-cyan-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5">
                   {result.step1Details.sumFormulaStr}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  مجموع كل الخانات مجتمعة = {result.step1Details.sumCellValues}
+                  مجموع القيم الطبيعية = {result.step1Details.sumCellValues}
                 </div>
               </div>
 
@@ -278,10 +278,10 @@ export default function ResultView({
                   3. منطق المعادلة:
                 </span>
                 <div className="font-mono text-xs font-bold text-yellow-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5 truncate">
-                  ∑(الترتيب × 4) = S1
+                  ∑(العد المباشر) = S1
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {result.step1Details.charPositions.map(c => `${c.pos}×4`).join(' + ')} = {result.step1Details.sumCellValues}
+                  {result.step1Details.charPositions.map(c => c.initialValue).join(' + ')} = {result.step1Details.sumCellValues}
                 </div>
               </div>
 
@@ -294,7 +294,7 @@ export default function ResultView({
                   {result.step1Details.fractionDisplay}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  يُستخدم هذا الناتج في الخطوات التالية
+                  الناتج المعتمد للخطوة الأولى = {result.step1Details.sumCellValues}
                 </div>
               </div>
             </div>
@@ -479,7 +479,7 @@ export default function ResultView({
                     <th className="py-2 px-1.5 text-center">
                       خطوة 1
                       <span className="block text-[9px] text-indigo-400 font-normal">
-                        (الترتيب × 4)
+                        (العد المباشر)
                       </span>
                     </th>
                     <th className="py-2 px-1.5 text-center">
@@ -702,7 +702,7 @@ export default function ResultView({
                       {/* Row 2: 6 Steps Breakdown */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] bg-black/40 p-2 rounded-lg font-mono min-w-0">
                         <div className="text-slate-400 truncate">
-                          1 (×4):{' '}
+                          1 (العد المباشر):{' '}
                           <strong className="text-indigo-300 font-bold dir-ltr">{item.step1Val}</strong>
                         </div>
                         <div className="text-slate-400 truncate">

@@ -12,16 +12,16 @@ try {
     console.log(`\n--- TEST 1: Word "مدد" (Exact Match with Handwritten Sheet) ---`);
     const resultMadad = calculateArabicPower("مدد");
 
-    // 1. Step 1: 1*4=4, 2*4=8, 3*4=12 -> Sum S1 = 24
+    // 1. Step 1: العد المباشر الطبيعي: الخانة 1 = 1، الخانة 2 = 2، الخانة 3 = 3 -> Sum S1 = 6
     console.log(`Step 1 Details:`);
-    console.log(`  - Positions * 4: [${resultMadad.step1Details.charPositions.map(c => `${c.pos}*4=${c.initialValue}`).join(', ')}]`);
+    console.log(`  - Direct Count Positions: [${resultMadad.step1Details.charPositions.map(c => `الخانة ${c.pos}=${c.initialValue}`).join(', ')}]`);
     console.log(`  - Aggregated Sum S1: ${resultMadad.step1Details.sumCellValues} (Fraction: ${resultMadad.step1Details.fractionDisplay})`);
     console.log(`  - Last Cell Value: ${resultMadad.step1LastVal}`);
 
-    if (resultMadad.step1Details.sumCellValues !== 24 || resultMadad.step1Details.fractionDisplay !== '24/1' || resultMadad.step1LastVal !== 12) {
+    if (resultMadad.step1Details.sumCellValues !== 6 || resultMadad.step1Details.fractionDisplay !== '6/1' || resultMadad.step1LastVal !== 3) {
         throw new Error(`Step 1 for مدد failed!`);
     }
-    console.log("✅ Step 1 verified: Sum S1 = 24 (24/1), Last Cell = 12!");
+    console.log("✅ Step 1 verified: Sum S1 = 6 (6/1), Last Cell = 3!");
 
     // 2. Step 2: (Cell / Last_Cell) * Cell -> 4/12*4 = 4/3, 8/12*8 = 16/3, 12/12*12 = 12/1 -> Sum S2 = 56/3
     console.log(`Step 2 Values: [${resultMadad.section1.map(c => c.step2Display).join(', ')}]`);
@@ -119,7 +119,7 @@ try {
     // ============================================================================
     console.log(`\n--- TEST 2: Word "جليل" ---`);
     const resultJalil = calculateArabicPower("جليل");
-    console.log(`Step 1 S1: ${resultJalil.step1Details.fractionDisplay} (40/1), Last Cell: ${resultJalil.step1LastVal} (16)`);
+    console.log(`Step 1 S1: ${resultJalil.step1Details.fractionDisplay} (10/1), Last Cell: ${resultJalil.step1LastVal} (4)`);
     console.log(`Step 2 S2: ${resultJalil.step2SumDisplay} (30/1)`);
     console.log(`Step 3 Values: [${resultJalil.section1.map(c => c.step3Display).join(', ')}] (Expected: 4/3, 16/3, 12/1, 64/3)`);
     console.log(`Step 4 Variables: [ج=${resultJalil.section1[0].step4GroupDisplay}, ل=${resultJalil.section1[1].step4GroupDisplay}, ي=${resultJalil.section1[2].step4GroupDisplay}]`);
@@ -135,7 +135,7 @@ try {
         }
     });
 
-    if (resultJalil.step1Details.sumCellValues !== 40 ||
+    if (resultJalil.step1Details.sumCellValues !== 10 ||
         resultJalil.step2SumDisplay !== '30/1' ||
         resultJalil.transferredSumDisplay !== '964/45') {
         throw new Error("Test 2 for جليل failed!");

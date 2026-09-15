@@ -228,30 +228,30 @@ export interface Step1CharItem {
   pos: number;
   char: string;
   originalChar: string;
-  initialValue: number; // pos * multiplier (الضرب في المعامل الثابت 4)
+  initialValue: number; // العد المباشر الطبيعي (1، 2، 3 ...) بدون ضرب في 4
 }
 
 export interface Step1Summary {
   charPositions: Step1CharItem[];
-  multiplier: number; // المعامل الثابت (افتراضياً 4)
+  multiplier: number; // 1 (العد المباشر بدون مضاعفة)
   sumPositions: number; // مجموع الترتيب (1 + 2 + ... + n)
-  sumCellValues: number; // مجموع الخانات بعد المعامل S1 (مثال: 4 + 8 + 12 = 24)
-  sumFormulaStr: string; // e.g., "4 + 8 + 12 = 24"
-  equationStr: string; // "الخانة × 4 ➔ تجميع الخانات"
-  calculationStr: string; // "4 + 8 + 12 = 24"
+  sumCellValues: number; // مجموع الخانات بالعد المباشر S1 (مثال: 1 + 2 + 3 = 6)
+  sumFormulaStr: string; // e.g., "1 + 2 + 3 = 6"
+  equationStr: string; // "العد المباشر ➔ تجميع الخانات"
+  calculationStr: string; // "1 + 2 + 3 = 6"
   rawNumerator: bigint; // S1
   rawDenominator: bigint; // 1
   fraction: Fraction; // Fraction(S1, 1)
-  fractionDisplay: string; // "24/1" or "24"
-  rawFractionDisplay: string; // "24/1"
+  fractionDisplay: string; // "6/1" or "6"
+  rawFractionDisplay: string; // "6/1"
 }
 
 export interface Section1Item {
   pos: number;
   char: string;
   originalChar: string;
-  // Step 1: الترتيب × المعامل 4
-  step1Val: number; // pos * multiplier (4, 8, 12, 16...)
+  // Step 1: العد المباشر الطبيعي (1، 2، 3...)
+  step1Val: number; // pos (1, 2, 3...)
   // Step 2: (الخانة ÷ آخر خانة × الخانة)
   step2Frac: Fraction; // (v1_i / v1_last) * v1_i
   step2Display: string;
@@ -317,12 +317,12 @@ export interface CalculationResult {
   normalizedChars: string[];
   totalChars: number;
   step1Details: Step1Summary;
-  step1Sum: number; // S1 (مثال: 24)
-  step1LastVal: number; // آخر خانة من خطوة 1 (مثال: 12)
+  step1Sum: number; // S1 (مثال: 6)
+  step1LastVal: number; // آخر خانة من خطوة 1 (مثال: 3)
   step2SumFrac: Fraction; // S2 (مثال: 56/3)
   step2SumDisplay: string; // "56/3"
   step3LastFrac: Fraction; // آخر خانة من خطوة 3 (مثال: 108/7)
-  step3SumFrac: Fraction; // S3 = S1 (مثال: 24)
+  step3SumFrac: Fraction; // S3 (مثال: 24)
   step3SumDisplay: string;
   charGroups: CharacterGroupSummary[]; // تعريف المتغيرات من خطوة 4 (جمع طبيعي)
   step5SumFrac: Fraction; // مجموع خطوة 5 (S5) (مثال: 1400/9)
@@ -341,19 +341,19 @@ export interface CalculationResult {
 }
 
 /**
- * الخوارزمية المستقلة للخطوة الأولى (المعامل الأولي والتجميع):
- * 1. المرور على كل خانة وضرب قيمتها في المعامل الثابت (مثال: 4)
- * 2. خطوة التجميع (Aggregation): جمع نواتج كل الخانات معاً في وعاء بيانات واحد
+ * الخوارزمية المستقلة للخطوة الأولى (العد المباشر والتجميع):
+ * 1. كتابة العد المباشر بصورته الطبيعية (1، 2، 3 ...) بدون ضرب في 4
+ * 2. خطوة التجميع (Aggregation): جمع نواتج كل الخانات معاً (1 + 2 + 3 = 6)
  * 3. إرجاع الناتج الإجمالي وتفاصيل كل خانة
  */
 export function calculateStep1Aggregation(
   rawChars: string[],
   normalizedChars: string[],
-  multiplier: number = 4
+  multiplier: number = 1
 ): Step1Summary {
   const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => {
     const pos = i + 1;
-    const initialValue = pos * multiplier;
+    const initialValue = pos * multiplier; // العد المباشر: 1, 2, 3...
     return {
       pos,
       char: c,
@@ -378,7 +378,7 @@ export function calculateStep1Aggregation(
     sumPositions,
     sumCellValues,
     sumFormulaStr,
-    equationStr: `(الترتيب × ${multiplier}) ➔ تجميع الخانات`,
+    equationStr: `العد المباشر ➔ تجميع الخانات`,
     calculationStr,
     rawNumerator: S_big,
     rawDenominator: ONE,
@@ -391,7 +391,7 @@ export function calculateStep1Aggregation(
 export function calculateArabicPower(
   text: string,
   transferredIndicesInput?: number[],
-  cellMultiplier: number = 4
+  cellMultiplier: number = 1
 ): CalculationResult {
   // تنظيف علامات التشكيل والتطويل والمسافات
   const cleanedText = text.replace(/[\u064B-\u0652\u0640]/g, '');
@@ -404,25 +404,30 @@ export function calculateArabicPower(
   }
 
   // -------------------------------------------------------------------------
-  // الخطوة 1: الضرب المبدئي والجمع
-  // - ضرب كل خانة مدخلة في 4
-  // - حساب المجموع الكلي لنواتج هذه الخانات S1
+  // الخطوة 1: العد المباشر وتجميع الخانات (تم إلغاء الضرب في 4)
+  // - كتابة العد المباشر بصورته الطبيعية المباشرة (1، 2، 3 ...)
+  // - جمع القيم (1 + 2 + 3) ليكون الناتج النهائي للخطوة الأولى S1 = 6 بدلاً من 24
   // -------------------------------------------------------------------------
-  const step1Details = calculateStep1Aggregation(rawChars, normalizedChars, cellMultiplier);
-  const step1Fraction = step1Details.fraction;
-  const sumCellValues = step1Details.sumCellValues; // S1
-  const step1LastVal = step1Details.charPositions[n - 1].initialValue; // آخر خانة من خطوة 1
-  const lastVal_big = BigInt(step1LastVal);
+  const step1Details = calculateStep1Aggregation(rawChars, normalizedChars, 1);
+  const sumCellValues = step1Details.sumCellValues; // 6
+  const step1LastVal = step1Details.charPositions[n - 1].initialValue; // 3
 
   // -------------------------------------------------------------------------
-  // الخطوة 2: القسمة والضرب المتقدم (التعديل)
-  // - قسمة كل خانة من خطوة (1) على آخر خانة في خطوة (1)، ثم ضرب الناتج في نفس قيمة الخانة
-  // - القانون: (الخانة ÷ آخر خانة) × الخانة = الخانة² ÷ آخر خانة
-  // - جمع كافة النواتج للحصول على المجموع الكلي للخطوة الثانية S2 (مثل الناتج: 56/3)
+  // الاستمرار في بقية المشروع: الإبقاء على بقية الخطوات الحسابية في المشروع كما هي دون تغيير
+  // - إبقاء الحسابات للخطوات 2 إلى 6 كما هي مطابقة تماماً لما هو مكتوب في ورقة العمل الأصلية
+  // - الخطوة 2: الخانات (4/3 ، 16/3 ، 12/1) والمجموع S2 = 56/3
+  // - الخطوة 3: الخانات (12/7 ، 48/7 ، 108/7) بالقانون: (خطوة 2 ÷ 56/3) × 24
   // -------------------------------------------------------------------------
-  const step2Fractions = step1Details.charPositions.map(item => {
-    const valBig = BigInt(item.initialValue);
-    return new Fraction(valBig * valBig, lastVal_big);
+  const calcBaseMultiplier = 4;
+  const baseStep1Vals = normalizedChars.map((_, i) => (i + 1) * calcBaseMultiplier);
+  const baseStep1Last = baseStep1Vals[n - 1];
+  const baseStep1LastBig = BigInt(baseStep1Last);
+  const baseStep1Sum = baseStep1Vals.reduce((acc, v) => acc + v, 0);
+  const baseStep1Fraction = new Fraction(BigInt(baseStep1Sum), ONE);
+
+  const step2Fractions = baseStep1Vals.map(val => {
+    const valBig = BigInt(val);
+    return new Fraction(valBig * valBig, baseStep1LastBig);
   });
 
   let S2 = new Fraction(ZERO, ONE);
@@ -430,14 +435,8 @@ export function calculateArabicPower(
     S2 = S2.add(f);
   });
 
-  // -------------------------------------------------------------------------
-  // الخطوة 3: الحساب المركب لكل خانة
-  // - أخذ قيمة كل خانة من خطوة (2)، وقسمتها على المجموع الكلي للخطوة (2) [S2]،
-  //   ثم ضرب الناتج في المجموع الكلي للخطوة (1) [S1]
-  // - القانون: (قيمة الخانة من خطوة 2 ÷ S2) × S1
-  // -------------------------------------------------------------------------
   const step3Fractions = step2Fractions.map(v2 => {
-    return v2.div(S2).mul(step1Fraction);
+    return v2.div(S2).mul(baseStep1Fraction);
   });
 
   let S3 = new Fraction(ZERO, ONE);
@@ -520,12 +519,12 @@ export function calculateArabicPower(
     // Step 2: (الخانة ÷ آخر خانة) × الخانة
     const step2Frac = step2Fractions[idx];
     const step2Display = step2Frac.toString();
-    const step2Formula = `${step1Val} ÷ ${step1LastVal} × ${step1Val}`;
+    const step2Formula = `${baseStep1Vals[idx]} ÷ ${baseStep1Last} × ${baseStep1Vals[idx]}`;
 
-    // Step 3: (قيمة الخانة من خطوة 2 ÷ S2) × S1
+    // Step 3: (قيمة الخانة من خطوة 2 ÷ S2) × S1 (الأساس 24 المعتمد في بقية المشروع)
     const step3Frac = step3Fractions[idx];
     const step3Display = step3Frac.toString();
-    const step3Formula = `${step2Display} ÷ ${S2.toString()} × ${sumCellValues}`;
+    const step3Formula = `${step2Display} ÷ ${S2.toString()} × ${baseStep1Sum}`;
 
     // Step 4: الجمع الطبيعي للحرف المقابل (م أو د)
     const charGroupInfo = charGroupsMap.get(c)!;
