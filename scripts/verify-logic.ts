@@ -64,28 +64,42 @@ try {
     }
     console.log("✅ Step 4 verified: (م = 12/7, د = 156/7)!");
 
-    // 5. Step 5: (Cell / Last_Cell) * 100 -> [100/3%, 200/3%, 100/1%], then multiplied by Step 4 variable
-    console.log(`Step 5 Percentages: [${resultMadad.section1.map(c => c.step5RatioDisplay).join(', ')}]`);
-    console.log(`Step 5 Sum S5: ${resultMadad.step5SumDisplay} (Expected: 200% or 200/1%)`);
-    const expectedMadadStep5 = ['100/3%', '200/3%', '100/1%'];
-    const expectedMadadFinal = ['4/7', '104/7', '156/7'];
-
+    // 5. Step 5: (v3_i / v3_last) * 100 -> [100/9, 400/9, 100/1] -> Sum S5 = 1400/9
+    console.log(`Step 5 Values: [${resultMadad.section1.map(c => c.step5Display).join(', ')}]`);
+    console.log(`Step 5 Sum S5: ${resultMadad.step5SumDisplay} (Expected: 1400/9)`);
+    const expectedMadadStep5 = ['100/9', '400/9', '100/1'];
     resultMadad.section1.forEach((c, i) => {
-        if (c.step5RatioDisplay !== expectedMadadStep5[i]) {
-            throw new Error(`Step 5 percentage cell ${i} mismatch: got ${c.step5RatioDisplay}, expected ${expectedMadadStep5[i]}`);
-        }
-        if (c.resultDisplay !== expectedMadadFinal[i]) {
-            throw new Error(`Step 5 final value cell ${i} mismatch: got ${c.resultDisplay}, expected ${expectedMadadFinal[i]}`);
+        if (c.step5Display !== expectedMadadStep5[i]) {
+            throw new Error(`Step 5 cell ${i} mismatch: got ${c.step5Display}, expected ${expectedMadadStep5[i]}`);
         }
     });
-    console.log("✅ Step 5 verified: Percentages=[100/3%, 200/3%, 100/1%] and Final Values=[4/7, 104/7, 156/7]!");
-
-    // Total Sum S = 4/7 + 104/7 + 156/7 = 264/7
-    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 264/7)`);
-    if (resultMadad.transferredSumDisplay !== '264/7') {
-        throw new Error(`Total Sum S mismatch: got ${resultMadad.transferredSumDisplay}, expected 264/7`);
+    if (resultMadad.step5SumDisplay !== '1400/9') {
+        throw new Error(`Step 5 Sum mismatch: got ${resultMadad.step5SumDisplay}, expected 1400/9`);
     }
-    console.log("✅ Total Sum S verified (264/7)!");
+    console.log("✅ Step 5 verified: Values=[100/9, 400/9, 100/1] and Sum S5 = 1400/9!");
+
+    // 6. Step 6: (v5_i / S5) * 100 -> [50/7%, 200/7%, 450/7%], then multiplied by Step 4 variable
+    console.log(`Step 6 Percentages: [${resultMadad.section1.map(c => c.step6RatioDisplay).join(', ')}]`);
+    console.log(`Step 6 Sum: ${resultMadad.step6SumRatioDisplay} (Expected: 100%)`);
+    const expectedMadadStep6 = ['50/7%', '200/7%', '450/7%'];
+    const expectedMadadFinal = ['6/49', '312/49', '702/49'];
+
+    resultMadad.section1.forEach((c, i) => {
+        if (c.step6RatioDisplay !== expectedMadadStep6[i]) {
+            throw new Error(`Step 6 percentage cell ${i} mismatch: got ${c.step6RatioDisplay}, expected ${expectedMadadStep6[i]}`);
+        }
+        if (c.resultDisplay !== expectedMadadFinal[i]) {
+            throw new Error(`Final value cell ${i} mismatch: got ${c.resultDisplay}, expected ${expectedMadadFinal[i]}`);
+        }
+    });
+    console.log("✅ Step 6 verified: Percentages=[50/7%, 200/7%, 450/7%] and Final Values=[6/49, 312/49, 702/49]!");
+
+    // Total Sum S = 6/49 + 312/49 + 702/49 = 1020/49
+    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 1020/49)`);
+    if (resultMadad.transferredSumDisplay !== '1020/49') {
+        throw new Error(`Total Sum S mismatch: got ${resultMadad.transferredSumDisplay}, expected 1020/49`);
+    }
+    console.log("✅ Total Sum S verified (1020/49)!");
 
     // 4 Output Gates for "مدد"
     console.log(`\nAnswer Gates for 'مدد':`);
@@ -94,10 +108,11 @@ try {
     console.log(`  - Answer 3 (√S .)  : ${resultMadad.answer3.fullDisplay10} => Steps: ${resultMadad.answer3.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer3.singleDigit}`);
     console.log(`  - Answer 4 (√(S/N).): ${resultMadad.answer4.fullDisplay10} => Steps: ${resultMadad.answer4.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer4.singleDigit}`);
 
-    if (resultMadad.answer1.singleDigit !== 5 || resultMadad.answer2.singleDigit !== 4) {
+    if (resultMadad.answer1.singleDigit !== 6 || resultMadad.answer2.singleDigit !== 9 ||
+        resultMadad.answer3.singleDigit !== 8 || resultMadad.answer4.singleDigit !== 9) {
         throw new Error("Answer gates validation failed for 'مدد'!");
     }
-    console.log("✅ Answer Gates verified for 'مدد'!");
+    console.log("✅ Answer Gates verified for 'مدد' (Roots: 6, 9, 8, 9)!");
 
     // ============================================================================
     // TEST 2: Word "جليل"
@@ -108,23 +123,24 @@ try {
     console.log(`Step 2 S2: ${resultJalil.step2SumDisplay} (30/1)`);
     console.log(`Step 3 Values: [${resultJalil.section1.map(c => c.step3Display).join(', ')}] (Expected: 4/3, 16/3, 12/1, 64/3)`);
     console.log(`Step 4 Variables: [ج=${resultJalil.section1[0].step4GroupDisplay}, ل=${resultJalil.section1[1].step4GroupDisplay}, ي=${resultJalil.section1[2].step4GroupDisplay}]`);
-    console.log(`Step 5 Percentages: [${resultJalil.section1.map(c => c.step5RatioDisplay).join(', ')}] (Sum S5: ${resultJalil.step5SumDisplay})`);
-    console.log(`Step 5 Final Values: [${resultJalil.section1.map(c => c.resultDisplay).join(', ')}] (Expected: 1/3, 40/3, 9/1, 80/3)`);
-    console.log(`Total Sum S: ${resultJalil.transferredSumDisplay} (Expected: 148/3)`);
+    console.log(`Step 5 Values: [${resultJalil.section1.map(c => c.step5Display).join(', ')}] (Sum S5: ${resultJalil.step5SumDisplay})`);
+    console.log(`Step 6 Percentages: [${resultJalil.section1.map(c => c.step6RatioDisplay).join(', ')}]`);
+    console.log(`Step 6 Final Values: [${resultJalil.section1.map(c => c.resultDisplay).join(', ')}] (Expected: 2/45, 32/9, 18/5, 128/9)`);
+    console.log(`Total Sum S: ${resultJalil.transferredSumDisplay} (Expected: 964/45)`);
 
-    const expectedJalilFinal = ['1/3', '40/3', '9/1', '80/3'];
+    const expectedJalilFinal = ['2/45', '32/9', '18/5', '128/9'];
     resultJalil.section1.forEach((c, i) => {
         if (c.resultDisplay !== expectedJalilFinal[i]) {
-            throw new Error(`Jalil step 5 final value cell ${i} mismatch: got ${c.resultDisplay}, expected ${expectedJalilFinal[i]}`);
+            throw new Error(`Jalil final value cell ${i} mismatch: got ${c.resultDisplay}, expected ${expectedJalilFinal[i]}`);
         }
     });
 
     if (resultJalil.step1Details.sumCellValues !== 40 ||
         resultJalil.step2SumDisplay !== '30/1' ||
-        resultJalil.transferredSumDisplay !== '148/3') {
+        resultJalil.transferredSumDisplay !== '964/45') {
         throw new Error("Test 2 for جليل failed!");
     }
-    console.log("✅ Step 1-5 for 'جليل' verified with updated 5-step engine!");
+    console.log("✅ Step 1-6 for 'جليل' verified with updated 6-step engine!");
 
     // ============================================================================
     // TEST 3: Character Normalization

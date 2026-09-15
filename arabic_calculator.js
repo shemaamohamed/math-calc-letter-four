@@ -208,28 +208,35 @@ function processWord(text, selectedIndices = null) {
         group.average = group.sum; // Natural sum (Variable value)
     });
 
-    // Step 5: Initial percentages: (v1_i / v1_last) * 100
-    const step5Fractions = step1Chars.map(item => {
-        const valBig = BigInt(item.initialValue);
-        return new Fraction(valBig * 100n, lastVal_big);
+    // Step 5: (v3_i / v3_last) * 100, then sum S5
+    const step5Fractions = step3Fractions.map(v3 => {
+        return v3.div(v3_last).mul(new Fraction(100n, 1n));
     });
     let S5 = new Fraction(0n, 1n);
     step5Fractions.forEach(f => S5 = S5.add(f));
 
-    // Step 5: Percentages: (v1_i / v1_last) * 100, applied to Step 4 variables
+    // Step 6: (v5_i / S5) * 100, then finalValue = step4Var * (ratio6 / 100)
+    const step6RatioFractions = step5Fractions.map(v5 => {
+        return v5.div(S5).mul(new Fraction(100n, 1n));
+    });
+    let S6_sumRatio = new Fraction(0n, 1n);
+    step6RatioFractions.forEach(f => S6_sumRatio = S6_sumRatio.add(f));
+
     const defaultSelected = selectedIndices || chars.map((_, i) => i);
-    const step5Details = chars.map((c, idx) => {
+    const step6Details = chars.map((c, idx) => {
         const pos = idx + 1;
         const step1Val = step1Chars[idx].initialValue;
         const step2Frac = step2Fractions[idx];
         const step3Val = step3Fractions[idx];
         const step5Frac = step5Fractions[idx];
-        const step5Display = `${step5Frac.toString()}%`;
+        const step5Display = step5Frac.toString();
+        const step6RatioFrac = step6RatioFractions[idx];
+        const step6Display = `${step6RatioFrac.toString()}%`;
 
-        // Final result = Step 4 variable * (Step 5 Ratio / 100)
+        // Final result = Step 4 variable * (Step 6 Ratio / 100)
         const charGroup = charGroupsMap[c];
         const charSum = charGroup.sum;
-        const finalValue = charSum.mul(step5Frac).div(new Fraction(100n, 1n));
+        const finalValue = charSum.mul(step6RatioFrac).div(new Fraction(100n, 1n));
         const isSelected = defaultSelected.includes(idx);
 
         return {
@@ -241,16 +248,18 @@ function processWord(text, selectedIndices = null) {
             step4Group: charSum.toString(),
             step4RawSum: charGroup.sum.toString(),
             step4Count: charGroup.count,
-            step5Percentage: step5Display,
-            step6Percentage: step5Display,
-            percentage: step5Display,
+            step5Display: step5Display,
+            step5Formula: `${step3Val.toString()} ÷ ${v3_last.toString()} × 100`,
+            step6Percentage: step6Display,
+            step6Formula: `${step5Display} ÷ ${S5.toString()} × 100`,
+            step5Percentage: step6Display, // backwards compatibility
+            percentage: step6Display,
             finalValue: finalValue.toString(),
+            finalFormula: `${charSum.toString()} × ${step6Display}`,
             finalValueFrac: finalValue,
             isSelected
         };
     });
-
-    const step6Details = step5Details;
 
     // Sum of selected items S and count N
     const selectedItems = step6Details.filter(item => item.isSelected);
@@ -327,14 +336,14 @@ const inputWord = process.argv[2] || 'مدد';
 const result = processWord(inputWord);
 
 console.log("==================================================");
-console.log("   ARABIC ARBITRARY-PRECISION 5-STEP ENGINE");
+console.log("   ARABIC ARBITRARY-PRECISION 6-STEP ENGINE");
 console.log("==================================================");
 console.log(`INPUT WORD: ${result.wordInput}`);
 console.log(`NORMALIZED CHARS: [${result.normalizedChars.join(', ')}]`);
-console.log(`S1: ${result.S1}, S2: ${result.S2}, S5: ${result.step5Sum}%`);
+console.log(`S1: ${result.S1}, S2: ${result.S2}, S5: ${result.step5Sum}`);
 console.log("--------------------------------------------------");
-result.step5Details.forEach(item => {
-    console.log(`Pos ${item.pos} (${item.char}): S1=${item.step1}, S2=${item.step2}, S3=${item.step3}, S4Var=${item.step4Group}, Ratio=${item.step5Percentage} => Final=${item.finalValue}`);
+result.step6Details.forEach(item => {
+    console.log(`Pos ${item.pos} (${item.char}): S1=${item.step1}, S2=${item.step2}, S3=${item.step3}, S4Var=${item.step4Group}, S5=${item.step5Display}, Ratio6=${item.step6Percentage} => Final=${item.finalValue}`);
 });
 console.log("--------------------------------------------------");
 console.log(`SELECTED SUM S: ${result.sumS}`);

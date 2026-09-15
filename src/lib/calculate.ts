@@ -266,17 +266,21 @@ export interface Section1Item {
   step4SumFrac: Fraction;
   step4SumDisplay: string;
   step4Count: number;
-  // Step 5: (الخانة ÷ آخر خانة × 100) ثم ضرب النسبة في القيمة العددية من خطوة 4
-  step5RatioFrac: Fraction; // (v1_i / v1_last) * 100
-  step5RatioDisplay: string; // e.g., "100/3%"
-  step5Formula: string; // e.g., "4 ÷ 12 × 100"
-  finalValueFrac: Fraction; // step4Group * (step5Ratio / 100)
-  resultDisplay: string; // e.g., "4/7"
-  finalFormula: string; // e.g., "12/7 × 100/3%"
+  // Step 5: تقسيم كل خانة من خطوة 3 في آخر خانة من خطوة 3 بعدها ضرب 100
+  step5Frac: Fraction; // (v3_i / v3_last) * 100
+  step5Display: string; // e.g., "100/9"
+  step5Formula: string; // e.g., "12/7 ÷ 108/7 × 100"
+  // Step 6: تقسيم كل خانة من خطوة 5 في الجمع النهائي في خطوة 5 (S5) بعدها ضرب 100
+  step6RatioFrac: Fraction; // (v5_i / S5) * 100
+  step6RatioDisplay: string; // e.g., "50/7%"
+  step6Formula: string; // e.g., "100/9 ÷ 1400/9 × 100"
+  // الناتج المعتمد: ضرب كل نسبة في القيمة العددية من خطوة 4
+  finalValueFrac: Fraction; // step4Group * (step6Ratio / 100)
+  resultDisplay: string; // e.g., "6/49"
+  finalFormula: string; // e.g., "12/7 × 50/7%"
   // للتوافق العكسي
-  step6RatioFrac?: Fraction;
-  step6RatioDisplay?: string;
-  step6Formula?: string;
+  step5RatioFrac?: Fraction;
+  step5RatioDisplay?: string;
   percentageRatioFrac: Fraction;
   percentage100Frac: Fraction;
   percentageDisplay: string;
@@ -317,14 +321,14 @@ export interface CalculationResult {
   step1LastVal: number; // آخر خانة من خطوة 1 (مثال: 12)
   step2SumFrac: Fraction; // S2 (مثال: 56/3)
   step2SumDisplay: string; // "56/3"
-  step3LastFrac: Fraction;
+  step3LastFrac: Fraction; // آخر خانة من خطوة 3 (مثال: 108/7)
   step3SumFrac: Fraction; // S3 = S1 (مثال: 24)
   step3SumDisplay: string;
   charGroups: CharacterGroupSummary[]; // تعريف المتغيرات من خطوة 4 (جمع طبيعي)
-  step5SumFrac: Fraction; // مجموع نسب خطوة 5 (S5) (مثال: 200)
-  step5SumDisplay: string; // "200%"
-  step6SumRatioFrac?: Fraction;
-  step6SumRatioDisplay?: string;
+  step5SumFrac: Fraction; // مجموع خطوة 5 (S5) (مثال: 1400/9)
+  step5SumDisplay: string; // "1400/9"
+  step6SumRatioFrac: Fraction; // مجموع نسب خطوة 6 (مثال: 100%)
+  step6SumRatioDisplay: string; // "100%"
   section1: Section1Item[];
   transferredIndices: number[];
   transferredCount: number;
@@ -477,20 +481,33 @@ export function calculateArabicPower(
   });
 
   // -------------------------------------------------------------------------
-  // الخطوة 5: استخلاص النسب المئوية وتطبيقها على المتغيرات
-  // 1. تقسيم كل خانة في خطوة 1 على آخر خانة في خطوة 1، ثم الضرب في 100:
-  //    (الخانة من خطوة 1 ÷ آخر خانة من خطوة 1) × 100
-  // 2. ضرب كل نسبة في القيمة العددية المقابلة من خطوة 4:
-  //    قيمة المتغير من خطوة 4 × النسبة المئوية للخانة
+  // الخطوة 5: تقسيم كل خانة من خطوة 3 في آخر خانة من خطوة 3 ثم الضرب في 100، وجمع الخانات
+  // - القانون: (قيمة الخانة من خطوة 3 ÷ آخر خانة من خطوة 3) × 100
+  // - الجمع النهائي للخانات للحصول على S5 (مثال مدد: 1400/9)
   // -------------------------------------------------------------------------
-  const step5Fractions = step1Details.charPositions.map(item => {
-    const valBig = BigInt(item.initialValue);
-    return new Fraction(valBig * HUNDRED, lastVal_big);
+  const step5Fractions = step3Fractions.map(v3 => {
+    return v3.div(v3_last).mul(new Fraction(HUNDRED, ONE));
   });
 
   let S5 = new Fraction(ZERO, ONE);
   step5Fractions.forEach(f => {
     S5 = S5.add(f);
+  });
+
+  // -------------------------------------------------------------------------
+  // الخطوة 6: استخراج النسب المئوية وتطبيقها على القيم العددية من خطوة 4
+  // 1. تقسيم كل خانة من خطوة 5 على الجمع النهائي في خطوة 5 (S5)، ثم ضرب 100:
+  //    النسبة % = (قيمة الخانة من خطوة 5 ÷ S5) × 100
+  // 2. ضرب كل نسبة في القيمة العددية المقابلة للحرف من خطوة 4:
+  //    الناتج المعتمد = قيمة المتغير من خطوة 4 × (النسبة % ÷ 100)
+  // -------------------------------------------------------------------------
+  const step6RatioFractions = step5Fractions.map(v5 => {
+    return v5.div(S5).mul(new Fraction(HUNDRED, ONE));
+  });
+
+  let S6_sumRatio = new Fraction(ZERO, ONE);
+  step6RatioFractions.forEach(f => {
+    S6_sumRatio = S6_sumRatio.add(f);
   });
 
   const defaultTransferred = transferredIndicesInput ?? normalizedChars.map((_, i) => i);
@@ -514,16 +531,21 @@ export function calculateArabicPower(
     const charGroupInfo = charGroupsMap.get(c)!;
     const charGroupSum = charGroupInfo.sum; // قيمة المتغير م أو د
 
-    // Step 5: (الخانة ÷ آخر خانة) × 100
-    const step5RatioFrac = step5Fractions[idx];
-    const step5RatioDisplay = `${step5RatioFrac.toString()}%`;
-    const step5Formula = `${step1Val} ÷ ${step1LastVal} × 100`;
+    // Step 5: (قيمة الخانة من خطوة 3 ÷ آخر خانة من خطوة 3) × 100
+    const step5Frac = step5Fractions[idx];
+    const step5Display = step5Frac.toString();
+    const step5Formula = `${step3Frac.toString()} ÷ ${v3_last.toString()} × 100`;
 
-    // التطبيق المباشر: ضرب كل نسبة في القيمة العددية من خطوة 4
-    // charGroupSum * (step5RatioFrac / 100) = charGroupSum * (step1Val / step1LastVal)
-    const finalValueFrac = charGroupSum.mul(step5RatioFrac).div(new Fraction(HUNDRED, ONE));
+    // Step 6: (قيمة الخانة من خطوة 5 ÷ S5) × 100
+    const step6RatioFrac = step6RatioFractions[idx];
+    const step6RatioDisplay = `${step6RatioFrac.toString()}%`;
+    const step6Formula = `${step5Display} ÷ ${S5.toString()} × 100`;
+
+    // التطبيق المعتمد: ضرب كل نسبة في القيمة العددية من خطوة 4
+    // charGroupSum * (step6RatioFrac / 100)
+    const finalValueFrac = charGroupSum.mul(step6RatioFrac).div(new Fraction(HUNDRED, ONE));
     const resultDisplay = finalValueFrac.toString();
-    const finalFormula = `${charGroupSum.toString()} × ${step5RatioDisplay}`;
+    const finalFormula = `${charGroupSum.toString()} × ${step6RatioDisplay}`;
 
     const isTransferred = defaultTransferred.includes(idx);
 
@@ -543,18 +565,20 @@ export function calculateArabicPower(
       step4SumFrac: charGroupSum,
       step4SumDisplay: charGroupSum.toString(),
       step4Count: charGroupInfo.count,
-      step5RatioFrac,
-      step5RatioDisplay,
+      step5Frac,
+      step5Display,
       step5Formula,
-      step6RatioFrac: step5RatioFrac,
-      step6RatioDisplay: step5RatioDisplay,
-      step6Formula: step5Formula,
+      step6RatioFrac,
+      step6RatioDisplay,
+      step6Formula,
       finalValueFrac,
       resultDisplay,
       finalFormula,
-      percentageRatioFrac: step5RatioFrac.div(new Fraction(HUNDRED, ONE)),
-      percentage100Frac: step5RatioFrac,
-      percentageDisplay: step5RatioDisplay,
+      step5RatioFrac: step6RatioFrac,
+      step5RatioDisplay: step6RatioDisplay,
+      percentageRatioFrac: step6RatioFrac.div(new Fraction(HUNDRED, ONE)),
+      percentage100Frac: step6RatioFrac,
+      percentageDisplay: step6RatioDisplay,
       isTransferred,
     };
   });
@@ -665,9 +689,9 @@ export function calculateArabicPower(
     step3SumDisplay: S3.toString(),
     charGroups,
     step5SumFrac: S5,
-    step5SumDisplay: S5.den === ONE ? `${S5.num}%` : `${S5.toString()}%`,
-    step6SumRatioFrac: S5,
-    step6SumRatioDisplay: S5.den === ONE ? `${S5.num}%` : `${S5.toString()}%`,
+    step5SumDisplay: S5.toString(),
+    step6SumRatioFrac: S6_sumRatio,
+    step6SumRatioDisplay: S6_sumRatio.den === ONE ? `${S6_sumRatio.num}%` : `${S6_sumRatio.toString()}%`,
     section1,
     transferredIndices: section1.filter(item => item.isTransferred).map(item => item.pos - 1),
     transferredCount,
