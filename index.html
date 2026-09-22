@@ -316,11 +316,11 @@
             output.innerHTML = `
                 <!-- Step 1 Hero Block -->
                 <div class="card" style="border-color: rgba(99, 102, 241, 0.4); background: rgba(30, 27, 75, 0.25);">
-                    <h2 style="color: #a5b4fc;">١. الخطوة الأولى: العد المباشر وتجميع الخانات (تم إلغاء الضرب في 4)</h2>
-                    <p style="color: #cbd5e1; font-size: 0.85rem;">كتابة القيم بصورتها الطبيعية المباشرة (1، 2، 3...) ➔ جمع القيم ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues} | آخر خانة = ${res.step1Details.lastCellVal}</p>
+                    <h2 style="color: #a5b4fc;">١. الخطوة الأولى: وضع قيمة (4) على كل خانة وتجميع الخانات</h2>
+                    <p style="color: #cbd5e1; font-size: 0.85rem;">وضع 4 على كل خانة ➔ جمع قيم الخانات ➔ الناتج النهائي S1 = ${res.step1Details.sumCellValues} | القيمة الثابتة = ${res.step1Details.lastCellVal}</p>
                     
                     <div style="margin: 0.8rem 0;">
-                        <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. كتابة العد المباشر لكل خانة:</div>
+                        <div style="font-size: 0.8rem; font-weight: bold; color: #cbd5e1; margin-bottom: 4px;">1. وضع القيمة (4) لكل خانة:</div>
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px;">
                             ${step1Badges}
                         </div>
@@ -330,12 +330,12 @@
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
                             <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 1: المجموع S1:</div>
                             <div style="font-weight: bold; color: #67e8f9; font-family: monospace;" dir="ltr">${res.step1Details.fractionDisplay}</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">آخر خانة = ${res.step1Details.lastCellVal}</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">القيمة لكل خانة = ${res.step1Details.lastCellVal}</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
                             <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 2: المجموع S2:</div>
                             <div style="font-weight: bold; color: #fde047; font-family: monospace;" dir="ltr">${res.S2}</div>
-                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">(الخانة ÷ ${res.step1Details.lastCellVal} × الخانة)</div>
+                            <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;">(الخانة ÷ آخر خانة × الخانة)</div>
                         </div>
                         <div style="background: rgba(255,255,255,0.04); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
                             <div style="font-size: 0.75rem; color: #94a3b8;">خطوة 5: مجموع الخانات S5:</div>
@@ -361,7 +361,7 @@
                                 <tr>
                                     <th>الخانة</th>
                                     <th>الحرف</th>
-                                    <th>خطوة 1 (العد المباشر)</th>
+                                    <th>خطوة 1 (القيمة 4)</th>
                                     <th>خطوة 2 (÷ آخر خانة × نفسها)</th>
                                     <th>خطوة 3 (÷ S2 × S1)</th>
                                     <th>خطوة 4 (المتغير الحرفي)</th>

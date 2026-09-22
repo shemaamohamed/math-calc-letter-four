@@ -145,11 +145,11 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: العد المباشر الطبيعي وتجميع الخانات (تم إلغاء الضرب في 4)
-    const cellMultiplier = 1;
+    // Step 1: وضع أربعة على كل خانة ثم جمع نتائج الخانات (S1)
+    const cellMultiplier = 4;
     const step1Chars = chars.map((c, i) => {
         const pos = i + 1;
-        const initialValue = pos; // العد المباشر: 1, 2, 3...
+        const initialValue = 4; // نضع 4 على كل خانة
         return { pos, char: c, originalChar: rawChars[i], initialValue };
     });
     const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
@@ -159,7 +159,7 @@ function processWord(text, selectedIndices = null) {
     const step1Fraction = new Fraction(S_big, 1n);
     const rawFractionDisplay = `${sumCellValues}/1`;
     const fractionDisplay = step1Fraction.toString();
-    const lastCellVal = step1Chars[n - 1].initialValue;
+    const lastCellVal = 4;
 
     const step1Details = {
         charPositions: step1Chars,
@@ -168,26 +168,26 @@ function processWord(text, selectedIndices = null) {
         sumCellValues,
         sumFormulaStr,
         lastCellVal,
-        equationStr: `العد المباشر ➔ تجميع الخانات`,
+        equationStr: `وضع 4 على كل خانة ➔ تجميع الخانات`,
         rawFractionDisplay,
         fractionDisplay
     };
 
     // الخطوات 2 إلى 6: الحساب الرقمي الكسري المباشر المعتمد 100% على الورقة المرجعية اليدوية
-    // - إلغاء الضرب في 4 نهائياً والاعتماد على العد الطبيعي المباشر: 1، 2، 3...
-    const step1Vals = chars.map((_, i) => i + 1);
-    const step1LastValBig = BigInt(lastCellVal);
+    // Step 2: عدد طبيعي (1, 2, ... n) -> (i ÷ n) × i = i^2 / n
+    const naturalIndices = chars.map((_, i) => i + 1);
+    const lastNaturalVal = n;
+    const lastNaturalValBig = BigInt(lastNaturalVal);
     const step1FractionExact = step1Fraction;
 
-    // Step 2: (v1_i / v1_last) * v1_i = v1_i^2 / v1_last and sum S2
-    const step2Fractions = step1Vals.map(val => {
-        const valBig = BigInt(val);
-        return new Fraction(valBig * valBig, step1LastValBig);
+    const step2Fractions = naturalIndices.map(i => {
+        const iBig = BigInt(i);
+        return new Fraction(iBig * iBig, lastNaturalValBig);
     });
     let S2 = new Fraction(0n, 1n);
     step2Fractions.forEach(f => S2 = S2.add(f));
 
-    // Step 3: (v2 / S2) * step1Fraction
+    // Step 3: (v2 / S2) * step1Fraction (S1)
     const step3Fractions = step2Fractions.map(v2 => v2.div(S2).mul(step1FractionExact));
     const v3_last = step3Fractions[n - 1];
 
@@ -230,7 +230,8 @@ function processWord(text, selectedIndices = null) {
     const defaultSelected = selectedIndices || chars.map((_, i) => i);
     const step6Details = chars.map((c, idx) => {
         const pos = idx + 1;
-        const step1Val = step1Chars[idx].initialValue;
+        const step1Val = 4;
+        const naturalVal = idx + 1;
         const step2Frac = step2Fractions[idx];
         const step3Val = step3Fractions[idx];
         const step5Frac = step5Fractions[idx];
@@ -249,7 +250,7 @@ function processWord(text, selectedIndices = null) {
             char: c,
             step1: step1Val,
             step2: step2Frac.toString(),
-            step2Formula: `${step1Vals[idx]} ÷ ${lastCellVal} × ${step1Vals[idx]}`,
+            step2Formula: `${naturalVal} ÷ ${lastNaturalVal} × ${naturalVal}`,
             step3: step3Val.toString(),
             step3Formula: `${step2Frac.toString()} ÷ ${S2.toString()} × ${sumCellValues}`,
             step4Group: charSum.toString(),
