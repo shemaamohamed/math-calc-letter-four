@@ -207,7 +207,7 @@ export default function ResultView({
         </div>
       </div>
 
-      {/* STEP 1 HERO: وضع 4 على كل خانة وتجميع الخانات */}
+      {/* STEP 1 HERO: وضع 42 على كل خانة وتجميع الخانات */}
       {result.step1Details && (
         <Card className="glass border-indigo-500/30 bg-gradient-to-b from-indigo-950/30 to-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.12)] overflow-hidden w-full min-w-0">
           <CardHeader className="py-2.5 px-3 sm:px-5 border-b border-white/10 bg-indigo-950/40">
@@ -218,10 +218,10 @@ export default function ResultView({
                 </div>
                 <div>
                   <CardTitle className="text-sm sm:text-base font-bold text-indigo-200">
-                    الخطوة الأولى: وضع قيمة (4) على كل خانة وتجميع الخانات
+                    الخطوة الأولى: وضع قيمة (42) على كل خانة وتجميع الخانات
                   </CardTitle>
                   <p className="text-[10px] sm:text-[11px] text-slate-400">
-                    وضع 4 على كل خانة ➔ جمع قيم الخانات ➔ الناتج النهائي S1 = {result.step1Details.sumCellValues}
+                    وضع 42 على كل خانة ➔ جمع قيم الخانات ➔ الناتج النهائي S1 = {result.step1Details.sumCellValues}
                   </p>
                 </div>
               </div>
@@ -231,11 +231,11 @@ export default function ResultView({
             </div>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 space-y-3">
-            {/* 1. Direct Count Visualization (وضع 4 على كل خانة) */}
+            {/* 1. Direct Count Visualization (وضع 42 على كل خانة) */}
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                1. وضع القيمة الثابتة (4) لكل خانة:
+                1. وضع القيمة الثابتة (42) لكل خانة:
               </span>
               <div className="flex flex-wrap items-center gap-2 p-2.5 bg-black/40 rounded-xl border border-white/5 overflow-x-auto">
                 {result.step1Details.charPositions.map(item => (
@@ -278,7 +278,7 @@ export default function ResultView({
                   3. منطق المعادلة:
                 </span>
                 <div className="font-mono text-xs font-bold text-yellow-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5 truncate">
-                  ∑(قيم الخانات 4) = S1
+                  ∑(قيم الخانات 42) = S1
                 </div>
                 <div className="text-[10px] text-slate-400">
                   {result.step1Details.charPositions.map(c => c.initialValue).join(' + ')} = {result.step1Details.sumCellValues}
@@ -479,7 +479,7 @@ export default function ResultView({
                     <th className="py-2 px-1.5 text-center">
                       خطوة 1
                       <span className="block text-[9px] text-indigo-400 font-normal">
-                        (القيمة 4)
+                        (القيمة 42)
                       </span>
                     </th>
                     <th className="py-2 px-1.5 text-center">
@@ -702,7 +702,7 @@ export default function ResultView({
                       {/* Row 2: 6 Steps Breakdown */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] bg-black/40 p-2 rounded-lg font-mono min-w-0">
                         <div className="text-slate-400 truncate">
-                          1 (القيمة 4):{' '}
+                          1 (القيمة 42):{' '}
                           <strong className="text-indigo-300 font-bold dir-ltr">{item.step1Val}</strong>
                         </div>
                         <div className="text-slate-400 truncate">

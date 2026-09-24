@@ -62,12 +62,12 @@ console.log(`     خطوات جمع الأرقام والاختزال: ${testMad
 console.log(`     الرقم المفرد النهائي: [ ${testMadad.answer4.singleDigit} ]`);
 
 // Validations for "مدد"
-const expectedMadadCells = ['3/49', '156/49', '351/49'];
+const expectedMadadCells = ['9/14', '234/7', '1053/14'];
 const actualMadadCells = testMadad.section1.map(c => c.resultDisplay);
 const isSection1Valid = JSON.stringify(actualMadadCells) === JSON.stringify(expectedMadadCells);
 
-if (isSection1Valid && testMadad.transferredSumDisplay === '510/49') {
-  console.log("\n>>> ✅ TEST 1 PASSED: 100% ACCURATE TO SPECIFICATIONS FOR 'مدد'! <<<\n");
+if (isSection1Valid && testMadad.transferredSumDisplay === '765/7') {
+  console.log("\n>>> ✅ TEST 1 PASSED: 100% ACCURATE TO SPECIFICATIONS FOR 'مدد' (Value 42)! <<<\n");
 } else {
   console.error(">>> ❌ TEST 1 FAILED! <<<", { actualMadadCells, expectedMadadCells, sum: testMadad.transferredSumDisplay });
   process.exit(1);
