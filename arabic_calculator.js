@@ -145,11 +145,11 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: وضع اثنين وأربعين (42) على كل خانة ثم جمع نتائج الخانات (S1)
-    const cellMultiplier = 42;
+    // Step 1: وضع واحد (1) على كل خانة ثم جمع نتائج الخانات (S1)
+    const cellMultiplier = 1;
     const step1Chars = chars.map((c, i) => {
         const pos = i + 1;
-        const initialValue = 42; // نضع 42 على كل خانة
+        const initialValue = 1; // نضع 1 على كل خانة
         return { pos, char: c, originalChar: rawChars[i], initialValue };
     });
     const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
@@ -159,7 +159,7 @@ function processWord(text, selectedIndices = null) {
     const step1Fraction = new Fraction(S_big, 1n);
     const rawFractionDisplay = `${sumCellValues}/1`;
     const fractionDisplay = step1Fraction.toString();
-    const lastCellVal = 42;
+    const lastCellVal = 1;
 
     const step1Details = {
         charPositions: step1Chars,
@@ -168,7 +168,7 @@ function processWord(text, selectedIndices = null) {
         sumCellValues,
         sumFormulaStr,
         lastCellVal,
-        equationStr: `وضع 42 على كل خانة ➔ تجميع الخانات`,
+        equationStr: `وضع 1 على كل خانة ➔ تجميع الخانات`,
         rawFractionDisplay,
         fractionDisplay
     };
@@ -230,7 +230,7 @@ function processWord(text, selectedIndices = null) {
     const defaultSelected = selectedIndices || chars.map((_, i) => i);
     const step6Details = chars.map((c, idx) => {
         const pos = idx + 1;
-        const step1Val = 42;
+        const step1Val = 1;
         const naturalVal = idx + 1;
         const step2Frac = step2Fractions[idx];
         const step3Val = step3Fractions[idx];

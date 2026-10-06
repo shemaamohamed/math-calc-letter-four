@@ -349,11 +349,11 @@ export interface CalculationResult {
 export function calculateStep1Aggregation(
   rawChars: string[],
   normalizedChars: string[],
-  multiplier: number = 42
+  multiplier: number = 1
 ): Step1Summary {
   const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => {
     const pos = i + 1;
-    const initialValue = 42; // نضع اثنين وأربعين على كل خانة
+    const initialValue = 1; // نضع واحد على كل خانة
     return {
       pos,
       char: c,
@@ -374,11 +374,11 @@ export function calculateStep1Aggregation(
 
   return {
     charPositions: step1Chars,
-    multiplier: 42,
+    multiplier: 1,
     sumPositions,
     sumCellValues,
     sumFormulaStr,
-    equationStr: `وضع 42 على كل خانة ➔ تجميع الخانات`,
+    equationStr: `وضع واحد على كل خانة ➔ تجميع الخانات`,
     calculationStr,
     rawNumerator: S_big,
     rawDenominator: ONE,
@@ -391,7 +391,7 @@ export function calculateStep1Aggregation(
 export function calculateArabicPower(
   text: string,
   transferredIndicesInput?: number[],
-  cellMultiplier: number = 42
+  cellMultiplier: number = 1
 ): CalculationResult {
   // تنظيف علامات التشكيل والتطويل والمسافات
   const cleanedText = text.replace(/[\u064B-\u0652\u0640]/g, '');
@@ -404,13 +404,13 @@ export function calculateArabicPower(
   }
 
   // -------------------------------------------------------------------------
-  // الخطوة 1: وضع اثنين وأربعين (42) على كل خانة ثم جمع نتائج الخانات (S1)
-  // - وضع 42 لكل خانة: الخانات = [42, 42, 42 ...]
-  // - جمع الخانات (42 + 42 + 42 = 126 لكلمة "مدد")
+  // الخطوة 1: وضع واحد (1) على كل خانة ثم جمع نتائج الخانات (S1)
+  // - وضع 1 لكل خانة: الخانات = [1, 1, 1 ...]
+  // - جمع الخانات (1 + 1 + 1 = 3 لكلمة "مدد")
   // -------------------------------------------------------------------------
-  const step1Details = calculateStep1Aggregation(rawChars, normalizedChars, 42);
-  const sumCellValues = step1Details.sumCellValues; // 126 لكلمة "مدد"
-  const step1LastVal = 42; // القيمة الثابتة لكل خانة
+  const step1Details = calculateStep1Aggregation(rawChars, normalizedChars, 1);
+  const sumCellValues = step1Details.sumCellValues; // 3 لكلمة "مدد"
+  const step1LastVal = 1; // القيمة الثابتة لكل خانة
   const step1Fraction = step1Details.fraction;
 
   // -------------------------------------------------------------------------
@@ -435,7 +435,7 @@ export function calculateArabicPower(
   // -------------------------------------------------------------------------
   // الخطوة 3: تقسيم كل خانة من خطوة 2 في الجمع النهائي (S2) ثم ضرب في الجمع النهائي من خطوة 1 (S1)
   // - القانون: (قيمة خطوة 2 ÷ S2) × S1
-  // - نواتج مدد: 9/1 ، 36/1 ، 81/1 والمجموع S3 = 126 (= S1)
+  // - نواتج مدد: 3/14 ، 6/7 ، 27/14 والمجموع S3 = 3 (= S1)
   // -------------------------------------------------------------------------
   const step3Fractions = step2Fractions.map(v2 => {
     return v2.div(S2).mul(step1Fraction);
@@ -450,8 +450,8 @@ export function calculateArabicPower(
   // -------------------------------------------------------------------------
   // الخطوة 4: جمع طبيعي للأحرف المتماثلة لتحديد قيم المتغيرات
   // - جمع نواتج خطوة 3 المقابلة للحرف:
-  //   م = 9/1
-  //   د = 36/1 + 81/1 = 117/1
+  //   م = 3/14
+  //   د = 6/7 + 27/14 = 39/14
   // -------------------------------------------------------------------------
   const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction; count: number }>();
   normalizedChars.forEach((c, idx) => {
@@ -518,7 +518,7 @@ export function calculateArabicPower(
   const section1: Section1Item[] = normalizedChars.map((c, idx) => {
     const pos = idx + 1;
     const originalChar = rawChars[idx];
-    const step1Val = 42; // القيمة 42 لكل خانة
+    const step1Val = 1; // القيمة 1 لكل خانة
 
     // Step 2: عدد طبيعي (الخانة ÷ آخر خانة) × الخانة
     const naturalVal = idx + 1;
