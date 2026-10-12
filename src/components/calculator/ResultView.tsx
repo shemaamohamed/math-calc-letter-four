@@ -298,11 +298,11 @@ export default function ResultView({
             </div>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 space-y-3">
-            {/* 1. Direct Count Visualization (وضع 42 على كل خانة) */}
+            {/* 1. Direct Count Visualization (القيمة 42) */}
             <div className="space-y-1.5">
               <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                1. وضع القيمة الثابتة (42) لكل خانة:
+                1. القيمة المعتمدة للخطوة الأولى (42):
               </span>
               <div className="flex flex-wrap items-center gap-2 p-2.5 bg-black/40 rounded-xl border border-white/5 overflow-x-auto">
                 {result.step1Details.charPositions.map(item => (
@@ -546,7 +546,7 @@ export default function ResultView({
                     <th className="py-2 px-1.5 text-center">
                       خطوة 1
                       <span className="block text-[9px] text-indigo-400 font-normal">
-                        (القيمة 42)
+                        (القيمة 1)
                       </span>
                     </th>
                     <th className="py-2 px-1.5 text-center">
@@ -769,7 +769,7 @@ export default function ResultView({
                       {/* Row 2: 6 Steps Breakdown */}
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[10px] bg-black/40 p-2 rounded-lg font-mono min-w-0">
                         <div className="text-slate-400 truncate">
-                          1 (القيمة 42):{' '}
+                          1 (القيمة 1):{' '}
                           <strong className="text-indigo-300 font-bold dir-ltr">{item.step1Val}</strong>
                         </div>
                         <div className="text-slate-400 truncate">
