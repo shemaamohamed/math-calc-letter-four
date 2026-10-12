@@ -145,16 +145,16 @@ function processWord(text, selectedIndices = null) {
     const n = chars.length;
     if (n === 0) return { error: "Empty input text" };
 
-    // Step 1: وضع اثنين وأربعين (42) على كل خانة ثم جمع نتائج الخانات (S1)
-    const cellMultiplier = 42;
+    // Step 1: تحديد إجمالي الخطوة الأولى مباشرة بالقيمة 42 (مدد = 42 ، جليل = 42)
+    const fixedStep1Total = 42;
     const step1Chars = chars.map((c, i) => {
         const pos = i + 1;
-        const initialValue = 42; // نضع 42 على كل خانة
+        const initialValue = fixedStep1Total; // القيمة 42
         return { pos, char: c, originalChar: rawChars[i], initialValue };
     });
     const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
-    const sumCellValues = step1Chars.reduce((acc, item) => acc + item.initialValue, 0);
-    const sumFormulaStr = step1Chars.map(item => item.initialValue).join(' + ') + ` = ${sumCellValues}`;
+    const sumCellValues = fixedStep1Total; // إجمالي الخطوة الأولى = 42
+    const sumFormulaStr = `إجمالي الخطوة الأولى S1 = ${fixedStep1Total}`;
     const S_big = BigInt(sumCellValues);
     const step1Fraction = new Fraction(S_big, 1n);
     const rawFractionDisplay = `${sumCellValues}/1`;
@@ -163,12 +163,12 @@ function processWord(text, selectedIndices = null) {
 
     const step1Details = {
         charPositions: step1Chars,
-        multiplier: cellMultiplier,
+        multiplier: fixedStep1Total,
         sumPositions,
         sumCellValues,
         sumFormulaStr,
         lastCellVal,
-        equationStr: `وضع 42 على كل خانة ➔ تجميع الخانات`,
+        equationStr: `إجمالي الخطوة الأولى = ${fixedStep1Total}`,
         rawFractionDisplay,
         fractionDisplay
     };

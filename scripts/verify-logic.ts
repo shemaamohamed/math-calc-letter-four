@@ -3,25 +3,26 @@ import { calculateArabicPower, normalizeChar } from '../src/lib/calculate';
 console.log("==================================================");
 console.log("   RUNNING VERIFICATION TESTS FOR 6-STEP ENGINE   ");
 console.log("   (Exact Fractional Math - No Approximations)    ");
+console.log("   (Step 1 Total S1 = 42: مدد = 42, جليل = 42)    ");
 console.log("==================================================");
 
 try {
     // ============================================================================
-    // TEST 1: Word "مدد" - EXACT 1:1 MATCH WITH HANDWRITTEN SHEET (Value = 42)
+    // TEST 1: Word "مدد" - EXACT 1:1 MATCH WITH HANDWRITTEN SHEET (Total S1 = 42)
     // ============================================================================
-    console.log(`\n--- TEST 1: Word "مدد" (Exact Match with Handwritten Sheet - Value 42) ---`);
+    console.log(`\n--- TEST 1: Word "مدد" (Step 1 Total S1 = 42) ---`);
     const resultMadad = calculateArabicPower("مدد");
 
-    // 1. Step 1: وضع 42 على كل خانة: الخانة 1 = 42، الخانة 2 = 42، الخانة 3 = 42 -> Sum S1 = 126
+    // 1. Step 1: إجمالي الخطوة = 42 (مدد = 42)
     console.log(`Step 1 Details:`);
     console.log(`  - Direct Count Positions: [${resultMadad.step1Details.charPositions.map(c => `الخانة ${c.pos}=${c.initialValue}`).join(', ')}]`);
     console.log(`  - Aggregated Sum S1: ${resultMadad.step1Details.sumCellValues} (Fraction: ${resultMadad.step1Details.fractionDisplay})`);
     console.log(`  - Last Cell Value: ${resultMadad.step1LastVal}`);
 
-    if (resultMadad.step1Details.sumCellValues !== 126 || resultMadad.step1Details.fractionDisplay !== '126/1' || resultMadad.step1LastVal !== 42) {
-        throw new Error(`Step 1 for مدد failed!`);
+    if (resultMadad.step1Details.sumCellValues !== 42 || resultMadad.step1Details.fractionDisplay !== '42/1' || resultMadad.step1LastVal !== 42) {
+        throw new Error(`Step 1 for مدد failed! Got ${resultMadad.step1Details.sumCellValues}`);
     }
-    console.log("✅ Step 1 verified: Sum S1 = 126 (126/1)!");
+    console.log("✅ Step 1 verified: Sum S1 = 42 (42/1)!");
 
     // 2. Step 2: (Cell / Last_Cell) * Cell -> 1/3*1 = 1/3, 2/3*2 = 4/3, 3/3*3 = 3/1 -> Sum S2 = 14/3
     console.log(`Step 2 Values: [${resultMadad.section1.map(c => c.step2Display).join(', ')}]`);
@@ -37,32 +38,32 @@ try {
     }
     console.log("✅ Step 2 verified: [1/3, 4/3, 3/1] and Sum S2 = 14/3!");
 
-    // 3. Step 3: (v2 / S2) * S1 -> [9/1, 36/1, 81/1]
+    // 3. Step 3: (v2 / S2) * S1 -> (v2 / (14/3)) * 42 = v2 * 9 -> [3/1, 12/1, 27/1]
     console.log(`Step 3 Values:`);
-    console.log(`  - م (خانة 1)  : ${resultMadad.section1[0].step3Display} (Expected: 9/1)`);
-    console.log(`  - د (خانة 2)  : ${resultMadad.section1[1].step3Display} (Expected: 36/1)`);
-    console.log(`  - د (خانة 3)  : ${resultMadad.section1[2].step3Display} (Expected: 81/1)`);
+    console.log(`  - م (خانة 1)  : ${resultMadad.section1[0].step3Display} (Expected: 3/1)`);
+    console.log(`  - د (خانة 2)  : ${resultMadad.section1[1].step3Display} (Expected: 12/1)`);
+    console.log(`  - د (خانة 3)  : ${resultMadad.section1[2].step3Display} (Expected: 27/1)`);
 
-    const expectedMadadStep3 = ['9/1', '36/1', '81/1'];
+    const expectedMadadStep3 = ['3/1', '12/1', '27/1'];
     resultMadad.section1.forEach((c, i) => {
         if (c.step3Display !== expectedMadadStep3[i]) {
             throw new Error(`Step 3 cell ${i} mismatch: got ${c.step3Display}, expected ${expectedMadadStep3[i]}`);
         }
     });
-    console.log("✅ Step 3 verified: [9/1, 36/1, 81/1]!");
+    console.log("✅ Step 3 verified: [3/1, 12/1, 27/1] and S3 = 42!");
 
-    // 4. Step 4: Natural Sum / Variables (م = 9/1, د = 36/1 + 81/1 = 117/1)
+    // 4. Step 4: Natural Sum / Variables (م = 3/1, د = 12/1 + 27/1 = 39/1)
     console.log(`Step 4 Natural Sums / Variables:`);
-    console.log(`  - م: ${resultMadad.section1[0].step4GroupDisplay} (Expected: 9/1)`);
-    console.log(`  - د: ${resultMadad.section1[1].step4GroupDisplay} (Expected: 117/1)`);
-    console.log(`  - د: ${resultMadad.section1[2].step4GroupDisplay} (Expected: 117/1)`);
+    console.log(`  - م: ${resultMadad.section1[0].step4GroupDisplay} (Expected: 3/1)`);
+    console.log(`  - د: ${resultMadad.section1[1].step4GroupDisplay} (Expected: 39/1)`);
+    console.log(`  - د: ${resultMadad.section1[2].step4GroupDisplay} (Expected: 39/1)`);
 
-    if (resultMadad.section1[0].step4GroupDisplay !== '9/1' ||
-        resultMadad.section1[1].step4GroupDisplay !== '117/1' ||
-        resultMadad.section1[2].step4GroupDisplay !== '117/1') {
+    if (resultMadad.section1[0].step4GroupDisplay !== '3/1' ||
+        resultMadad.section1[1].step4GroupDisplay !== '39/1' ||
+        resultMadad.section1[2].step4GroupDisplay !== '39/1') {
         throw new Error(`Step 4 natural sums mismatch!`);
     }
-    console.log("✅ Step 4 verified: (م = 9/1, د = 117/1)!");
+    console.log("✅ Step 4 verified: (م = 3/1, د = 39/1)!");
 
     // 5. Step 5: (v3_i / v3_last) * 100 -> [100/9, 400/9, 100/1] -> Sum S5 = 1400/9
     console.log(`Step 5 Values: [${resultMadad.section1.map(c => c.step5Display).join(', ')}]`);
@@ -82,7 +83,7 @@ try {
     console.log(`Step 6 Percentages: [${resultMadad.section1.map(c => c.step6RatioDisplay).join(', ')}]`);
     console.log(`Step 6 Sum: ${resultMadad.step6SumRatioDisplay} (Expected: 100%)`);
     const expectedMadadStep6 = ['50/7%', '200/7%', '450/7%'];
-    const expectedMadadFinal = ['9/14', '234/7', '1053/14'];
+    const expectedMadadFinal = ['3/14', '78/7', '351/14'];
 
     resultMadad.section1.forEach((c, i) => {
         if (c.step6RatioDisplay !== expectedMadadStep6[i]) {
@@ -92,14 +93,14 @@ try {
             throw new Error(`Final value cell ${i} mismatch: got ${c.resultDisplay}, expected ${expectedMadadFinal[i]}`);
         }
     });
-    console.log("✅ Step 6 verified: Percentages=[50/7%, 200/7%, 450/7%] and Final Values=[9/14, 234/7, 1053/14]!");
+    console.log("✅ Step 6 verified: Percentages=[50/7%, 200/7%, 450/7%] and Final Values=[3/14, 78/7, 351/14]!");
 
-    // Total Sum S = 9/14 + 234/7 + 1053/14 = 765/7
-    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 765/7)`);
-    if (resultMadad.transferredSumDisplay !== '765/7') {
-        throw new Error(`Total Sum S mismatch: got ${resultMadad.transferredSumDisplay}, expected 765/7`);
+    // Total Sum S = 3/14 + 78/7 + 351/14 = 255/7
+    console.log(`Total Sum S: ${resultMadad.transferredSumDisplay} (Expected: 255/7)`);
+    if (resultMadad.transferredSumDisplay !== '255/7') {
+        throw new Error(`Total Sum S mismatch: got ${resultMadad.transferredSumDisplay}, expected 255/7`);
     }
-    console.log("✅ Total Sum S verified (765/7)!");
+    console.log("✅ Total Sum S verified (255/7)!");
 
     // 4 Output Gates for "مدد"
     console.log(`\nAnswer Gates for 'مدد':`);
@@ -108,16 +109,28 @@ try {
     console.log(`  - Answer 3 (√S .)  : ${resultMadad.answer3.fullDisplay10} => Steps: ${resultMadad.answer3.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer3.singleDigit}`);
     console.log(`  - Answer 4 (√(S/N).): ${resultMadad.answer4.fullDisplay10} => Steps: ${resultMadad.answer4.digitSumSteps.join(' -> ')} => Root: ${resultMadad.answer4.singleDigit}`);
 
+    if (resultMadad.answer1.singleDigit !== 1 || resultMadad.answer2.singleDigit !== 5 ||
+        resultMadad.answer3.singleDigit !== 6 || resultMadad.answer4.singleDigit !== 3) {
+        throw new Error("Answer gates validation failed for 'مدد'!");
+    }
+    console.log("✅ Answer Gates verified for 'مدد' (Roots: 1, 5, 6, 3)!");
+
     // ============================================================================
-    // TEST 2: Word "جليل"
+    // TEST 2: Word "جليل" (Step 1 Total S1 = 42)
     // ============================================================================
-    console.log(`\n--- TEST 2: Word "جليل" ---`);
+    console.log(`\n--- TEST 2: Word "جليل" (Step 1 Total S1 = 42) ---`);
     const resultJalil = calculateArabicPower("جليل");
-    console.log(`Step 1 S1: ${resultJalil.step1Details.fractionDisplay} (168/1)`);
+    console.log(`Step 1 S1: ${resultJalil.step1Details.fractionDisplay} (42/1)`);
     console.log(`Step 2 S2: ${resultJalil.step2SumDisplay} (15/2)`);
     console.log(`Step 3 Values: [${resultJalil.section1.map(c => c.step3Display).join(', ')}]`);
-    console.log(`Total Sum S: ${resultJalil.transferredSumDisplay}`);
-    console.log("✅ Step 1-6 for 'جليل' verified with updated 6-step engine!");
+    console.log(`Total Sum S: ${resultJalil.transferredSumDisplay} (Expected: 1687/75)`);
+
+    if (resultJalil.step1Details.sumCellValues !== 42 ||
+        resultJalil.step2SumDisplay !== '15/2' ||
+        resultJalil.transferredSumDisplay !== '1687/75') {
+        throw new Error("Test 2 for جليل failed!");
+    }
+    console.log("✅ Step 1-6 for 'جليل' verified with updated 6-step engine (مدد = 42, جليل = 42)!");
 
     // ============================================================================
     // TEST 3: Character Normalization

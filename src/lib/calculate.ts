@@ -341,19 +341,18 @@ export interface CalculationResult {
 }
 
 /**
- * الخوارزمية المستقلة للخطوة الأولى (العد المباشر والتجميع):
- * 1. كتابة العد المباشر بصورته الطبيعية (1، 2، 3 ...) بدون ضرب في 4
- * 2. خطوة التجميع (Aggregation): جمع نواتج كل الخانات معاً (1 + 2 + 3 = 6)
- * 3. إرجاع الناتج الإجمالي وتفاصيل كل خانة
+ * الخوارزمية المستقلة للخطوة الأولى:
+ * تحديد إجمالي الخطوة الأولى مباشرة بالقيمة 42 (مدد = 42 ، جليل = 42)
+ * بدون جمع متكرر للخانة الواحدة.
  */
 export function calculateStep1Aggregation(
   rawChars: string[],
   normalizedChars: string[],
-  multiplier: number = 42
+  fixedStep1Total: number = 42
 ): Step1Summary {
   const step1Chars: Step1CharItem[] = normalizedChars.map((c, i) => {
     const pos = i + 1;
-    const initialValue = 42; // نضع اثنين وأربعين على كل خانة
+    const initialValue = fixedStep1Total; // القيمة 42 المقابلة للخطوة
     return {
       pos,
       char: c,
@@ -363,8 +362,8 @@ export function calculateStep1Aggregation(
   });
 
   const sumPositions = step1Chars.reduce((acc, item) => acc + item.pos, 0);
-  const sumCellValues = step1Chars.reduce((acc, item) => acc + item.initialValue, 0);
-  const sumFormulaStr = step1Chars.map(item => item.initialValue).join(' + ') + ` = ${sumCellValues}`;
+  const sumCellValues = fixedStep1Total; // إجمالي الخطوة الأولى = 42 مباشرة (مدد = 42 ، جليل = 42)
+  const sumFormulaStr = `إجمالي الخطوة الأولى S1 = ${fixedStep1Total}`;
   
   const S_big = BigInt(sumCellValues);
   const step1Fraction = new Fraction(S_big, ONE);
@@ -374,11 +373,11 @@ export function calculateStep1Aggregation(
 
   return {
     charPositions: step1Chars,
-    multiplier: 42,
+    multiplier: fixedStep1Total,
     sumPositions,
     sumCellValues,
     sumFormulaStr,
-    equationStr: `وضع 42 على كل خانة ➔ تجميع الخانات`,
+    equationStr: `إجمالي الخطوة الأولى = ${fixedStep1Total}`,
     calculationStr,
     rawNumerator: S_big,
     rawDenominator: ONE,
@@ -404,13 +403,12 @@ export function calculateArabicPower(
   }
 
   // -------------------------------------------------------------------------
-  // الخطوة 1: وضع اثنين وأربعين (42) على كل خانة ثم جمع نتائج الخانات (S1)
-  // - وضع 42 لكل خانة: الخانات = [42, 42, 42 ...]
-  // - جمع الخانات (42 + 42 + 42 = 126 لكلمة "مدد")
+  // الخطوة 1: تحديد إجمالي الخطوة الأولى مباشرة (42)
+  // - إجمالي الخطوة = 42 دائماً (مدد = 42 ، جليل = 42) بدون جمع متكرر للخانة
   // -------------------------------------------------------------------------
   const step1Details = calculateStep1Aggregation(rawChars, normalizedChars, 42);
-  const sumCellValues = step1Details.sumCellValues; // 126 لكلمة "مدد"
-  const step1LastVal = 42; // القيمة الثابتة لكل خانة
+  const sumCellValues = step1Details.sumCellValues; // 42 لكلمة "مدد" و "جليل"
+  const step1LastVal = 42; // القيمة الثابتة للخطوة
   const step1Fraction = step1Details.fraction;
 
   // -------------------------------------------------------------------------
@@ -435,7 +433,7 @@ export function calculateArabicPower(
   // -------------------------------------------------------------------------
   // الخطوة 3: تقسيم كل خانة من خطوة 2 في الجمع النهائي (S2) ثم ضرب في الجمع النهائي من خطوة 1 (S1)
   // - القانون: (قيمة خطوة 2 ÷ S2) × S1
-  // - نواتج مدد: 9/1 ، 36/1 ، 81/1 والمجموع S3 = 126 (= S1)
+  // - نواتج مدد: 3/1 ، 12/1 ، 27/1 والمجموع S3 = 42 (= S1)
   // -------------------------------------------------------------------------
   const step3Fractions = step2Fractions.map(v2 => {
     return v2.div(S2).mul(step1Fraction);
@@ -450,8 +448,8 @@ export function calculateArabicPower(
   // -------------------------------------------------------------------------
   // الخطوة 4: جمع طبيعي للأحرف المتماثلة لتحديد قيم المتغيرات
   // - جمع نواتج خطوة 3 المقابلة للحرف:
-  //   م = 9/1
-  //   د = 36/1 + 81/1 = 117/1
+  //   م = 3/1
+  //   د = 12/1 + 27/1 = 39/1
   // -------------------------------------------------------------------------
   const charGroupsMap = new Map<string, { positions: number[]; sum: Fraction; count: number }>();
   normalizedChars.forEach((c, idx) => {

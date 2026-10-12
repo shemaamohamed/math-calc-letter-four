@@ -159,6 +159,73 @@ export default function ResultView({
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 dir-rtl font-cairo w-full min-w-0">
+      {/* SECTION 2: 4 ANSWER GATES (القسم الثاني: بوابات النتائج الأربعة 🟨) - تم نقله في البداية بالأعلى */}
+      <div className="space-y-3 w-full min-w-0">
+        <div className="flex items-center justify-between min-w-0">
+          <h3 className="text-base sm:text-lg font-bold text-slate-200 flex items-center gap-2 min-w-0">
+            <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+            <span>القسم الثاني: قسم النتائج (بوابات الإجابات الأربعة 🟨)</span>
+          </h3>
+          <span className="text-xs text-slate-400 font-mono bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/10">
+            4 Gates Output
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 w-full min-w-0">
+          {/* Answer 1 */}
+          {renderAnswerCard(
+            result.answer1,
+            {
+              badgeColor: 'text-amber-400',
+              borderColor: 'amber-500/40',
+              glowColor: 'rgba(245,158,11,0.15)',
+              bgGradient: 'from-amber-950/20 to-slate-900/40',
+              accentBg: 'bg-amber-950/30 border-amber-500/30',
+            },
+            <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          )}
+
+          {/* Answer 2 */}
+          {renderAnswerCard(
+            result.answer2,
+            {
+              badgeColor: 'text-cyan-400',
+              borderColor: 'cyan-500/40',
+              glowColor: 'rgba(6,182,212,0.15)',
+              bgGradient: 'from-cyan-950/20 to-slate-900/40',
+              accentBg: 'bg-cyan-950/30 border-cyan-500/30',
+            },
+            <Sparkles className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+          )}
+
+          {/* Answer 3 */}
+          {renderAnswerCard(
+            result.answer3,
+            {
+              badgeColor: 'text-purple-400',
+              borderColor: 'purple-500/40',
+              glowColor: 'rgba(168,85,247,0.15)',
+              bgGradient: 'from-purple-950/20 to-slate-900/40',
+              accentBg: 'bg-purple-950/30 border-purple-500/30',
+            },
+            <Zap className="w-4 h-4 text-purple-400 flex-shrink-0" />
+          )}
+
+          {/* Answer 4 */}
+          {renderAnswerCard(
+            result.answer4,
+            {
+              badgeColor: 'text-emerald-400',
+              borderColor: 'emerald-500/40',
+              glowColor: 'rgba(16,185,129,0.15)',
+              bgGradient: 'from-emerald-950/20 to-slate-900/40',
+              accentBg: 'bg-emerald-950/30 border-emerald-500/30',
+            },
+            <Calculator className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          )}
+        </div>
+      </div>
+
       {/* QUICK LETTER RIBBON / شريط الأحرف السريع */}
       <div className="p-3 bg-slate-900/90 rounded-2xl border border-purple-500/25 shadow-lg backdrop-blur-md space-y-2 w-full min-w-0">
         <div className="flex items-center justify-between gap-2 min-w-0">
@@ -207,7 +274,7 @@ export default function ResultView({
         </div>
       </div>
 
-      {/* STEP 1 HERO: وضع 42 على كل خانة وتجميع الخانات */}
+      {/* STEP 1 HERO: تحديد إجمالي الخطوة الأولى (42) */}
       {result.step1Details && (
         <Card className="glass border-indigo-500/30 bg-gradient-to-b from-indigo-950/30 to-slate-900/50 shadow-[0_0_20px_rgba(99,102,241,0.12)] overflow-hidden w-full min-w-0">
           <CardHeader className="py-2.5 px-3 sm:px-5 border-b border-white/10 bg-indigo-950/40">
@@ -218,10 +285,10 @@ export default function ResultView({
                 </div>
                 <div>
                   <CardTitle className="text-sm sm:text-base font-bold text-indigo-200">
-                    الخطوة الأولى: وضع قيمة (42) على كل خانة وتجميع الخانات
+                    الخطوة الأولى: تحديد إجمالي الخطوة (42)
                   </CardTitle>
                   <p className="text-[10px] sm:text-[11px] text-slate-400">
-                    وضع 42 على كل خانة ➔ جمع قيم الخانات ➔ الناتج النهائي S1 = {result.step1Details.sumCellValues}
+                    إجمالي الخطوة الأولى S1 = {result.step1Details.sumCellValues} (مدد = 42 ، جليل = 42)
                   </p>
                 </div>
               </div>
@@ -259,16 +326,16 @@ export default function ResultView({
 
             {/* 2. Three Step Calculations Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
-              {/* Box 1: خطوة التجميع */}
+              {/* Box 1: إجمالي الخطوة الأولى */}
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 space-y-1">
                 <span className="text-[11px] text-slate-400 font-medium block">
-                  2. خطوة التجميع (جمع قيم الخانات):
+                  2. إجمالي الخطوة الأولى:
                 </span>
                 <div className="font-mono text-xs font-bold text-cyan-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5">
-                  {result.step1Details.sumFormulaStr}
+                  {result.original} = {result.step1Details.sumCellValues}
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  مجموع قيم الخانات = {result.step1Details.sumCellValues}
+                  إجمالي الخطوة الأولى = {result.step1Details.sumCellValues}
                 </div>
               </div>
 
@@ -278,10 +345,10 @@ export default function ResultView({
                   3. منطق المعادلة:
                 </span>
                 <div className="font-mono text-xs font-bold text-yellow-300 dir-ltr bg-black/40 p-2 rounded-lg border border-white/5 truncate">
-                  ∑(قيم الخانات 42) = S1
+                  S1 = 42
                 </div>
                 <div className="text-[10px] text-slate-400">
-                  {result.step1Details.charPositions.map(c => c.initialValue).join(' + ')} = {result.step1Details.sumCellValues}
+                  القيمة المعتمدة للخطوة الأولى S1 = {result.step1Details.sumCellValues}
                 </div>
               </div>
 
@@ -766,73 +833,6 @@ export default function ResultView({
           </div>
         </CardContent>
       </Card>
-
-      {/* SECTION 2: 4 ANSWER GATES (القسم الثاني: بوابات النتائج الأربعة 🟨) */}
-      <div className="space-y-3 w-full min-w-0">
-        <div className="flex items-center justify-between min-w-0">
-          <h3 className="text-base sm:text-lg font-bold text-slate-200 flex items-center gap-2 min-w-0">
-            <Sparkles className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-            <span>القسم الثاني: قسم النتائج (بوابات الإجابات الأربعة 🟨)</span>
-          </h3>
-          <span className="text-xs text-slate-400 font-mono bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/10">
-            4 Gates Output
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 w-full min-w-0">
-          {/* Answer 1 */}
-          {renderAnswerCard(
-            result.answer1,
-            {
-              badgeColor: 'text-amber-400',
-              borderColor: 'amber-500/40',
-              glowColor: 'rgba(245,158,11,0.15)',
-              bgGradient: 'from-amber-950/20 to-slate-900/40',
-              accentBg: 'bg-amber-950/30 border-amber-500/30',
-            },
-            <Trophy className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          )}
-
-          {/* Answer 2 */}
-          {renderAnswerCard(
-            result.answer2,
-            {
-              badgeColor: 'text-cyan-400',
-              borderColor: 'cyan-500/40',
-              glowColor: 'rgba(6,182,212,0.15)',
-              bgGradient: 'from-cyan-950/20 to-slate-900/40',
-              accentBg: 'bg-cyan-950/30 border-cyan-500/30',
-            },
-            <Sparkles className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-          )}
-
-          {/* Answer 3 */}
-          {renderAnswerCard(
-            result.answer3,
-            {
-              badgeColor: 'text-purple-400',
-              borderColor: 'purple-500/40',
-              glowColor: 'rgba(168,85,247,0.15)',
-              bgGradient: 'from-purple-950/20 to-slate-900/40',
-              accentBg: 'bg-purple-950/30 border-purple-500/30',
-            },
-            <Zap className="w-4 h-4 text-purple-400 flex-shrink-0" />
-          )}
-
-          {/* Answer 4 */}
-          {renderAnswerCard(
-            result.answer4,
-            {
-              badgeColor: 'text-emerald-400',
-              borderColor: 'emerald-500/40',
-              glowColor: 'rgba(16,185,129,0.15)',
-              bgGradient: 'from-emerald-950/20 to-slate-900/40',
-              accentBg: 'bg-emerald-950/30 border-emerald-500/30',
-            },
-            <Calculator className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-          )}
-        </div>
-      </div>
     </div>
   );
 }
